@@ -1,0 +1,1 @@
+Firebase Hosting needs a public directory. It stays empty on purpose: every request is rewritten to Cloud Run (see ../../firebase.json). An index.html here would shadow the home page.
