@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:8080";
-
-/** Public pages are rendered dynamically and cached at the Firebase Hosting CDN. */
+/** Public pages are rendered dynamically and cached at the App Hosting CDN. */
 const CDN_CACHE = "public, s-maxage=60, stale-while-revalidate=300";
 
 const nextConfig: NextConfig = {
@@ -20,11 +18,6 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
-  },
-  // Local development: the browser calls same-origin /api/**. In production Firebase Hosting
-  // rewrites /api/** to the backend service before the request ever reaches Next.js.
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${API_BASE_URL}/api/:path*` }];
   },
   async headers() {
     return [
