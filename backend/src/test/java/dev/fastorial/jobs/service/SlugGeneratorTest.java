@@ -23,6 +23,6 @@ class SlugGeneratorTest {
     @Test
     void truncatesLongBasesAtWordBoundary() {
         String slug = gen.generate("word ".repeat(60), "Acme", "X", 9);
-        assertThat(slug.length()).isLessThanOrEqualTo(130).endsWith("-9").doesNotContain("--");
+        assertThat(slug).hasSizeLessThanOrEqualTo(130).endsWith("-9").doesNotContain("--");
     }
 }
