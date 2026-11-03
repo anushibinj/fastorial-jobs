@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/** Only needed for local development; in production the browser sees a single origin. */
+/** The browser calls the API cross-origin (frontend and backend are deployed separately), so allow the frontend origins. */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
