@@ -31,7 +31,7 @@ public class JobController {
             @RequestParam(required = false) List<String> tags,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        var criteria = new JobSpecs.Criteria(q, location, workMode, expMin, expMax, tags, null);
+        var criteria = new JobSpecs.Criteria(q, location, workMode, expMin, expMax, tags, null, null);
         return jobs.searchPublic(criteria, page, size);
     }
 

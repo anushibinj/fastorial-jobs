@@ -93,4 +93,17 @@ class JobCleanupIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.status").value("PUBLISHED"));
         assertThat(service.closeExpiredJobs()).isZero();
     }
+
+    @Test
+    void expiredJobsLeaveThePublicListBeforeTheDailySweepRuns() throws Exception {
+        var soon = create(job("Expires soon", Map.of("expiresAt", clock.instant().plus(Duration.ofHours(1)).toString())));
+        create(job("Long lived"));
+        mvc.perform(get("/api/jobs")).andExpect(jsonPath("$.total").value(2));
+
+        testClock().advance(Duration.ofHours(2)); // expired, but cleanup has not run
+        assertThat(statusOf(soon.get("id"))).isEqualTo("PUBLISHED");
+        mvc.perform(get("/api/jobs")).andExpect(jsonPath("$.items[*].title", contains("Long lived")));
+        // the page itself stays reachable
+        mvc.perform(get("/api/jobs/" + soon.get("slug"))).andExpect(status().isOk());
+    }
 }

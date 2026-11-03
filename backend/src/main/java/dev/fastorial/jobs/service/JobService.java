@@ -51,7 +51,7 @@ public class JobService {
     @Transactional(readOnly = true)
     public PageResponse<JobSummary> searchPublic(JobSpecs.Criteria c, Integer page, Integer size) {
         var criteria = new JobSpecs.Criteria(c.q(), c.location(), c.workMode(), c.expMin(), c.expMax(),
-                c.tags(), JobStatus.PUBLISHED);
+                c.tags(), JobStatus.PUBLISHED, clock.instant());
         var sort = Sort.by(Sort.Order.desc("postedAt"), Sort.Order.desc("id"));
         return PageResponse.from(jobs.findAll(JobSpecs.of(criteria), pageable(page, size, sort)).map(JobSummary::from));
     }
@@ -75,7 +75,7 @@ public class JobService {
 
     @Transactional(readOnly = true)
     public PageResponse<JobSummary> searchAdmin(String q, JobStatus status, Integer page, Integer size) {
-        var criteria = new JobSpecs.Criteria(q, null, null, null, null, null, status);
+        var criteria = new JobSpecs.Criteria(q, null, null, null, null, null, status, null);
         var sort = Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.desc("id"));
         return PageResponse.from(jobs.findAll(JobSpecs.of(criteria), pageable(page, size, sort)).map(JobSummary::from));
     }

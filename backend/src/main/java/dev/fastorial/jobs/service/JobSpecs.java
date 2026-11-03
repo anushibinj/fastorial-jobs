@@ -11,7 +11,9 @@ public final class JobSpecs {
 
     /** All fields optional. {@code expMin}/{@code expMax} describe the candidate's experience range. */
     public record Criteria(String q, String location, WorkMode workMode, Integer expMin, Integer expMax,
-                           List<String> tags, JobStatus status) {}
+                           List<String> tags, JobStatus status,
+                           /** When set, jobs whose expires_at is not after this instant are left out. */
+                           java.time.Instant liveAt) {}
 
     private JobSpecs() {}
 
@@ -21,6 +23,9 @@ public final class JobSpecs {
 
             if (c.status() != null) {
                 ps.add(cb.equal(root.get("status"), c.status()));
+            }
+            if (c.liveAt() != null) {
+                ps.add(cb.or(cb.isNull(root.get("expiresAt")), cb.greaterThan(root.<java.time.Instant>get("expiresAt"), c.liveAt())));
             }
             if (c.workMode() != null) {
                 ps.add(cb.equal(root.get("workMode"), c.workMode()));
