@@ -1,8 +1,16 @@
 import { toApiParams, type FilterState } from "@/lib/filters";
 import type { ApiError, FiltersResponse, JobDetail, JobSummary, PageOf } from "@/lib/types";
 
-/** Server side only. In production this is the backend Cloud Run URL. */
-export const API_BASE_URL = (process.env.API_BASE_URL ?? "http://localhost:8080").replace(/\/+$/, "");
+const trimSlash = (url: string) => url.replace(/\/+$/, "");
+
+/**
+ * Public backend origin, used by the browser (needs CORS on the backend) and inlined at build time.
+ * The literal `process.env.NEXT_PUBLIC_API_URL` reference is required for Next.js to inline it.
+ */
+export const PUBLIC_API_URL = trimSlash(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
+
+/** Server side calls. Defaults to the public URL; set API_BASE_URL for an internal address (e.g. docker compose). */
+export const API_BASE_URL = process.env.API_BASE_URL ? trimSlash(process.env.API_BASE_URL) : PUBLIC_API_URL;
 
 export const PAGE_SIZE = 20;
 
