@@ -15,9 +15,9 @@ COPY . .
 # NEXT_PUBLIC_* values are inlined at build time
 ARG NEXT_PUBLIC_SITE_URL=https://jobs.fastorial.dev
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-# Used only by the dev rewrite of /api/** (production traffic is routed by Firebase Hosting). Baked in at build time.
-ARG API_BASE_URL=http://localhost:8080
-ENV API_BASE_URL=$API_BASE_URL
+# Backend origin the browser calls (needs CORS on the backend). Baked in at build time.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN pnpm build
 
 FROM node:22-alpine AS run
@@ -29,5 +29,5 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/assets ./assets
 USER node
 EXPOSE 8080
-# API_BASE_URL (backend Cloud Run URL) and ADMIN_TOKEN are set at deploy time
+# ADMIN_TOKEN (and optionally API_BASE_URL for server side calls) are set at run time
 CMD ["node", "server.js"]
