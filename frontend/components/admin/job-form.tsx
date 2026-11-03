@@ -2,7 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useRef, useState, useTransition } from "react";
+import { startTransition, useActionState, useRef, useState, useTransition } from "react";
 import { detectTagsAction, saveJobAction, type FormState } from "@/app/admin/actions";
 import { TagPicker, type TagOption } from "@/components/jobs/tag-picker";
 import { Badge } from "@/components/ui/badge";
@@ -61,8 +61,17 @@ export function JobForm({ job, tags }: { job?: JobDetail; tags: TagOption[] }) {
   const add = (slug: string) => setSelected((s) => (s.includes(slug) ? s : [...s, slug]));
   const addAll = () => detected?.forEach((d) => add(d.slug as string));
 
+  // onSubmit instead of action={...}: React resets an action form after it runs,
+  // which would wipe the fields on a validation error.
   return (
-    <form action={action} className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startTransition(() => action(data));
+      }}
+      className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-4"
+    >
       {job ? <input type="hidden" name="id" value={job.id} /> : null}
       {state.error ? (
         <p role="alert" className="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border px-4 py-3 text-sm">
