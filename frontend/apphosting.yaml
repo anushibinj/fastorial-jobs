@@ -17,7 +17,7 @@ env:
   # origin in CORS_ALLOWED_ORIGINS. Inlined at build time, so redeploy the frontend if it changes.
   # TODO: replace with the deployed backend URL (Cloud Run URL or custom domain).
   - variable: NEXT_PUBLIC_API_URL
-    value: https://REPLACE-WITH-BACKEND-URL
+    value: https://fastorial-jobs-backend-spring-boot-97819677558.asia-southeast1.run.app
     availability:
       - BUILD
       - RUNTIME
