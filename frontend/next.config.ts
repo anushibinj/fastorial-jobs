@@ -8,6 +8,8 @@ const CDN_CACHE = "public, s-maxage=60, stale-while-revalidate=300";
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // the OG image reads its fonts from disk at request time, so make sure the standalone build ships them
+  outputFileTracingIncludes: { "/jobs/[slug]/opengraph-image": ["./assets/fonts/**"] },
   turbopack: {
     rules: {
       "*.css": {
