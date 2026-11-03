@@ -80,6 +80,12 @@ describe("buildPreviewMeta", () => {
     expect(buildPreviewMeta(job({ postedAt: "2025-10-01T01:00:00+05:30" }), NOW).description).toContain("Posted 5 months ago");
   });
 
+  it("a published job past its expiry is previewed as closed", () => {
+    const m = buildPreviewMeta(job({ expiresAt: "2026-03-14T00:00:00Z" }), NOW);
+    expect(m.closed).toBe(true);
+    expect(m.description.startsWith("Closed · ")).toBe(true);
+  });
+
   it("omits the age part when postedAt is missing", () => {
     expect(buildPreviewMeta(job({ postedAt: null }), NOW).description).toBe("7+ years · Java, Spring Boot, Kafka");
   });

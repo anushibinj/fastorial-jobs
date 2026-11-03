@@ -6,6 +6,7 @@ import { BackLink } from "@/components/jobs/back-link";
 import { TagChips } from "@/components/jobs/tag-chips";
 import { fetchJob } from "@/lib/api/client";
 import { formatExperience, formatLocation, formatPostedAgo, formatSalary } from "@/lib/format";
+import { isClosed } from "@/lib/job-state";
 import { buildJobPostingJsonLd, serializeJsonLd } from "@/lib/jsonld";
 import { buildPreviewMeta } from "@/lib/preview";
 import { jobUrl, SITE_NAME } from "@/lib/site";
@@ -41,7 +42,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
   const job = await fetchJob(slug);
   if (!job) notFound();
 
-  const closed = job.status === "CLOSED";
+  const closed = isClosed(job);
   const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod);
   const age = formatPostedAgo(job.postedAt);
 

@@ -35,6 +35,7 @@ export type JobLike = Loose<
   | "salaryPeriod"
   | "status"
   | "postedAt"
+  | "expiresAt"
   | "tags"
   >
 >;

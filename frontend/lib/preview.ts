@@ -1,3 +1,4 @@
+import { isClosed } from "@/lib/job-state";
 import { formatExperience, formatPostedAgo, truncate, truncateAtWord } from "@/lib/format";
 import type { JobLike } from "@/lib/types";
 
@@ -32,7 +33,7 @@ export type PreviewMeta = {
  * never disagree about the title, years of experience, age or tags.
  */
 export function buildPreviewMeta(job: JobLike, now: Date = new Date()): PreviewMeta {
-  const closed = job.status === "CLOSED";
+  const closed = isClosed(job, now);
   const experience = formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears);
   const age = formatPostedAgo(job.postedAt, now);
   const names = (job.tags ?? []).map((t) => t.name ?? "").filter(Boolean);

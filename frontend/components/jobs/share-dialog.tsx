@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useCanNativeShare, useMediaQuery } from "@/hooks/use-media-query";
+import { isClosed } from "@/lib/job-state";
 import { copyToClipboard, buildShareText } from "@/lib/share";
 import { jobUrl } from "@/lib/site";
 import type { JobLike } from "@/lib/types";
@@ -22,7 +23,7 @@ type Props = {
 export function ShareDialog({ job, label = false, className }: Props) {
   const [open, setOpen] = useState(false);
   const desktop = useMediaQuery("(min-width: 768px)");
-  const closed = job.status === "CLOSED";
+  const closed = isClosed(job);
 
   const trigger = (
     <Button

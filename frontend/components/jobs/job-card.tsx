@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShareDialog } from "@/components/jobs/share-dialog";
 import { TagChips } from "@/components/jobs/tag-chips";
+import { isClosed } from "@/lib/job-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatExperience, formatLocation, formatPostedAgo, formatSalary } from "@/lib/format";
@@ -9,7 +10,7 @@ import type { JobSummary } from "@/lib/types";
 export function JobCard({ job }: { job: JobSummary }) {
   const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod);
   const age = formatPostedAgo(job.postedAt);
-  const closed = job.status === "CLOSED";
+  const closed = isClosed(job);
   return (
     <Card className="hover:bg-accent/40 relative transition-colors">
       <CardContent className="flex flex-col gap-2">

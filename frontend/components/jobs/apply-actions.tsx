@@ -1,11 +1,12 @@
 import { ExternalLink } from "lucide-react";
 import { ShareDialog } from "@/components/jobs/share-dialog";
 import { Button } from "@/components/ui/button";
+import { isClosed } from "@/lib/job-state";
 import type { JobDetail } from "@/lib/types";
 
 /** Apply (primary) and Share. Both are disabled for closed jobs. */
 export function ApplyActions({ job, stacked = false }: { job: JobDetail; stacked?: boolean }) {
-  const closed = job.status === "CLOSED";
+  const closed = isClosed(job);
   return (
     <div className={stacked ? "flex flex-col gap-2" : "flex items-center gap-2"}>
       {closed ? (
