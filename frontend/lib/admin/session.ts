@@ -2,7 +2,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const SESSION_COOKIE = "admin_session";
+/** Firebase Hosting forwards only a cookie named `__session` to Cloud Run, so it has to be called this. */
+export const SESSION_COOKIE = "__session";
 
 function expectedToken(): string {
   return process.env.ADMIN_TOKEN ?? "";
