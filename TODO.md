@@ -36,5 +36,5 @@
 - Real Android and iPhone checks, and link previews on WhatsApp, LinkedIn and Facebook (need a public URL).
 
 ## Later
-- v2: Google OAuth, `ADMIN` role replacing the token, saved jobs.
+- v2: Google OAuth, `ADMIN` role replacing the token.
 - Toggle to include jobs slightly below the user's experience level.
