@@ -15,6 +15,9 @@ COPY . .
 # NEXT_PUBLIC_* values are inlined at build time
 ARG NEXT_PUBLIC_SITE_URL=https://jobs.fastorial.dev
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+# Used only by the dev rewrite of /api/** (production traffic is routed by Firebase Hosting). Baked in at build time.
+ARG API_BASE_URL=http://localhost:8080
+ENV API_BASE_URL=$API_BASE_URL
 RUN pnpm build
 
 FROM node:22-alpine AS run
