@@ -1,40 +1,51 @@
 # Status
 
-## V1: public job listing (done)
+Legend: [x] done and verified here, [~] done in code but needs a real environment to verify, [ ] needs you (account, domain, devices).
 
-**Backend**
-- [x] Flyway schema, tag seed, tag aliases seed
-- [x] `TagDetector` (custom word boundaries, longest match wins, case sensitive `Go` and `R`) with table driven tests, `POST /api/admin/tags/detect`
-- [x] Jobs API: filters (location, work mode, experience overlap, all-of tags, text), paging (default 20, max 50), detail, filters with counts, sitemap
-- [x] Admin API behind `X-Admin-Token`: create, update, status, extend or reopen, list by status, tags
-- [x] Duplicate detection on a normalized apply URL hash, experience and salary validation, global error handler
-- [x] `expires_at` defaults to posted + 30 days, daily cleanup endpoint for Cloud Scheduler, optional local `@Scheduled`
-- [x] Integration tests (Testcontainers or `TEST_DB_URL`), cleanup tests with an injected clock
-- [x] OpenAPI spec exported to `docs/openapi.json`, `pnpm gen:api` generates the TypeScript types
+## Phase 0: repo setup
+- [x] Everything (git, .gitignore, compose, Spring Boot 3.5 skeleton, `PORT` and graceful shutdown, Next.js, shadcn components including `form`, env templates, CI)
 
-**Frontend**
-- [x] Mobile first shell, system light and dark, safe areas, 44 px targets, `100dvh`
-- [x] List with URL driven filters: sheet on phones, inline row on `md`, sidebar on `lg`, removable chips
-- [x] Experience filter (`?exp=7`), `formatExperience`, `formatSalary`, `formatPostedAgo` with tests
-- [x] Job detail with sticky bottom bar (phones) and side panel (`lg`), closed banner, JSON-LD
-- [x] Share (drawer on phones, dialog on desktop): copy link, copy text, native share, clipboard fallback
-- [x] `buildPreviewMeta` shared by page metadata and the 1200 x 630 OG image
-- [x] Admin: login, list by status with expiry, create and edit, tag detection, extend, reopen, publish, close
-- [x] PWA: manifest, icons, Serwist service worker, offline page
-- [x] `sitemap.xml`, `robots.txt`
-- [x] Dockerfiles, Firebase Hosting config, CI
+## Phase 1: backend
+- [x] All items: schema and seeds, `TagDetector` with fixtures, detect endpoint, entities, slugs, filters with the overlap rule, paging (20/50), detail, filters with counts, admin token filter and endpoints, duplicate detection, validation, 30 day default expiry, cleanup endpoint and `Clock`, extend or reopen, tests, error handler, CORS, Testcontainers tests, OpenAPI export and TypeScript types
+- [x] Expired but not yet swept jobs already leave the public list and the sitemap
+
+## Phase 2: frontend
+- [x] All items: shell, API client, list with URL filters (sheet, inline row, sidebar, chips), `?exp=` filter, formatters with tests, `buildPreviewMeta`, cards, load more, detail page, share (copy link, copy text, native share, fallback), closed jobs, empty, loading and error states, mobile first, safe areas, 44 px targets
+- [x] Widths 320, 360, 390, 768, 1024 and 1440 checked in Chromium with no horizontal scroll (1024 and 1440 only on the home page)
+- [ ] Real Android phone and iPhone check
+
+## Phase 2b: PWA and admin
+- [x] Manifest, icons, favicon, viewport theme colors, `appleWebApp`, service worker (NetworkFirst 3 s, offline page with Retry, never caches admin, API or non GET, old caches cleaned), registered in production only
+- [x] Admin at `/admin/jobs`, `/admin/jobs/new`, `/admin/jobs/[id]/edit`: server actions (token never reaches the browser), shadcn `Table` and `Form` with react-hook-form and zod, status filter, expiry, extend, reopen
+- [x] Tag detection on paste or blur, "detected" chips, one click removal, searchable picker, Re-detect, salary marked as public
+- [x] Cache headers, `output: 'standalone'`, Dockerfile copies `public/`
+- [ ] Installability on a real Android phone, iOS Add to Home Screen, launch from a shared link in standalone mode
+
+## Phase 3: SEO and link previews
+- [x] Metadata, Open Graph and Twitter tags from `buildPreviewMeta`, per job OG image, default OG image, `truncate`, bundled Inter in the standalone trace, closed pill
+- [x] Worst case visual check (long title, long company, 12 tags, no max experience, closed)
+- [x] `sitemap.xml` (60 s cache) and `robots.txt`, JSON-LD for open jobs only, closed or expired jobs are `noindex, follow`, without JSON-LD
+- [x] Lighthouse: home 95 performance, job page 99, 100 elsewhere
+- [ ] Preview checks on LinkedIn, WhatsApp, Slack, X and Telegram (needs the public URL, steps in `docs/deploy.md`)
+
+## Phase 4: ship
+- [x] Dockerfiles for both services, `docker compose --profile full up --build`, small DB pool, probes endpoints, Cloud Run service specs (concurrency, memory, startup CPU boost, min instances variable)
+- [x] `firebase.json` rewrites and headers, deploy workflow, step by step GCP guide in `docs/deploy.md`
+- [~] Docker images, `gcloud` and `firebase` commands were written but not run (no Docker daemon and no GCP access in the dev container)
+- [ ] Create the GCP project and resources, secrets, production Postgres, custom domain, Cloud Scheduler job
+- [ ] Automated backups and a tested restore, Search Console, analytics ids, soft launch
 
 ## Where v1 differs from the plan
 - Spring Initializr only generates Spring Boot 4, so the skeleton was generated and then pinned to Boot 3.5.
-- shadcn's `form` component is not available in the current registry style. Admin forms use plain controls with server actions.
-- Server fetches are not tagged for revalidation: caching is the CDN `Cache-Control` header, as in the decisions table.
+- The "revalidation tags" in the API client are not used: the decisions table chose CDN caching instead, because Next.js cache tags live on each container's disk.
 - The service worker is bundled with `esbuild` plus the core `serwist` package, because `@serwist/next` needs webpack and Next 16 builds with Turbopack.
 - The admin session cookie is called `__session`, the only cookie Firebase Hosting forwards.
+- shadcn's registry does not ship `form` for the current style, so `components/ui/form.tsx` is the standard shadcn wrapper added by hand.
 
-## Not verified here
-- Docker images and `firebase deploy` (no Docker daemon in the dev container).
-- Real Android and iPhone checks, and link previews on WhatsApp, LinkedIn and Facebook (need a public URL).
+## Open questions from the plan
+- Production Postgres, min instances: options and defaults are in `docs/deploy.md` (min instances default to 0).
+- Salary line in the share text: not added, the template stays exactly as specified.
+- Logo: a simple text mark (`frontend/assets/logo.svg`). Replace the SVG and run `pnpm gen:icons` if you have a real one.
 
-## Later
-- v2: Google OAuth, `ADMIN` role replacing the token.
-- Toggle to include jobs slightly below the user's experience level.
+## Later (V1.5, V2, V3)
+See the plan: RSS, tag and city landing pages, accounts and wishlist, mobile app.
