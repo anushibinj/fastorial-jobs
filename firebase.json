@@ -6,6 +6,27 @@
     "rewrites": [
       { "source": "/api/**", "run": { "serviceId": "fastorial-jobs-backend", "region": "asia-south1" } },
       { "source": "**", "run": { "serviceId": "fastorial-jobs-frontend", "region": "asia-south1" } }
+    ],
+    "headers": [
+      {
+        "source": "/sw.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Service-Worker-Allowed", "value": "/" }
+        ]
+      },
+      {
+        "source": "/manifest.webmanifest",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+      },
+      {
+        "source": "/_next/static/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "/icons/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+      }
     ]
   }
 }
