@@ -80,7 +80,7 @@ public abstract class IntegrationTestBase {
 
     @BeforeEach
     void cleanDatabase() {
-        jdbc.execute("TRUNCATE jobs RESTART IDENTITY CASCADE");
+        jdbc.execute("TRUNCATE jobs, api_keys RESTART IDENTITY CASCADE");
         testClock().reset();
     }
 
