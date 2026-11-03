@@ -6,7 +6,7 @@ import { isAdmin } from "@/lib/admin/session";
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 
 export default async function LoginPage() {
-  if (await isAdmin()) redirect("/admin");
+  if (await isAdmin()) redirect("/admin/jobs");
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 py-16">
       <LoginForm />

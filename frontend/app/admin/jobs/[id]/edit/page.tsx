@@ -7,7 +7,7 @@ import { ApiRequestError } from "@/lib/api/client";
 
 export const metadata: Metadata = { title: "Edit job" };
 
-export default async function EditJobPage({ params }: PageProps<"/admin/jobs/[id]">) {
+export default async function EditJobPage({ params }: PageProps<"/admin/jobs/[id]/edit">) {
   await requireAdmin();
   const { id } = await params;
   const [job, tags] = await Promise.all([
