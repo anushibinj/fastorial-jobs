@@ -44,3 +44,13 @@ cd frontend && pnpm gen:api
 `pnpm build` runs `next build` and then `pnpm build:sw`, which bundles `sw/sw.ts` into `public/sw.js`
 with the precache list. It only registers in production builds. It never caches `/admin/**`,
 `/api/**` or non GET requests.
+
+## Lighthouse
+
+```bash
+cd frontend && pnpm build && pnpm start &           # production build on :3000
+pnpm dlx lighthouse http://localhost:3000/ --view   # mobile profile by default
+```
+
+Last local run (production build, mobile profile): home 95 performance, job page 99, and 100 for accessibility,
+best practices and SEO on both.
