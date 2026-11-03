@@ -28,7 +28,7 @@ public class SlugGenerator {
 
     public static String slugify(String input) {
         String s = Normalizer.normalize(input, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
-        s = s.toLowerCase(Locale.ROOT).replace("c++", "cpp").replace("c#", "csharp");
+        s = s.toLowerCase(Locale.ROOT).replace("c++", "cpp").replace("c#", "csharp").replace(".net", "dotnet");
         s = s.replaceAll("[^a-z0-9]+", "-");
         return s.replaceAll("^-+|-+$", "");
     }

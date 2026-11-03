@@ -25,4 +25,9 @@ class SlugGeneratorTest {
         String slug = gen.generate("word ".repeat(60), "Acme", "X", 9);
         assertThat(slug).hasSizeLessThanOrEqualTo(130).endsWith("-9").doesNotContain("--");
     }
+
+    @Test
+    void keepsDotNetReadable() {
+        assertThat(gen.generate(".NET Developer", "Wayne", null, 3)).isEqualTo("dotnet-developer-wayne-3");
+    }
 }
