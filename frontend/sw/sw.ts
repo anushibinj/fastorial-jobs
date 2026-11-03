@@ -14,6 +14,7 @@ const NEVER_CACHE = /^\/(admin|api)(\/|$)/;
 const serwist = new Serwist({
   // Static assets and the offline page, injected by scripts/build-sw.mjs
   precacheEntries: self.__SW_MANIFEST,
+  precacheOptions: { cleanupOutdatedCaches: true },
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: false,
@@ -55,3 +56,13 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// Drop caches from older versions of this worker (names that are not ours).
+const KEEP = ["pages", "next-static"];
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names.filter((n) => !n.startsWith("serwist-precache") && !KEEP.includes(n)).map((n) => caches.delete(n))),
+    ),
+  );
+});
