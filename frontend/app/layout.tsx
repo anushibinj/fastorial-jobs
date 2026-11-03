@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@/components/app/analytics";
 import { Footer } from "@/components/app/footer";
 import { Header } from "@/components/app/header";
 import { RegisterServiceWorker } from "@/components/app/register-sw";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Footer />
         <Toaster position="top-center" />
         <RegisterServiceWorker />
+        <Analytics />
       </body>
     </html>
   );
