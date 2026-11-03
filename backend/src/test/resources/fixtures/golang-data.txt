@@ -1,0 +1,4 @@
+Backend Engineer - Golang
+---
+We write Go services (Golang) backed by Cassandra and Kafka. Our analysts use R and Python.
+Cloud: Google Cloud Platform (GCP) and Terraform.

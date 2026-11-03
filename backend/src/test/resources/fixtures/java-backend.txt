@@ -1,0 +1,6 @@
+Senior Java Engineer
+---
+We are looking for a Senior Java Engineer to build microservices with Spring Boot and Kafka.
+You will work with PostgreSQL and Redis, deploy on AWS using Docker and Kubernetes (k8s),
+and write CI pipelines in Jenkins. Experience with JavaScript is a plus. Go to market mindset.
+Nice to have: Terraform, Hibernate/JPA.
