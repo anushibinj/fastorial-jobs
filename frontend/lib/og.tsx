@@ -97,12 +97,15 @@ export async function jobOgImage(m: PreviewMeta) {
       <div style={root}>
         <Brand />
         {/* title and facts stay inside the 64px margin, in the left part of the image */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 940 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 1040 }}>
           <div
             style={{
               display: "flex",
-              fontSize: 62,
-              lineHeight: 1.12,
+              fontSize: 54,
+              lineHeight: 1.15,
+              // two lines at 54px fit about 60 characters; maxHeight is the backup if lineClamp is ignored
+              maxHeight: 130,
+              overflow: "hidden",
               fontWeight: 700,
               letterSpacing: -1,
               lineClamp: 2,
