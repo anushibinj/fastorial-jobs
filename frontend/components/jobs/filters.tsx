@@ -263,7 +263,7 @@ function ExperienceInput({ id, value, onCommit }: { id: string; value: string; o
         step={1}
         value={text}
         placeholder="e.g. 7"
-        className="h-11 pr-10"
+        className="h-11 pr-10 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         onChange={(e) => setText(e.target.value)}
         onBlur={() => commit(text)}
         onKeyDown={(e) => {
