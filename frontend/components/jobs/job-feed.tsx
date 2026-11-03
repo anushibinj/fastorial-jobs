@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { JobCard } from "@/components/jobs/job-card";
 import { Button } from "@/components/ui/button";
+import { PUBLIC_API_URL } from "@/lib/api/client";
 import { toApiParams, type FilterState } from "@/lib/filters";
 import type { JobSummary, PageOf } from "@/lib/types";
 
 const PAGE_SIZE = 20;
 
 /**
- * Renders the server fetched first page, then appends more via the same-origin /api/jobs.
+ * Renders the server fetched first page, then appends more straight from the backend (cross-origin, so the backend must allow this origin via CORS).
  * The parent gives this a `key` built from the filters, so changing a filter resets it.
  */
 export function JobFeed({ initial, filters }: { initial: PageOf<JobSummary>; filters: FilterState }) {
@@ -23,7 +24,7 @@ export function JobFeed({ initial, filters }: { initial: PageOf<JobSummary>; fil
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`/api/jobs?${toApiParams(filters, page + 1, PAGE_SIZE)}`);
+      const res = await fetch(`${PUBLIC_API_URL}/api/jobs?${toApiParams(filters, page + 1, PAGE_SIZE)}`);
       if (!res.ok) throw new Error(String(res.status));
       const next = (await res.json()) as PageOf<JobSummary>;
       setItems((prev) => [...prev, ...next.items.filter((j) => !prev.some((p) => p.id === j.id))]);
