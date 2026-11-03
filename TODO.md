@@ -30,7 +30,7 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 
 ## Phase 4: ship
 - [x] Dockerfiles for both services, `docker compose --profile full up --build`, small DB pool, probes endpoints, Cloud Run service specs (concurrency, memory, startup CPU boost, min instances variable)
-- [x] `firebase.json` rewrites and headers, deploy workflow, step by step GCP guide in `docs/deploy.md`
+- [x] App Hosting config (`frontend/apphosting.yaml`), backend deploy workflow, step by step guide in `docs/deploy.md`
 - [~] Docker images, `gcloud` and `firebase` commands were written but not run (no Docker daemon and no GCP access in the dev container)
 - [ ] Create the GCP project and resources, secrets, production Postgres, custom domain, Cloud Scheduler job
 - [ ] Automated backups and a tested restore, Search Console, analytics ids, soft launch
@@ -39,7 +39,7 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 - Spring Initializr only generates Spring Boot 4, so the skeleton was generated and then pinned to Boot 3.5.
 - The "revalidation tags" in the API client are not used: the decisions table chose CDN caching instead, because Next.js cache tags live on each container's disk.
 - The service worker is bundled with `esbuild` plus the core `serwist` package, because `@serwist/next` needs webpack and Next 16 builds with Turbopack.
-- The admin session cookie is called `__session`, the only cookie Firebase Hosting forwards.
+- The admin session cookie is called `__session`, the only cookie Firebase's CDN forwards.
 - shadcn's registry does not ship `form` for the current style, so `components/ui/form.tsx` is the standard shadcn wrapper added by hand.
 
 ## Open questions from the plan
