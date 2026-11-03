@@ -45,10 +45,10 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_SITE_URL: http://localhost:3000
-        API_BASE_URL: http://backend:8080
+        NEXT_PUBLIC_API_URL: http://localhost:8080   # what the browser calls
     environment:
       PORT: "3000"
-      API_BASE_URL: http://backend:8080
+      API_BASE_URL: http://backend:8080            # server side calls use the compose network
       ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin}
     depends_on:
       backend:
