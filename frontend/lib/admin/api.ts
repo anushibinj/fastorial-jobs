@@ -1,5 +1,5 @@
-import { apiFetch } from "@/lib/api/client";
-import type { DetectedTag, JobDetail, JobRequest, JobStatus, JobSummary, PageOf, TagDto } from "@/lib/types";
+import { API_BASE_URL, apiFetch } from "@/lib/api/client";
+import type { ApiKey, DetectedTag, JobDetail, JobRequest, JobStatus, JobSummary, PageOf, TagDto } from "@/lib/types";
 
 /** Calls the token protected admin endpoints. Only import from server code. */
 function adminInit(init: RequestInit = {}): RequestInit {
@@ -41,3 +41,14 @@ export const adminTags = (): Promise<TagDto[]> => apiFetch(`/api/admin/tags`, ad
 
 export const adminDetectTags = (title: string, description: string): Promise<DetectedTag[]> =>
   apiFetch(`/api/admin/tags/detect`, adminInit({ method: "POST", body: JSON.stringify({ title, description }) }));
+
+export const adminListApiKeys = (): Promise<ApiKey[]> => apiFetch(`/api/admin/api-keys`, adminInit());
+
+/** The returned `key` is the plaintext and is only available from this call. */
+export const adminCreateApiKey = (name: string): Promise<ApiKey> =>
+  apiFetch(`/api/admin/api-keys`, adminInit({ method: "POST", body: JSON.stringify({ name }) }));
+
+export async function adminRevokeApiKey(id: number | string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/admin/api-keys/${id}`, { ...adminInit({ method: "DELETE" }), cache: "no-store" });
+  if (!res.ok) throw new Error(`Revoke failed (${res.status})`);
+}

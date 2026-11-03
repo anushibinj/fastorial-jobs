@@ -20,6 +20,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             <Link href="/admin/jobs/new" className="min-h-11 content-center px-2 text-sm font-medium">
               New job
             </Link>
+            <Link href="/admin/api-keys" className="min-h-11 content-center px-2 text-sm font-medium">
+              API keys
+            </Link>
             <form action={logoutAction} className="ml-auto">
               <Button type="submit" variant="ghost" className="min-h-11">
                 Sign out

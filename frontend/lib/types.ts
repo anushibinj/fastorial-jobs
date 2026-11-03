@@ -9,6 +9,16 @@ export type TagDto = S["TagDto"];
 export type FiltersResponse = S["FiltersResponse"];
 export type DetectedTag = S["DetectedTagDto"];
 export type ApiError = { code: string; message: string; fieldErrors?: Record<string, string> };
+export type ApiKey = {
+  id: number;
+  name: string;
+  keyPrefix: string;
+  createdAt: string;
+  lastUsedAt?: string | null;
+  revokedAt?: string | null;
+  /** Plaintext, present only in the response to creation. */
+  key?: string | null;
+};
 export type JobStatus = NonNullable<JobSummary["status"]>;
 export type WorkMode = NonNullable<JobSummary["workMode"]>;
 export type JobSource = NonNullable<JobDetail["source"]>;

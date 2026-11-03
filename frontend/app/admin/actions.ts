@@ -5,9 +5,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ApiRequestError } from "@/lib/api/client";
 import {
+  adminCreateApiKey,
   adminCreateJob,
   adminDetectTags,
   adminExtend,
+  adminRevokeApiKey,
   adminSetStatus,
   adminUpdateJob,
 } from "@/lib/admin/api";
@@ -71,4 +73,26 @@ export async function extendAction(formData: FormData): Promise<void> {
 export async function detectTagsAction(title: string, description: string): Promise<DetectedTag[]> {
   await requireAdmin();
   return adminDetectTags(title, description);
+}
+
+export type ApiKeyState = FormState & { key?: string; name?: string };
+
+/** Returns the plaintext key once; it cannot be retrieved again. */
+export async function createApiKeyAction(_prev: ApiKeyState, formData: FormData): Promise<ApiKeyState> {
+  await requireAdmin();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Name is required" };
+  try {
+    const created = await adminCreateApiKey(name);
+    revalidatePath("/admin/api-keys");
+    return { key: created.key ?? undefined, name: created.name };
+  } catch (e) {
+    return toFormState(e);
+  }
+}
+
+export async function revokeApiKeyAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  await adminRevokeApiKey(String(formData.get("id")));
+  revalidatePath("/admin/api-keys");
 }
