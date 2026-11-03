@@ -37,3 +37,8 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// Only the executable boot jar is produced, so the Dockerfile can copy build/libs/*.jar
+tasks.jar {
+    enabled = false
+}
