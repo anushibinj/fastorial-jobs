@@ -10,7 +10,7 @@ Jobs are found by hand on LinkedIn, Naukri and other boards, then posted by the 
 | `backend/` | Spring Boot 3, Java 21, Gradle (Kotlin DSL), PostgreSQL, Flyway |
 | `frontend/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, PWA. pnpm only |
 | `docs/` | Local development, deployment, OpenAPI spec, seed script |
-| `firebase.json` | Firebase Hosting: `/api/**` to the backend, everything else to Next.js |
+| `firebase.json` | Firebase App Hosting backend for `frontend/` (see `frontend/apphosting.yaml`) |
 | `docker-compose.yml` | Local Postgres 16 |
 
 ## Quick start

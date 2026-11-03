@@ -13,7 +13,8 @@ pnpm dev                                    # http://localhost:3000
 python3 ../docs/seed-dev.py                 # optional: 12 sample jobs (ADMIN_TOKEN=dev-admin)
 ```
 
-The frontend proxies `/api/**` to `API_BASE_URL`, mirroring the Firebase Hosting rewrite.
+The browser calls the backend directly at `NEXT_PUBLIC_API_URL` (default `http://localhost:8080`), so the backend allows
+the frontend origin via `CORS_ALLOWED_ORIGINS` (default `http://localhost:3000`).
 Admin is at `http://localhost:3000/admin` (sign in with the `ADMIN_TOKEN` the frontend was started with).
 
 ## Tests
