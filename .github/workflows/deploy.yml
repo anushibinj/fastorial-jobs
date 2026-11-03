@@ -1,5 +1,6 @@
-name: Deploy
+name: Deploy backend
 
+# Backend only (Cloud Run). The frontend deploys itself through Firebase App Hosting on every push to the live branch.
 # Manual by default. Uncomment the push trigger to deploy every merge to main.
 on:
   workflow_dispatch:
@@ -10,7 +11,6 @@ env:
   PROJECT: ${{ vars.GCP_PROJECT }}
   REGION: ${{ vars.GCP_REGION || 'asia-south1' }}
   REPO: fastorial-jobs                   # Artifact Registry repository
-  SITE_URL: https://jobs.fastorial.dev
 
 permissions:
   contents: read
@@ -31,36 +31,21 @@ jobs:
       - name: Docker login to Artifact Registry
         run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
 
-      - name: Build and push images
+      - name: Build and push image
         run: |
           REG="$REGION-docker.pkg.dev/$PROJECT/$REPO"
           echo "BACKEND_IMAGE=$REG/backend:$GITHUB_SHA" >> "$GITHUB_ENV"
-          echo "FRONTEND_IMAGE=$REG/frontend:$GITHUB_SHA" >> "$GITHUB_ENV"
           docker build -t "$REG/backend:$GITHUB_SHA" backend
-          docker build -t "$REG/frontend:$GITHUB_SHA" --build-arg NEXT_PUBLIC_SITE_URL="$SITE_URL" frontend
           docker push "$REG/backend:$GITHUB_SHA"
-          docker push "$REG/frontend:$GITHUB_SHA"
 
       - name: Deploy backend
         env:
           DB_URL: ${{ vars.DB_URL }}
           DB_USER: ${{ vars.DB_USER }}
+          CORS_ALLOWED_ORIGINS: ${{ vars.CORS_ALLOWED_ORIGINS }}
           BACKEND_MIN_INSTANCES: ${{ vars.BACKEND_MIN_INSTANCES || '0' }}
         run: |
           envsubst < deploy/backend.service.yaml > /tmp/backend.yaml
           gcloud run services replace /tmp/backend.yaml --project "$PROJECT" --region "$REGION"
           gcloud run services add-iam-policy-binding fastorial-jobs-backend --project "$PROJECT" --region "$REGION" \
             --member=allUsers --role=roles/run.invoker >/dev/null
-          echo "API_BASE_URL=$(gcloud run services describe fastorial-jobs-backend --project "$PROJECT" --region "$REGION" --format='value(status.url)')" >> "$GITHUB_ENV"
-
-      - name: Deploy frontend
-        env:
-          FRONTEND_MIN_INSTANCES: ${{ vars.FRONTEND_MIN_INSTANCES || '0' }}
-        run: |
-          envsubst < deploy/frontend.service.yaml > /tmp/frontend.yaml
-          gcloud run services replace /tmp/frontend.yaml --project "$PROJECT" --region "$REGION"
-          gcloud run services add-iam-policy-binding fastorial-jobs-frontend --project "$PROJECT" --region "$REGION" \
-            --member=allUsers --role=roles/run.invoker >/dev/null
-
-      - name: Deploy Firebase Hosting
-        run: npx --yes firebase-tools@latest deploy --only hosting --project "$PROJECT"
