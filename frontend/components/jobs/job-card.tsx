@@ -25,7 +25,7 @@ export function JobCard({ job }: { job: JobSummary }) {
         <p className="text-sm">{job.companyName}</p>
         <p className="text-muted-foreground text-sm">{formatLocation(job)}</p>
         <p className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm">
-          <span>{formatExperience(job.experienceMinYears, job.experienceMaxYears)}</span>
+          <span>{formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears)}</span>
           {age ? <span aria-hidden>·</span> : null}
           {age ? <span>{age}</span> : null}
           {salary ? <span aria-hidden>·</span> : null}
