@@ -8,6 +8,14 @@ const CDN_CACHE = "public, s-maxage=60, stale-while-revalidate=300";
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
   // Local development: the browser calls same-origin /api/**. In production Firebase Hosting
   // rewrites /api/** to the backend service before the request ever reaches Next.js.
   async rewrites() {
@@ -18,7 +26,7 @@ const nextConfig: NextConfig = {
       { source: "/", headers: [{ key: "Cache-Control", value: CDN_CACHE }] },
       { source: "/jobs/:slug", headers: [{ key: "Cache-Control", value: CDN_CACHE }] },
       {
-        source: "/jobs/:slug/opengraph-image:suffix*",
+        source: "/jobs/:slug/opengraph-image",
         headers: [{ key: "Cache-Control", value: CDN_CACHE }],
       },
       {
