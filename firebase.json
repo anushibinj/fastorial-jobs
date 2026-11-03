@@ -1,32 +1,13 @@
 {
-  "hosting": {
-    "public": "firebase/public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/_empty"],
-    "cleanUrls": false,
-    "rewrites": [
-      { "source": "/api/**", "run": { "serviceId": "fastorial-jobs-backend", "region": "asia-south1" } },
-      { "source": "**", "run": { "serviceId": "fastorial-jobs-frontend", "region": "asia-south1" } }
-    ],
-    "headers": [
-      {
-        "source": "/sw.js",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-          { "key": "Service-Worker-Allowed", "value": "/" }
-        ]
-      },
-      {
-        "source": "/manifest.webmanifest",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
-      },
-      {
-        "source": "/_next/static/**",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-      },
-      {
-        "source": "/icons/**",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
-      }
+  "apphosting": {
+    "backendId": "fastorial-jobs",
+    "rootDir": "/frontend",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
     ]
   }
 }
