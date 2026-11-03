@@ -2,7 +2,7 @@
 # Reference: https://firebase.google.com/docs/app-hosting/configure
 runConfig:
   minInstances: 0
-  maxInstances: 5
+  maxInstances: 2
   cpu: 1
   memoryMiB: 512
 
