@@ -8,7 +8,7 @@ export type JobRequest = S["JobRequest"];
 export type TagDto = S["TagDto"];
 export type FiltersResponse = S["FiltersResponse"];
 export type DetectedTag = S["DetectedTagDto"];
-export type ApiError = S["ApiError"];
+export type ApiError = { code: string; message: string; fieldErrors?: Record<string, string> };
 export type JobStatus = NonNullable<JobSummary["status"]>;
 export type WorkMode = NonNullable<JobSummary["workMode"]>;
 export type JobSource = NonNullable<JobDetail["source"]>;
@@ -16,7 +16,10 @@ export type JobSource = NonNullable<JobDetail["source"]>;
 export type PageOf<T> = { items: T[]; page: number; size: number; total: number; totalPages: number; hasNext: boolean };
 
 /** Fields shared by list and detail that the helpers need. */
-export type JobLike = Pick<
+type Loose<T> = { [K in keyof T]?: T[K] | null };
+
+export type JobLike = Loose<
+  Pick<
   JobSummary,
   | "slug"
   | "title"
@@ -33,4 +36,5 @@ export type JobLike = Pick<
   | "status"
   | "postedAt"
   | "tags"
+  >
 >;
