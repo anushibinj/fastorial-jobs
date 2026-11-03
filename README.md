@@ -1,19 +1,25 @@
 # Jobs by Fastorial
 
 A curated aggregator for software engineering jobs, filterable by location, experience and tech stack.
+Jobs are found by hand on LinkedIn, Naukri and other boards, then posted by the admin.
 
 ## Layout
 
-- `backend/`: Spring Boot 3, Java 21, Gradle
-- `frontend/`: Next.js, TypeScript, Tailwind, shadcn/ui (pnpm only)
-- `docker-compose.yml`: local Postgres 16
+| Path | What |
+|---|---|
+| `backend/` | Spring Boot 3, Java 21, Gradle (Kotlin DSL), PostgreSQL, Flyway |
+| `frontend/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, PWA. pnpm only |
+| `docs/` | Local development, deployment, OpenAPI spec, seed script |
+| `firebase.json` | Firebase Hosting: `/api/**` to the backend, everything else to Next.js |
+| `docker-compose.yml` | Local Postgres 16 |
 
-## Run locally
+## Quick start
 
 ```bash
-docker compose up -d                 # Postgres on :5432
-cd backend && ./gradlew bootRun      # API on :8080
-cd frontend && pnpm install && pnpm dev   # UI on :3000
+docker compose up -d
+cd backend && ADMIN_TOKEN=dev-admin CLEANUP_SECRET=dev-secret ./gradlew bootRun   # :8080
+cd frontend && cp .env.example .env.local && pnpm install && pnpm dev            # :3000
 ```
 
-Copy `backend/.env.example` and `frontend/.env.example` first.
+See [docs/local-development.md](docs/local-development.md) and [docs/deploy.md](docs/deploy.md).
+Status and decisions are in [TODO.md](TODO.md).
