@@ -27,7 +27,7 @@ spec:
             - { name: DB_URL, value: "${DB_URL}" }
             - { name: DB_USER, value: "${DB_USER}" }
             - { name: DB_POOL_SIZE, value: "5" }
-            - { name: CORS_ALLOWED_ORIGINS, value: "https://jobs.fastorial.dev" }
+            - { name: CORS_ALLOWED_ORIGINS, value: "${CORS_ALLOWED_ORIGINS}" }
             - name: DB_PASSWORD
               valueFrom: { secretKeyRef: { name: fastorial-db-password, key: latest } }
             - name: ADMIN_TOKEN
