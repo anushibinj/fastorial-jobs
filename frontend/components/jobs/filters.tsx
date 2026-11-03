@@ -106,12 +106,16 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
 
 function SearchBox({ value, onCommit }: { value: string; onCommit: (q: string) => void }) {
   const [text, setText] = useState(value);
+  const [prev, setPrev] = useState(value);
   const last = useRef(value);
 
   // follow the URL when it changes elsewhere (chip removed, cleared)
+  if (value !== prev) {
+    setPrev(value);
+    setText(value);
+  }
   useEffect(() => {
     last.current = value;
-    setText(value);
   }, [value]);
 
   useEffect(() => {
@@ -229,7 +233,11 @@ function Field({ label, id, inline, children }: { label: string; id: string; inl
 
 function ExperienceInput({ id, value, onCommit }: { id: string; value: string; onCommit: (v: string) => void }) {
   const [text, setText] = useState(value);
-  useEffect(() => setText(value), [value]);
+  const [prev, setPrev] = useState(value);
+  if (value !== prev) {
+    setPrev(value);
+    setText(value);
+  }
 
   const commit = (v: string) => {
     const cleaned = v.trim();

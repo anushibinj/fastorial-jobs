@@ -12,7 +12,7 @@ const job = {
 
 describe("job posting json-ld", () => {
   it("maps the core fields", () => {
-    const ld = buildJobPostingJsonLd(job) as any;
+    const ld = buildJobPostingJsonLd(job) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(ld["@type"]).toBe("JobPosting");
     expect(ld.jobLocationType).toBe("TELECOMMUTE");
     expect(ld.experienceRequirements.monthsOfExperience).toBe(84);
@@ -21,7 +21,7 @@ describe("job posting json-ld", () => {
     expect(ld.skills).toBe("Java");
   });
   it("omits salary when absent", () => {
-    expect(buildJobPostingJsonLd({ ...job, salaryMin: null }) as any).not.toHaveProperty("baseSalary");
+    expect(buildJobPostingJsonLd({ ...job, salaryMin: undefined })).not.toHaveProperty("baseSalary");
   });
   it("escapes angle brackets so the script tag cannot be closed early", () => {
     expect(serializeJsonLd({ a: "</script><b>" })).not.toContain("<");

@@ -73,7 +73,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
             <div className="prose prose-neutral dark:prose-invert prose-headings:font-semibold mt-3 max-w-none break-words">
               <ReactMarkdown
                 components={{
-                  a: ({ node: _node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer nofollow" />,
+                  a: (props) => <a href={props.href} target="_blank" rel="noopener noreferrer nofollow">{props.children}</a>,
                 }}
               >
                 {job.description}
