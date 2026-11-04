@@ -1,4 +1,0 @@
-.NET Developer
----
-Work on ASP.NET Core services in C#, with some legacy C++ components.
-Database: SQL Server (T-SQL). Hosting on Azure. Familiar with Docker is a plus.

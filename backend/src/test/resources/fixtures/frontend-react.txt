@@ -1,5 +1,0 @@
-Frontend Engineer (React.js / TypeScript)
----
-Build UIs with ReactJS, Next.js and TypeScript. You know HTML, CSS and GraphQL.
-We use Node.js on the backend with MongoDB. Knowledge of Vue is a plus, but not Angular.
-Our stack is also tested with Jest. R&D budget available.
