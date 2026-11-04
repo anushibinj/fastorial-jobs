@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { ApiRequestError } from "@/lib/api/client";
 import {
   adminCreateApiKey,
   adminCreateJob,
@@ -14,7 +13,8 @@ import {
   adminUpdateJob,
 } from "@/lib/admin/api";
 import { checkToken, requireAdmin, SESSION_COOKIE, sessionValue } from "@/lib/admin/session";
-import type { DetectedTag, JobRequest, JobStatus } from "@/lib/types";
+import type { DetectedTag, JobRequest } from "@/lib/types";
+import { ApiException } from "@/server/shared/api-exception";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string> };
 
@@ -36,10 +36,12 @@ export async function logoutAction(): Promise<void> {
   redirect("/admin/login");
 }
 
+/** Turns a validation or business error into form state; anything unexpected becomes a generic message. */
 function toFormState(e: unknown): FormState {
-  if (e instanceof ApiRequestError) {
-    return { error: e.body?.message ?? e.message, fieldErrors: e.body?.fieldErrors };
+  if (ApiException.is(e)) {
+    return { error: e.message, fieldErrors: e.fieldErrors };
   }
+  console.error("[jobs] Unhandled error in an admin action", e);
   return { error: "Something went wrong" };
 }
 
@@ -58,7 +60,7 @@ export async function saveJobAction(id: string | null, payload: JobRequest): Pro
 
 export async function setStatusAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  await adminSetStatus(String(formData.get("id")), String(formData.get("status")) as JobStatus);
+  await adminSetStatus(String(formData.get("id")), String(formData.get("status")));
   revalidatePath("/admin/jobs");
 }
 

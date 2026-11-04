@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { ApplyActions } from "@/components/jobs/apply-actions";
 import { BackLink } from "@/components/jobs/back-link";
 import { TagChips } from "@/components/jobs/tag-chips";
-import { fetchJob } from "@/lib/api/client";
+import { fetchJob } from "@/lib/data/jobs";
 import { formatExperience, formatLocation, formatPostedAgo, formatSalary } from "@/lib/format";
 import { isClosed } from "@/lib/job-state";
 import { buildJobPostingJsonLd, serializeJsonLd } from "@/lib/jsonld";

@@ -14,7 +14,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated
     "public/sw.js",
-    "lib/api/schema.d.ts",
   ]),
 ]);
 

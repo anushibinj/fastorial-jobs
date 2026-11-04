@@ -1,14 +1,12 @@
 import type { MetadataRoute } from "next";
-import { apiFetch } from "@/lib/api/client";
+import { fetchSitemapEntries } from "@/lib/data/jobs";
 import { jobUrl, SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-type Entry = { slug: string; updatedAt?: string };
-
-/** Home plus every PUBLISHED job whose expiry is still in the future (the backend filters). */
+/** Home plus every PUBLISHED job whose expiry is still in the future (the service filters). */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const jobs = await apiFetch<Entry[]>("/api/sitemap/jobs").catch(() => [] as Entry[]);
+  const jobs = await fetchSitemapEntries().catch(() => []);
   return [
     { url: SITE_URL, changeFrequency: "hourly", priority: 1 },
     ...jobs.map((j) => ({
