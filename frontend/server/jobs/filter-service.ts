@@ -100,16 +100,19 @@ export function countExperienceBuckets(ranges: readonly ExperienceRange[]): Expe
 export class FilterService {
   constructor(private readonly uow: UnitOfWork<{ facets: JobFacetRepository }>) {}
 
-  /** The four facet lists. */
+  /**
+   * The four facet lists. The queries run one after another on purpose: in parallel they would hold up
+   * to four pooled connections for one call, and the home page also searches jobs at the same time, so
+   * a single page view could take the whole pool (`DB_POOL_SIZE`, 5 by default). They are small indexed
+   * aggregates, so running them in sequence costs only a few milliseconds.
+   */
   filters(): Promise<FiltersResponse> {
     return this.uow.read(async ({ facets }) => {
       const status: JobStatus = "PUBLISHED";
-      const [locations, workModes, tags, ranges] = await Promise.all([
-        facets.countByCity(status),
-        facets.countByWorkMode(status),
-        facets.countByTag(status),
-        facets.experienceRanges(status),
-      ]);
+      const locations = await facets.countByCity(status);
+      const workModes = await facets.countByWorkMode(status);
+      const tags = await facets.countByTag(status);
+      const ranges = await facets.experienceRanges(status);
       return { locations, workModes, tags, experience: countExperienceBuckets(ranges) };
     });
   }

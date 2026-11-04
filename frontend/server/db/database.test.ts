@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 import { describe, expect, it, vi } from "vitest";
-import { createDatabase, parseInt8, PgDatabase, toPoolConfig, type Database } from "@/server/db/database";
+import { createDatabase, logIdleConnectionErrors, parseInt8, PgDatabase, toPoolConfig, type Database } from "@/server/db/database";
+import { MemoryLogger } from "@/server/testing/fakes.testkit";
 import { pgUnitOfWork } from "@/server/db/unit-of-work";
 
 const settings = {
@@ -89,6 +90,18 @@ describe("PgDatabase", () => {
     const { pool, end } = fakePool();
     await new PgDatabase(pool).close();
     expect(end).toHaveBeenCalled();
+  });
+});
+
+describe("logIdleConnectionErrors", () => {
+  it("registers an error listener on the pool that logs instead of crashing", () => {
+    const handlers: Record<string, (e: Error) => void> = {};
+    const pool = { on: (event: string, handler: (e: Error) => void) => ((handlers[event] = handler), pool) };
+    const logger = new MemoryLogger();
+    logIdleConnectionErrors(pool as never, logger);
+    const error = new Error("terminating connection due to administrator command");
+    handlers.error(error);
+    expect(logger.errors).toEqual([{ message: "An idle database connection failed and was discarded", error }]);
   });
 });
 

@@ -211,6 +211,7 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
   const jobsUow = fakeUnitOfWork({ jobs: stores.jobs, tags: stores.tags });
   const services: Services = {
     config, db, clock, logger,
+    schema: { ready: async () => undefined },
     jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
     jobCommands: new JobCommandService(jobsUow, clock, config.jobs),
     jobCleanup: new JobCleanupService(jobsUow, clock, logger),

@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { PgApiKeyRepository } from "@/server/api-keys/api-key-service";
 import type { Services } from "@/server/container";
+import { loadConfig } from "@/server/config/app-config";
+import { createDatabase } from "@/server/db/database";
 import { migrateOnStartup } from "@/server/db/migrate-on-startup";
 import { MIGRATIONS } from "@/server/db/migrations";
 import { Migrator } from "@/server/db/migrator";
@@ -8,7 +10,7 @@ import { PgJobFacetRepository } from "@/server/jobs/filter-service";
 import type { JobRecord } from "@/server/jobs/job-record";
 import { DuplicateApplyUrlError, PgJobRepository } from "@/server/jobs/job-repository";
 import { PgTagRepository } from "@/server/tags/tag-repository";
-import { createDbTestContext, describeWithDatabase, type DbTestContext } from "@/server/testing/db.testkit";
+import { createDbTestContext, describeWithDatabase, TEST_DB_URL, type DbTestContext } from "@/server/testing/db.testkit";
 import { jobRecord, MemoryLogger } from "@/server/testing/fakes.testkit";
 
 describeWithDatabase("persistence against PostgreSQL", () => {
@@ -35,6 +37,24 @@ describeWithDatabase("persistence against PostgreSQL", () => {
       await expect(ctx.db.query("SELECT 9007199254740993::bigint AS n")).rejects.toThrow(/MAX_SAFE_INTEGER/);
     });
 
+    it("survives an idle pooled connection being terminated by the server (logs it, keeps working)", async () => {
+      // Without the pool's error listener this kills the process (and with it this test worker).
+      const logger = new MemoryLogger();
+      const db = createDatabase(
+        loadConfig({ DB_URL: TEST_DB_URL, DB_USER: process.env.TEST_DB_USER ?? "fastorial", DB_PASSWORD: process.env.TEST_DB_PASSWORD ?? "fastorial" }).database,
+        logger,
+      );
+      try {
+        const { rows } = await db.query<{ pid: number }>("SELECT pg_backend_pid() AS pid"); // now idle in the pool
+        await ctx.db.query("SELECT pg_terminate_backend($1)", [rows[0].pid]);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        expect(logger.errors.map((e) => e.message)).toEqual(["An idle database connection failed and was discarded"]);
+        expect((await db.query<{ ok: number }>("SELECT 1 AS ok")).rows[0].ok).toBe(1); // a fresh connection
+      } finally {
+        await db.close();
+      }
+    });
+
     it("transaction commits on success and rolls back on error", async () => {
       await ctx.db.transaction((tx) => tx.query("INSERT INTO api_keys (name, key_prefix, key_hash) VALUES ('a', 'p', 'h1')"));
       await expect(
@@ -49,8 +69,10 @@ describeWithDatabase("persistence against PostgreSQL", () => {
   });
 
   describe("Migrator", () => {
-    it("does nothing on an up to date schema", async () => {
-      expect(await new Migrator(ctx.db, MIGRATIONS, new MemoryLogger()).migrate()).toEqual([]);
+    it("does nothing on an up to date schema and says so", async () => {
+      const logger = new MemoryLogger();
+      expect(await new Migrator(ctx.db, MIGRATIONS, logger).migrate()).toEqual([]);
+      expect(logger.infos).toEqual(["Database schema is up to date"]);
     });
 
     it("refuses to start when an applied migration's checksum differs (like Flyway's validate)", async () => {
@@ -70,7 +92,7 @@ describeWithDatabase("persistence against PostgreSQL", () => {
             return new Migrator(single, MIGRATIONS, new MemoryLogger()).migrate();
           });
         const results = await Promise.all([migrateScratch(), migrateScratch()]);
-        expect(results.map((r) => r.length).sort()).toEqual([0, 4]);
+        expect(results.map((r) => r.length).sort()).toEqual([0, 4]); // the second waited for the lock
         const { rows } = await ctx.db.query<{ n: number }>(`SELECT count(*) AS n FROM ${scratch}.flyway_schema_history`);
         expect(rows[0].n).toBe(4);
       } finally {

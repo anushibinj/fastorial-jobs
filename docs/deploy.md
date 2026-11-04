@@ -85,8 +85,15 @@ Enable automated backups (Cloud SQL: point-in-time recovery on; Neon and Supabas
 
 `frontend/server/db/migrations/` holds the schema migrations (the former Flyway scripts, byte for byte). A starting
 server instance applies any that are missing, using Flyway's own `flyway_schema_history` table, so a database that
-Flyway already migrated is recognized as up to date. Like Flyway it refuses to start if an applied script was edited.
+Flyway already migrated is recognized as up to date. Like Flyway it refuses to run if an applied script was edited.
 To change the schema, add a new `V5__*.ts` module and list it in `migrations/index.ts`; never edit an applied one.
+
+Unlike Spring, a failed migration does not stop the instance (Next.js would keep a half started server answering 500
+to everything). Instead every database access waits for the schema: while the database is unreachable or a migration
+fails, routes that need the database answer 500, the logs show `Database migration failed; retrying ...`, and the next
+request after 5 seconds tries again. Pages that do not need the database keep working, and the instance recovers by
+itself once the database is back. A migration that fails for good (a bug in a new script) therefore shows up as those
+log lines after a rollout: roll back in App Hosting and fix the script.
 
 ### Min instances
 

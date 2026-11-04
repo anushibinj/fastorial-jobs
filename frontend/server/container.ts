@@ -3,6 +3,9 @@ import { ApiKeyService, PgApiKeyRepository } from "@/server/api-keys/api-key-ser
 import { RequestAuthenticator } from "@/server/auth/request-authenticator";
 import { loadConfig, type AppConfig } from "@/server/config/app-config";
 import { createDatabase, type Database } from "@/server/db/database";
+import { MIGRATIONS } from "@/server/db/migrations";
+import { Migrator } from "@/server/db/migrator";
+import { SchemaGate, SchemaGatedDatabase, type SchemaReadiness } from "@/server/db/schema-gate";
 import { pgUnitOfWork } from "@/server/db/unit-of-work";
 import { RouteFactory } from "@/server/http/routes";
 import { FilterService, PgJobFacetRepository } from "@/server/jobs/filter-service";
@@ -21,7 +24,10 @@ import { TagCatalogService, TagDetectionService } from "@/server/tags/tag-servic
  */
 export interface Services {
   config: AppConfig;
+  /** The database, gated on `schema`: every statement waits until migrations have run. */
   db: Database;
+  /** Migration state; `instrumentation.ts` waits on it at startup. */
+  schema: SchemaReadiness;
   clock: Clock;
   logger: Logger;
   jobQueries: JobQueryService;
@@ -35,16 +41,22 @@ export interface Services {
   routes: RouteFactory;
 }
 
-/** What `createServices` needs from the outside. Tests pass their own database and clock. */
+/** What `createServices` needs from the outside. Tests pass their own database, clock and schema state. */
 export interface ServiceDependencies {
   config: AppConfig;
+  /** The raw database; it is wrapped so that every statement waits for the schema. */
   db: Database;
   clock?: Clock;
   logger?: Logger;
+  /** Defaults to a `SchemaGate` that runs the migrations on `db`. */
+  schema?: SchemaReadiness;
 }
 
 /** Wires every service. Pure: it opens no connection (the pool connects on first use). */
-export function createServices({ config, db, clock = systemClock, logger = consoleLogger }: ServiceDependencies): Services {
+export function createServices({ config, db: rawDb, clock = systemClock, logger = consoleLogger, schema }: ServiceDependencies): Services {
+  // Only the migrator uses the raw database; everything else goes through the gate.
+  const gate = schema ?? new SchemaGate(() => new Migrator(rawDb, MIGRATIONS, logger).migrate(), logger);
+  const db = new SchemaGatedDatabase(rawDb, gate);
   const jobsUow = pgUnitOfWork(db, (sql) => ({ jobs: new PgJobRepository(sql), tags: new PgTagRepository(sql) }));
   const facetsUow = pgUnitOfWork(db, (sql) => ({ facets: new PgJobFacetRepository(sql) }));
   const apiKeysUow = pgUnitOfWork(db, (sql) => ({ apiKeys: new PgApiKeyRepository(sql) }));
@@ -57,6 +69,7 @@ export function createServices({ config, db, clock = systemClock, logger = conso
   return {
     config,
     db,
+    schema: gate,
     clock,
     logger,
     jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
@@ -81,7 +94,7 @@ const holder = globalThis as typeof globalThis & { __fastorialServices?: Service
 export function getServices(): Services {
   holder.__fastorialServices ??= (() => {
     const config = loadConfig(process.env);
-    return createServices({ config, db: createDatabase(config.database) });
+    return createServices({ config, db: createDatabase(config.database, consoleLogger) });
   })();
   return holder.__fastorialServices;
 }

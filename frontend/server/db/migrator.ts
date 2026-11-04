@@ -127,7 +127,7 @@ export class Migrator {
    * @returns the versions that were applied, empty when the schema was already up to date.
    */
   async migrate(): Promise<string[]> {
-    return this.db.transaction(async (tx) => {
+    const applied = await this.db.transaction(async (tx) => {
       await tx.query("SELECT pg_advisory_xact_lock($1)", [MIGRATION_LOCK_KEY]);
       await ensureHistoryTable(tx);
       const { rows } = await tx.query<AppliedMigration>(
@@ -149,5 +149,7 @@ export class Migrator {
       }
       return pending.map((m) => m.version);
     });
+    this.logger.info(applied.length === 0 ? "Database schema is up to date" : `Database migrated to version ${applied.at(-1)}`);
+    return applied;
   }
 }

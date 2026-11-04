@@ -219,6 +219,26 @@ describe("filters", () => {
     expect(buckets[3]).toEqual({ label: "10+ years", min: 10, max: null, count: 1 });
   });
 
+  it("FilterService.filters runs its queries one at a time (one pooled connection)", async () => {
+    let active = 0;
+    let maxActive = 0;
+    const track = async <T>(value: T): Promise<T> => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((r) => setTimeout(r, 1));
+      active--;
+      return value;
+    };
+    const facets: JobFacetRepository = {
+      countByCity: () => track([]),
+      countByWorkMode: () => track([]),
+      countByTag: () => track([]),
+      experienceRanges: () => track([]),
+    };
+    await new FilterService(fakeUnitOfWork({ facets })).filters();
+    expect(maxActive).toBe(1);
+  });
+
   it("FilterService.filters counts published jobs only", async () => {
     const statuses: string[] = [];
     const facets: JobFacetRepository = {

@@ -31,9 +31,9 @@ describe("register", () => {
     expect(migrateOnStartup).not.toHaveBeenCalled();
   });
 
-  it("propagates a migration failure so the instance does not serve with a broken schema", async () => {
+  it("propagates errors migrateOnStartup does not handle (an invalid configuration)", async () => {
     vi.stubEnv("NEXT_RUNTIME", "nodejs");
-    migrateOnStartup.mockRejectedValueOnce(new Error("database unreachable"));
-    await expect(register()).rejects.toThrow("database unreachable");
+    migrateOnStartup.mockRejectedValueOnce(new Error("DB_URL must start with jdbc:postgresql:"));
+    await expect(register()).rejects.toThrow("DB_URL must start with");
   });
 });

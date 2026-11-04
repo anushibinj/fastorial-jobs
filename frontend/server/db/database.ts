@@ -1,5 +1,6 @@
 import { Pool, types, type PoolClient, type PoolConfig, type QueryResultRow } from "pg";
 import type { DatabaseConfig } from "@/server/config/app-config";
+import { consoleLogger, type Logger } from "@/server/shared/logger";
 
 /** The rows and affected row count of one SQL statement. */
 export interface SqlResult<R> {
@@ -124,7 +125,26 @@ export class PgDatabase implements Database {
   }
 }
 
-/** Creates a `Database` with a new pool for the given settings. Connections are opened lazily. */
-export function createDatabase(config: DatabaseConfig): Database {
-  return new PgDatabase(new Pool(toPoolConfig(config)));
+/**
+ * Logs errors of idle pooled connections instead of letting them crash the process.
+ *
+ * node-postgres emits `error` on the pool when a connection that sits idle in it fails, for example
+ * when the database restarts, the network drops, or a provider such as Neon closes idle connections.
+ * Without a listener, Node treats it as an unhandled `'error'` event and exits the process (reproduced
+ * with `pg_terminate_backend`). With one, the broken connection is discarded and the pool opens a new
+ * one when it is needed, as HikariCP did for the former backend.
+ */
+export function logIdleConnectionErrors(pool: Pick<Pool, "on">, logger: Logger): void {
+  pool.on("error", (error) => logger.error("An idle database connection failed and was discarded", error));
+}
+
+/**
+ * Creates a `Database` with a new pool for the given settings. Connections are opened lazily.
+ *
+ * @param logger receives errors of idle connections (see `logIdleConnectionErrors`).
+ */
+export function createDatabase(config: DatabaseConfig, logger: Logger = consoleLogger): Database {
+  const pool = new Pool(toPoolConfig(config));
+  logIdleConnectionErrors(pool, logger);
+  return new PgDatabase(pool);
 }

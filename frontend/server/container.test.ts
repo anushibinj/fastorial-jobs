@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { loadConfig } from "@/server/config/app-config";
 import { createServices, getServices } from "@/server/container";
 import type { Database } from "@/server/db/database";
+import { SchemaGatedDatabase } from "@/server/db/schema-gate";
 import { MemoryLogger, MutableClock } from "@/server/testing/fakes.testkit";
 
 const db: Database = { query: async () => ({ rows: [], rowCount: 0 }), transaction: async (w) => w(db), close: async () => undefined };
@@ -12,10 +13,20 @@ describe("createServices", () => {
     const clock = new MutableClock();
     const logger = new MemoryLogger();
     const s = createServices({ config, db, clock, logger });
-    expect([s.config, s.db, s.clock, s.logger]).toEqual([config, db, clock, logger]);
-    for (const key of ["jobQueries", "jobCommands", "jobCleanup", "filters", "tagCatalog", "tagDetection", "apiKeys", "authenticator", "routes"] as const) {
+    expect([s.config, s.clock, s.logger]).toEqual([config, clock, logger]);
+    // The services get the database wrapped in the schema gate, never the raw one.
+    expect(s.db).toBeInstanceOf(SchemaGatedDatabase);
+    for (const key of ["schema", "jobQueries", "jobCommands", "jobCleanup", "filters", "tagCatalog", "tagDetection", "apiKeys", "authenticator", "routes"] as const) {
       expect(s[key], key).toBeTruthy();
     }
+  });
+
+  it("gates every database statement on the schema state", async () => {
+    let ready = false;
+    const s = createServices({ config: loadConfig({}), db, schema: { ready: async () => void (ready = true) } });
+    expect(ready).toBe(false);
+    await s.db.query("SELECT 1");
+    expect(ready).toBe(true);
   });
 
   it("uses the system clock and console logger by default", () => {
