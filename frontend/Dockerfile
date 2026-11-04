@@ -12,12 +12,9 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# NEXT_PUBLIC_* values are inlined at build time
+# NEXT_PUBLIC_* values are inlined at build time. The build needs no database.
 ARG NEXT_PUBLIC_SITE_URL=https://jobs.fastorial.dev
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-# Backend origin the browser calls (needs CORS on the backend). Baked in at build time.
-ARG NEXT_PUBLIC_API_URL=http://localhost:8080
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN pnpm build
 
 FROM node:22-alpine AS run
@@ -29,5 +26,6 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/assets ./assets
 USER node
 EXPOSE 8080
-# ADMIN_TOKEN (and optionally API_BASE_URL for server side calls) are set at run time
+# Set at run time: DB_URL, DB_USER, DB_PASSWORD, DB_POOL_SIZE, ADMIN_TOKEN, CLEANUP_SECRET.
+# Database migrations run when the server starts (instrumentation.ts).
 CMD ["node", "server.js"]

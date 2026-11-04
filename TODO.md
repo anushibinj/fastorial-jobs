@@ -5,7 +5,7 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 ## Phase 0: repo setup
 - [x] Everything (git, .gitignore, compose, Spring Boot 3.5 skeleton, `PORT` and graceful shutdown, Next.js, shadcn components including `form`, env templates, CI)
 
-## Phase 1: backend
+## Phase 1: backend (Spring Boot, replaced in Phase 5)
 - [x] All items: schema and seeds, `TagDetector` with fixtures, detect endpoint, entities, slugs, filters with the overlap rule, paging (20/50), detail, filters with counts, admin token filter and endpoints, duplicate detection, validation, 30 day default expiry, cleanup endpoint and `Clock`, extend or reopen, tests, error handler, CORS, Testcontainers tests, OpenAPI export and TypeScript types
 - [x] Expired but not yet swept jobs already leave the public list and the sitemap
 
@@ -29,11 +29,19 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 - [ ] Preview checks on LinkedIn, WhatsApp, Slack, X and Telegram (needs the public URL, steps in `docs/deploy.md`)
 
 ## Phase 4: ship
-- [x] Dockerfiles for both services, `docker compose --profile full up --build`, small DB pool, probes endpoints, Cloud Run service specs (concurrency, memory, startup CPU boost, min instances variable)
-- [x] App Hosting config (`frontend/apphosting.yaml`), backend deploy workflow, step by step guide in `docs/deploy.md`
+- [x] Dockerfile, `docker compose --profile full up --build`, small DB pool (the backend Dockerfile, probes and Cloud Run spec went away in Phase 5)
+- [x] App Hosting config (`frontend/apphosting.yaml`), step by step guide in `docs/deploy.md`
 - [~] Docker images, `gcloud` and `firebase` commands were written but not run (no Docker daemon and no GCP access in the dev container)
 - [ ] Create the GCP project and resources, secrets, production Postgres, custom domain, Cloud Scheduler job
 - [ ] Automated backups and a tested restore, Search Console, analytics ids, soft launch
+
+## Phase 5: one service (issue #1)
+- [x] Spring Boot backend replaced by Next.js route handlers and services in `frontend/server/` (same endpoints, payloads, error codes, headers and env variable names)
+- [x] Flyway replaced by a startup migrator that reads and writes `flyway_schema_history` (same checksums, so production at V4 is recognized as up to date)
+- [x] Parity checked against the running Java backend: 171 request probe (167 identical, 4 former Java 500s now proper 4xx/2xx), 10,669 fuzzed URLs for duplicate detection hashes, golden slugs and tag detections, identical `pg_dump` schema
+- [x] Java integration tests ported (`*.db.test.ts`, run with `TEST_DB_URL`); browser walkthrough of home, load more, job page, OG image, sitemap and every admin flow on a production build
+- [ ] Cutover in production (`docs/deploy.md` section 3): create `fastorial-db-url` and `fastorial-db-user`, grant access to the existing secrets, roll out, move Cloud Scheduler and automations to the site URL, delete the Cloud Run backend
+- [ ] After the first rollout, confirm through the CDN that `X-API-Key` and `X-Internal-Secret` reach the app (curl in `docs/deploy.md` section 2)
 
 ## Where v1 differs from the plan
 - Spring Initializr only generates Spring Boot 4, so the skeleton was generated and then pinned to Boot 3.5.

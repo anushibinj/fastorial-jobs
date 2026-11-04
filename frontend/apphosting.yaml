@@ -1,10 +1,18 @@
-# Firebase App Hosting settings for the Next.js frontend (backendId "fastorial-jobs", see ../firebase.json).
-# Reference: https://firebase.google.com/docs/app-hosting/configure
+# Firebase App Hosting settings for the Next.js app (backendId "fastorial-jobs", see ../firebase.json).
+# The app serves the pages AND the jobs API (/api/**), and talks to PostgreSQL directly; there is no
+# separate backend service any more. Reference: https://firebase.google.com/docs/app-hosting/configure
 runConfig:
   minInstances: 0
   maxInstances: 2
   cpu: 1
   memoryMiB: 512
+  # Needed only when the database has no public address, e.g. Cloud SQL on a private IP. Uncomment and
+  # set your network (Direct VPC egress), then check the keys against the App Hosting docs above.
+  # vpcAccess:
+  #   egress: PRIVATE_RANGES_ONLY
+  #   networkInterfaces:
+  #     - network: default
+  #       subnetwork: default
 
 env:
   # Public origin of this site (canonical URLs, share links, sitemap). Inlined at build time.
@@ -13,17 +21,37 @@ env:
     availability:
       - BUILD
 
-  # Public origin of the backend. The browser calls it directly, so the backend must list the site
-  # origin in CORS_ALLOWED_ORIGINS. Inlined at build time, so redeploy the frontend if it changes.
-  # TODO: replace with the deployed backend URL (Cloud Run URL or custom domain).
-  - variable: NEXT_PUBLIC_API_URL
-    value: https://fastorial-jobs-backend-spring-boot-97819677558.asia-southeast1.run.app
+  # Database. Same variable names and meaning as the former Spring Boot backend, so the existing values
+  # work unchanged: DB_URL may stay in JDBC form (jdbc:postgresql://host:5432/db?sslmode=require).
+  # Schema migrations run automatically when a server instance starts (see instrumentation.ts).
+  # Create the two new secrets with: firebase apphosting:secrets:set fastorial-db-url (and fastorial-db-user)
+  - variable: DB_URL
+    secret: fastorial-db-url
     availability:
-      - BUILD
+      - RUNTIME
+  - variable: DB_USER
+    secret: fastorial-db-user
+    availability:
+      - RUNTIME
+  # Existing secret of the backend. Grant this App Hosting backend access to it (see docs/deploy.md).
+  - variable: DB_PASSWORD
+    secret: fastorial-db-password
+    availability:
+      - RUNTIME
+  # Connections per instance; with maxInstances 2 this opens at most 10 connections.
+  - variable: DB_POOL_SIZE
+    value: "5"
+    availability:
       - RUNTIME
 
-  # Must equal the backend ADMIN_TOKEN. Create it with: firebase apphosting:secrets:set fastorial-admin-token
+  # Admin UI login, X-Admin-Token on /api/admin/**. Create it with: firebase apphosting:secrets:set fastorial-admin-token
   - variable: ADMIN_TOKEN
     secret: fastorial-admin-token
+    availability:
+      - RUNTIME
+
+  # X-Internal-Secret for POST /api/internal/jobs/cleanup (Cloud Scheduler). Existing secret of the backend.
+  - variable: CLEANUP_SECRET
+    secret: fastorial-cleanup-secret
     availability:
       - RUNTIME
