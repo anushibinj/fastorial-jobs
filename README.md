@@ -79,5 +79,30 @@ returns `401`, and validation problems return `400` with per-field `fieldErrors`
 Other useful calls with the same header: `GET /api/admin/jobs`, `PUT /api/admin/jobs/{id}`,
 `PATCH /api/admin/jobs/{id}/status` (`{"status":"CLOSED"}`) and `POST /api/admin/jobs/{id}/extend`.
 
+## Pushing new jobs to PostInTime
+
+Every job that is created as `PUBLISHED` (from the admin form or the API) raises a `JobPostCreated` event.
+When the connection is switched on, a listener turns it into a post on your [PostInTime](https://github.com/anushibinj/postintime)
+server:
+
+- **title**: `{title} at {company}`
+- **caption**: the same text as the site's "Copy text" button, ending with the link to the job
+- **media**: the job's link preview picture redrawn at 1080 x 1080 (1:1)
+- **status**: `draft` (waits for you in PostInTime) or `ready`, your choice
+
+Set it up under **Admin → PostInTime**: server URL, a PostInTime personal API token (`pit_…`, created in PostInTime under
+Settings), the channel id (`GET /api/v1/public/channels`) and the status. The form shows the exact endpoint it will call,
+`{server}/api/v1/public/channels/{channelId}/posts`. The token is stored in the `postintime_settings` table and never sent back
+to the browser; leave the field empty to keep the saved one.
+
+Good to know:
+
+- The push runs after the response (Next.js `after()`), so a slow or broken PostInTime never delays or fails job creation.
+  The page shows the outcome under **Last push**, including the HTTP status when PostInTime refuses.
+- Drafts and closed jobs are not pushed, and neither are edits: only the creation event counts. There is no retry; post a
+  missed job by hand in PostInTime.
+- If the image cannot be drawn, the post is still sent, without media, and the result says so.
+- The 1:1 image is `jobSquareImage` in `frontend/lib/og.tsx`, built from the same `buildPreviewMeta` as the 1200 x 630 preview.
+
 See [docs/local-development.md](docs/local-development.md) and [docs/deploy.md](docs/deploy.md).
 Status and decisions are in [TODO.md](TODO.md).

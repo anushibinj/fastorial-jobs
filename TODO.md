@@ -43,6 +43,14 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 - [ ] Cutover in production (`docs/deploy.md` section 3): create `fastorial-db-url` and `fastorial-db-user`, grant access to the existing secrets, roll out, move Cloud Scheduler and automations to the site URL, delete the Cloud Run backend
 - [ ] After the first rollout, confirm through the CDN that `X-API-Key` and `X-Internal-Secret` reach the app (curl in `docs/deploy.md` section 2)
 
+## Phase 6: PostInTime push
+- [x] `JobPostCreated` event (in process bus, listeners run after the response), published once a job is committed
+- [x] Admin tab **PostInTime** (server URL, API token, channel id, post status, on/off, last push result), `postintime_settings` table (V5)
+- [x] Publisher posts title, share text and a 1080 x 1080 version of the link preview image to `POST /api/v1/public/channels/{id}/posts`
+- [x] Checked in a browser against a stand-in PostInTime server (post, draft skipped, 401 shown, off switch) and against PostgreSQL 16
+- [ ] Try it once against the real PostInTime backend (the stand-in follows its controller: multipart `title`, `caption`, `status`, `media`, header `X-Api-Key`)
+- [ ] Retry failed pushes, or a "Push again" button on the jobs list, if missed posts turn out to matter
+
 ## Where v1 differs from the plan
 - Spring Initializr only generates Spring Boot 4, so the skeleton was generated and then pinned to Boot 3.5.
 - The "revalidation tags" in the API client are not used: the decisions table chose CDN caching instead, because Next.js cache tags live on each container's disk.
