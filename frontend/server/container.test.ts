@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { loadConfig } from "@/server/config/app-config";
-import { createServices, getServices } from "@/server/container";
+import { createServices, getServices, runAfterResponse } from "@/server/container";
 import type { Database } from "@/server/db/database";
 import { SchemaGatedDatabase } from "@/server/db/schema-gate";
 import { MemoryLogger, MutableClock } from "@/server/testing/fakes.testkit";
@@ -16,7 +16,7 @@ describe("createServices", () => {
     expect([s.config, s.clock, s.logger]).toEqual([config, clock, logger]);
     // The services get the database wrapped in the schema gate, never the raw one.
     expect(s.db).toBeInstanceOf(SchemaGatedDatabase);
-    for (const key of ["schema", "jobQueries", "jobCommands", "jobCleanup", "filters", "tagCatalog", "tagDetection", "apiKeys", "authenticator", "routes"] as const) {
+    for (const key of ["schema", "jobQueries", "jobCommands", "jobCleanup", "filters", "tagCatalog", "tagDetection", "apiKeys", "postintimeSettings", "authenticator", "routes"] as const) {
       expect(s[key], key).toBeTruthy();
     }
   });
@@ -33,6 +33,15 @@ describe("createServices", () => {
     const s = createServices({ config: loadConfig({}), db });
     expect(Math.abs(s.clock.now().getTime() - Date.now())).toBeLessThan(1000);
     expect(typeof s.logger.info).toBe("function");
+  });
+});
+
+describe("runAfterResponse", () => {
+  it("starts the task right away when there is no request to run it after", async () => {
+    const ran: string[] = [];
+    runAfterResponse(async () => void ran.push("task"));
+    await Promise.resolve();
+    expect(ran).toEqual(["task"]);
   });
 });
 

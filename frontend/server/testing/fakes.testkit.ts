@@ -18,7 +18,7 @@ import { offsetOf, type PageRequest } from "@/server/jobs/paging";
 import type { JobRequest } from "@/server/requests/job-request";
 import type { Clock } from "@/server/shared/clock";
 import type { Logger } from "@/server/shared/logger";
-import { DEFAULT_SETTINGS, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
+import { DEFAULT_SETTINGS, PostintimeSettingsService, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
 import type { TagRecord } from "@/server/tags/tag-record";
 import type { TagRepository } from "@/server/tags/tag-repository";
 
@@ -194,6 +194,7 @@ export interface FakeStores {
   jobs: InMemoryJobRepository;
   tags: InMemoryTagRepository;
   apiKeys: InMemoryApiKeyRepository;
+  postintime: InMemoryPostintimeSettingsRepository;
   facets: JobFacetRepository;
 }
 
@@ -209,6 +210,7 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     jobs: new InMemoryJobRepository(),
     tags: new InMemoryTagRepository(),
     apiKeys: new InMemoryApiKeyRepository(),
+    postintime: new InMemoryPostintimeSettingsRepository(),
     facets: {
       countByCity: async () => [],
       countByWorkMode: async () => [],
@@ -234,6 +236,7 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     tagCatalog: new TagCatalogService(stores.tags),
     tagDetection: new TagDetectionService(stores.tags, clock),
     apiKeys,
+    postintimeSettings: new PostintimeSettingsService(fakeUnitOfWork({ settings: stores.postintime }), clock),
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };
