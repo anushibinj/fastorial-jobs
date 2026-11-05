@@ -5,6 +5,8 @@ import type { PreviewMeta } from "@/lib/preview";
 import { SITE_NAME } from "@/lib/site";
 
 export const OG_SIZE = { width: 1200, height: 630 };
+/** 1:1 version of the job image. */
+export const SQUARE_SIZE = { width: 1080, height: 1080 };
 
 const BG = "#0a0a0a";
 const FG = "#fafafa";
@@ -51,14 +53,14 @@ function Brand() {
   );
 }
 
-function Pill({ children, muted = false }: { children: string; muted?: boolean }) {
+function Pill({ children, muted = false, size = 34 }: { children: string; muted?: boolean; size?: number }) {
   return (
     <div
       style={{
         display: "flex",
         padding: "10px 24px",
         borderRadius: 999,
-        fontSize: 34,
+        fontSize: size,
         fontWeight: 600,
         color: muted ? MUTED : BG,
         background: muted ? "transparent" : FG,
@@ -89,56 +91,72 @@ export async function defaultOgImage(status = 200) {
   );
 }
 
-/** Title, company and location, key fact pills, tag chips. All text comes pre-truncated from buildPreviewMeta. */
-export async function jobOgImage(m: PreviewMeta) {
+/** Sizes of the job image's parts. Landscape is the link preview; square (1:1) is for posting to feeds. */
+const LAYOUTS = {
+  landscape: { size: OG_SIZE, padding: "56px 64px", maxWidth: 1040 as number | undefined, title: 54, titleLines: 2, where: 34, pill: 34, tag: 28, footer: 28, gap: 24 },
+  square: { size: SQUARE_SIZE, padding: "72px", maxWidth: 936 as number | undefined, title: 80, titleLines: 3, where: 36, pill: 40, tag: 34, footer: 32, gap: 36 },
+};
+
+function jobImageTree(m: PreviewMeta, l: (typeof LAYOUTS)[keyof typeof LAYOUTS]) {
   const where = [m.imageCompany, m.imageLocation].filter(Boolean).join("  ·  ");
-  return new ImageResponse(
-    (
-      <div style={root}>
-        <Brand />
-        {/* title and facts stay inside the 64px margin, in the left part of the image */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 1040 }}>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 54,
-              lineHeight: 1.15,
-              // two lines at 54px fit about 60 characters; maxHeight is the backup if lineClamp is ignored
-              maxHeight: 130,
-              overflow: "hidden",
-              fontWeight: 700,
-              letterSpacing: -1,
-              lineClamp: 2,
-              textOverflow: "ellipsis",
-            }}
-          >
-            {m.imageTitle}
-          </div>
-          <div style={{ display: "flex", fontSize: 34, color: "#d4d4d4", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {where}
-          </div>
-          <div style={{ display: "flex", gap: 16 }}>
-            <Pill>{m.experience}</Pill>
-            {m.agePill ? <Pill muted={m.closed}>{m.agePill}</Pill> : null}
-          </div>
-          {m.imageTags.length > 0 ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-              {m.imageTags.map((t) => (
-                <div key={t} style={{ display: "flex", padding: "6px 18px", borderRadius: 999, background: "#262626", fontSize: 28, color: "#e5e5e5" }}>
-                  {t}
-                </div>
-              ))}
-              {m.moreTags > 0 ? (
-                <div style={{ display: "flex", padding: "6px 18px", borderRadius: 999, border: "2px solid #404040", fontSize: 28, color: MUTED }}>
-                  {`+${m.moreTags}`}
-                </div>
-              ) : null}
-            </div>
+  return (
+    <div style={{ ...root, padding: l.padding }}>
+      <Brand />
+      {/* title and facts stay inside the margin, in the left part of the image */}
+      <div style={{ display: "flex", flexDirection: "column", gap: l.gap, ...(l.maxWidth ? { maxWidth: l.maxWidth } : {}) }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: l.title,
+            lineHeight: 1.15,
+            // the clamped lines fit; maxHeight is the backup if lineClamp is ignored
+            maxHeight: Math.ceil(l.title * 1.15 * l.titleLines) + 4,
+            overflow: "hidden",
+            fontWeight: 700,
+            letterSpacing: -1,
+            lineClamp: l.titleLines,
+            textOverflow: "ellipsis",
+          }}
+        >
+          {m.imageTitle}
+        </div>
+        <div style={{ display: "flex", fontSize: l.where, color: "#d4d4d4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {where}
+        </div>
+        <div style={{ display: "flex", gap: 16 }}>
+          <Pill size={l.pill}>{m.experience}</Pill>
+          {m.agePill ? (
+            <Pill size={l.pill} muted={m.closed}>
+              {m.agePill}
+            </Pill>
           ) : null}
         </div>
-        <div style={{ display: "flex", fontSize: 28, color: "#737373" }}>jobs.fastorial.dev</div>
+        {m.imageTags.length > 0 ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+            {m.imageTags.map((t) => (
+              <div key={t} style={{ display: "flex", padding: "6px 18px", borderRadius: 999, background: "#262626", fontSize: l.tag, color: "#e5e5e5" }}>
+                {t}
+              </div>
+            ))}
+            {m.moreTags > 0 ? (
+              <div style={{ display: "flex", padding: "6px 18px", borderRadius: 999, border: "2px solid #404040", fontSize: l.tag, color: MUTED }}>
+                {`+${m.moreTags}`}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-    ),
-    { ...OG_SIZE, fonts: await loadOgFonts() },
+      <div style={{ display: "flex", fontSize: l.footer, color: "#737373" }}>jobs.fastorial.dev</div>
+    </div>
   );
+}
+
+/** Title, company and location, key fact pills, tag chips. All text comes pre-truncated from buildPreviewMeta. */
+export async function jobOgImage(m: PreviewMeta) {
+  return new ImageResponse(jobImageTree(m, LAYOUTS.landscape), { ...LAYOUTS.landscape.size, fonts: await loadOgFonts() });
+}
+
+/** The same image as `jobOgImage`, in a 1:1 ratio (1080 x 1080) for feeds that crop wide images. */
+export async function jobSquareImage(m: PreviewMeta) {
+  return new ImageResponse(jobImageTree(m, LAYOUTS.square), { ...LAYOUTS.square.size, fonts: await loadOgFonts() });
 }
