@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { JOB_SETTINGS } from "@/server/config/app-config";
+import type { AppEvent } from "@/server/events/event-bus";
 import { JobCleanupService } from "@/server/jobs/job-cleanup-service";
 import { blankToNull, JobCommandService, requestFields, resolveTags } from "@/server/jobs/job-command-service";
 import { JobQueryService } from "@/server/jobs/job-query-service";
@@ -107,6 +108,36 @@ describe("JobCommandService.create", () => {
     const e = await apiError(commands.create(jobRequest({ experienceMinYears: 5, experienceMaxYears: 1 })));
     expect(e.code).toBe("VALIDATION_FAILED");
     expect(jobs.jobs).toHaveLength(0);
+  });
+});
+
+describe("JobCommandService.create publishes JobPostCreated", () => {
+  let published: AppEvent[];
+  beforeEach(() => {
+    published = [];
+    commands = new JobCommandService(fakeUnitOfWork({ jobs, tags }), clock, JOB_SETTINGS, { publish: (e) => void published.push(e) });
+  });
+
+  it("announces the created job with the time it happened", async () => {
+    const d = await commands.create(jobRequest());
+    expect(published).toEqual([{ type: "JobPostCreated", job: d, occurredAt: clock.now() }]);
+  });
+
+  it("announces nothing when the job is rejected", async () => {
+    await commands.create(jobRequest());
+    published = [];
+    await apiError(commands.create(jobRequest()));
+    await apiError(commands.create(jobRequest({ title: "" })));
+    expect(published).toEqual([]);
+  });
+
+  it("does not announce updates, status changes or extensions", async () => {
+    const d = await commands.create(jobRequest());
+    published = [];
+    await commands.update(d.id, jobRequest({ title: "Changed" }));
+    await commands.setStatus(d.id, "CLOSED");
+    await commands.extend(d.id, 5);
+    expect(published).toEqual([]);
   });
 });
 

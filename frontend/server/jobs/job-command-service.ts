@@ -1,6 +1,7 @@
 import type { JobDetail, JobStatus } from "@/lib/api/contract";
 import type { JobSettings } from "@/server/config/app-config";
 import type { UnitOfWork } from "@/server/db/unit-of-work";
+import type { EventPublisher } from "@/server/events/event-bus";
 import { changeStatus, extendedExpiry, initialSchedule } from "@/server/jobs/job-lifecycle";
 import { toJobDetail } from "@/server/jobs/job-mapper";
 import type { JobRecord } from "@/server/jobs/job-record";
@@ -103,6 +104,7 @@ export class JobCommandService {
     private readonly uow: UnitOfWork<JobStores>,
     private readonly clock: Clock,
     private readonly settings: JobSettings,
+    private readonly events?: EventPublisher,
   ) {}
 
   /**
@@ -116,7 +118,7 @@ export class JobCommandService {
     // async, so a validation error becomes a rejected promise rather than a synchronous throw.
     validateJobRequest(request);
     const hash = hashApplyUrl(request.applyUrl);
-    return this.uow.write(async ({ jobs, tags }) => {
+    const created = await this.uow.write(async ({ jobs, tags }) => {
       await this.assertNotDuplicate(jobs, hash, null);
       const now = this.clock.now();
       const fields = requestFields(request, await resolveTags(tags, request.tags));
@@ -136,6 +138,9 @@ export class JobCommandService {
       await this.save(() => jobs.insert(job));
       return toJobDetail(job);
     });
+    // Only after the commit, so a listener never sees a job that was rolled back.
+    this.events?.publish({ type: "JobPostCreated", job: created, occurredAt: this.clock.now() });
+    return created;
   }
 
   /**
