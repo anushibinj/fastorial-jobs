@@ -1,3 +1,4 @@
+import { POST_STATUSES, type PostintimeSettingsDto, type PostStatus } from "@/lib/api/contract";
 import type { SqlExecutor } from "@/server/db/database";
 import type { UnitOfWork } from "@/server/db/unit-of-work";
 import { ConstraintViolations, fitsMaxLength, isNotBlank, matchesFully } from "@/server/requests/constraints";
@@ -6,9 +7,8 @@ import type { Clock } from "@/server/shared/clock";
 import { toIso } from "@/server/shared/iso";
 import { javaTrim } from "@/server/shared/java-text";
 
-/** Status a pushed post gets in PostInTime: `draft` waits for a person, `ready` can be published right away. */
-export const POST_STATUSES = ["draft", "ready"] as const;
-export type PostStatus = (typeof POST_STATUSES)[number];
+export { POST_STATUSES };
+export type { PostStatus, PostintimeSettingsDto };
 
 /** The one row of `postintime_settings`: how and where new jobs are pushed to PostInTime. */
 export interface PostintimeSettings {
@@ -23,17 +23,6 @@ export interface PostintimeSettings {
   /** One line about the latest push, shown in the admin UI. */
   lastResult: string | null;
   lastAttemptAt: Date | null;
-}
-
-/** What the admin UI may see: everything except the token, which is only reported as present or not. */
-export interface PostintimeSettingsDto {
-  enabled: boolean;
-  baseUrl: string;
-  channelId: string;
-  postStatus: PostStatus;
-  hasToken: boolean;
-  lastResult: string | null;
-  lastAttemptAt: string | null;
 }
 
 /** What the admin form submits. A blank `apiToken` keeps the stored one. */

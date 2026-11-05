@@ -9,6 +9,7 @@ import {
   adminDetectTags,
   adminExtend,
   adminRevokeApiKey,
+  adminSavePostintimeSettings,
   adminSetStatus,
   adminUpdateJob,
 } from "@/lib/admin/api";
@@ -97,4 +98,18 @@ export async function revokeApiKeyAction(formData: FormData): Promise<void> {
   await requireAdmin();
   await adminRevokeApiKey(String(formData.get("id")));
   revalidatePath("/admin/api-keys");
+}
+
+export type PostintimeFormState = FormState & { saved?: boolean };
+
+/** Saves the PostInTime connection. The token is only ever sent from the browser to here, never back. */
+export async function savePostintimeSettingsAction(payload: unknown): Promise<PostintimeFormState> {
+  await requireAdmin();
+  try {
+    await adminSavePostintimeSettings(payload);
+  } catch (e) {
+    return toFormState(e);
+  }
+  revalidatePath("/admin/postintime");
+  return { saved: true };
 }

@@ -159,6 +159,24 @@ export interface ApiKeyDto {
   key: string | null;
 }
 
+/** Status a pushed post gets in PostInTime: `draft` waits for a person, `ready` can be published right away. */
+export const POST_STATUSES = ["draft", "ready"] as const;
+export type PostStatus = (typeof POST_STATUSES)[number];
+
+/** The PostInTime connection as the admin UI sees it: everything except the API token. */
+export interface PostintimeSettingsDto {
+  enabled: boolean;
+  /** Origin of the PostInTime API, without a trailing slash. Empty until configured. */
+  baseUrl: string;
+  channelId: string;
+  postStatus: PostStatus;
+  /** Whether an API token is stored. The token itself never leaves the server. */
+  hasToken: boolean;
+  /** One line about the latest push to PostInTime, or null before the first one. */
+  lastResult: string | null;
+  lastAttemptAt: IsoInstant | null;
+}
+
 /** Body of every error response. */
 export interface ApiErrorBody {
   code: string;

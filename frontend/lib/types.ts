@@ -14,6 +14,8 @@ export type {
   JobSource,
   JobStatus,
   JobSummary,
+  PostintimeSettingsDto,
+  PostStatus,
   TagDto,
   WorkMode,
 } from "@/lib/api/contract";

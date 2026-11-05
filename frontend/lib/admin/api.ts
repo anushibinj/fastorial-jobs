@@ -1,5 +1,5 @@
 import "server-only";
-import type { ApiKey, DetectedTag, JobDetail, JobSummary, PageOf, TagDto } from "@/lib/types";
+import type { ApiKey, DetectedTag, JobDetail, JobSummary, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
 import { getServices } from "@/server/container";
 import {
   parseApiKeyRequest,
@@ -7,6 +7,7 @@ import {
   parseExtendRequest,
   parseStatusRequest,
 } from "@/server/requests/admin-requests";
+import { parseSettingsRequest } from "@/server/postintime/settings";
 import { parseJobRequest } from "@/server/requests/job-request";
 import { parseAdminJobQuery } from "@/server/requests/list-queries";
 import { pathId } from "@/server/requests/request-params";
@@ -64,3 +65,10 @@ export const adminCreateApiKey = async (name: unknown): Promise<ApiKey> =>
 
 export const adminRevokeApiKey = async (id: number | string): Promise<void> =>
   getServices().apiKeys.revoke(pathId(String(id), "API key not found"));
+
+/** The PostInTime connection without its token. */
+export const adminGetPostintimeSettings = async (): Promise<PostintimeSettingsDto> => getServices().postintimeSettings.get();
+
+/** A blank `apiToken` in the body keeps the stored token. */
+export const adminSavePostintimeSettings = async (body: unknown): Promise<PostintimeSettingsDto> =>
+  getServices().postintimeSettings.update(parseSettingsRequest(body));
