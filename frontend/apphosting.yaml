@@ -3,7 +3,7 @@
 # separate backend service any more. Reference: https://firebase.google.com/docs/app-hosting/configure
 runConfig:
   minInstances: 0
-  maxInstances: 2
+  maxInstances: 3
   cpu: 1
   memoryMiB: 512
   # Needed only when the database has no public address, e.g. Cloud SQL on a private IP. Uncomment and
