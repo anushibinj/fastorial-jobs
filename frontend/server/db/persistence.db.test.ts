@@ -9,6 +9,7 @@ import { Migrator } from "@/server/db/migrator";
 import { PgJobFacetRepository } from "@/server/jobs/filter-service";
 import type { JobRecord } from "@/server/jobs/job-record";
 import { DuplicateApplyUrlError, PgJobRepository } from "@/server/jobs/job-repository";
+import { DEFAULT_SETTINGS, PgPostintimeSettingsRepository } from "@/server/postintime/settings";
 import { PgTagRepository } from "@/server/tags/tag-repository";
 import { createDbTestContext, describeWithDatabase, TEST_DB_URL, type DbTestContext } from "@/server/testing/db.testkit";
 import { jobRecord, MemoryLogger } from "@/server/testing/fakes.testkit";
@@ -242,6 +243,29 @@ describeWithDatabase("persistence against PostgreSQL", () => {
       expect((await repo().findById(k.id))?.revokedAt).toEqual(first);
       expect(await repo().touchActive("hash-k", used)).toBe(false);
       expect(await repo().touchActive("missing", used)).toBe(false);
+    });
+  });
+  describe("PgPostintimeSettingsRepository", () => {
+    const repo = () => new PgPostintimeSettingsRepository(ctx.db);
+    const connection = { enabled: true, baseUrl: "https://pit.example.com", apiToken: "pit_x", channelId: "c1", postStatus: "ready" as const };
+
+    it("returns the defaults before anything was saved", async () => {
+      expect(await repo().get()).toEqual(DEFAULT_SETTINGS);
+    });
+
+    it("saves over the same row and keeps the last result", async () => {
+      const at = new Date("2026-03-01T00:00:00Z");
+      await repo().save({ ...connection, enabled: false }, at);
+      await repo().recordResult("Posted job 7", at);
+      await repo().save(connection, new Date("2026-03-02T00:00:00Z"));
+      expect(await repo().get()).toEqual({ ...connection, lastResult: "Posted job 7", lastAttemptAt: at });
+      expect((await ctx.db.query("SELECT 1 FROM postintime_settings")).rowCount).toBe(1);
+    });
+
+    it("records a result before any settings exist", async () => {
+      const at = new Date("2026-03-01T00:00:00Z");
+      await repo().recordResult("Failed", at);
+      expect(await repo().get()).toEqual({ ...DEFAULT_SETTINGS, lastResult: "Failed", lastAttemptAt: at });
     });
   });
 });

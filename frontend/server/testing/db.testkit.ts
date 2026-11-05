@@ -68,7 +68,7 @@ export async function createDbTestContext(): Promise<DbTestContext> {
     db, clock, logger, services, schema,
     endpoints: createApiEndpoints(services),
     async reset() {
-      await db.query("TRUNCATE jobs, api_keys RESTART IDENTITY CASCADE");
+      await db.query("TRUNCATE jobs, api_keys, postintime_settings RESTART IDENTITY CASCADE");
       clock.set(new Date());
     },
     async close() {

@@ -18,6 +18,7 @@ import { offsetOf, type PageRequest } from "@/server/jobs/paging";
 import type { JobRequest } from "@/server/requests/job-request";
 import type { Clock } from "@/server/shared/clock";
 import type { Logger } from "@/server/shared/logger";
+import { DEFAULT_SETTINGS, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
 import type { TagRecord } from "@/server/tags/tag-record";
 import type { TagRepository } from "@/server/tags/tag-repository";
 
@@ -171,6 +172,20 @@ export class InMemoryApiKeyRepository implements ApiKeyRepository {
     const k = this.keys.find((x) => x.keyHash === hash && x.revokedAt === null);
     if (k) k.lastUsedAt = at;
     return k !== undefined;
+  }
+}
+
+/** PostInTime settings in memory. */
+export class InMemoryPostintimeSettingsRepository implements PostintimeSettingsRepository {
+  settings: PostintimeSettings = { ...DEFAULT_SETTINGS };
+  async get() {
+    return { ...this.settings };
+  }
+  async save(s: Parameters<PostintimeSettingsRepository["save"]>[0]) {
+    this.settings = { ...this.settings, ...s };
+  }
+  async recordResult(result: string, at: Date) {
+    this.settings = { ...this.settings, lastResult: result, lastAttemptAt: at };
   }
 }
 

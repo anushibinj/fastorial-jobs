@@ -16,16 +16,17 @@ const FLYWAY_RECORDED_CHECKSUMS: Record<string, number> = {
 };
 
 describe("MIGRATIONS", () => {
-  it("are the four Flyway scripts in order, with Flyway's names and descriptions", () => {
+  it("are the Flyway scripts in order, with Flyway's names and descriptions", () => {
     expect(MIGRATIONS.map((m) => [m.version, m.script, m.description])).toEqual([
       ["1", "V1__create_jobs_and_tags.sql", "create jobs and tags"],
       ["2", "V2__seed_tags.sql", "seed tags"],
       ["3", "V3__create_tag_aliases.sql", "create tag aliases"],
       ["4", "V4__create_api_keys.sql", "create api keys"],
+      ["5", "V5__create_postintime_settings.sql", "create postintime settings"],
     ]);
   });
 
-  it.each(MIGRATIONS.map((m) => [m.script, m] as const))("%s still has the checksum Flyway recorded", (_s, m) => {
+  it.each(MIGRATIONS.filter((m) => m.version in FLYWAY_RECORDED_CHECKSUMS).map((m) => [m.script, m] as const))("%s still has the checksum Flyway recorded", (_s, m) => {
     expect(flywayChecksum(m.sql)).toBe(FLYWAY_RECORDED_CHECKSUMS[m.version]);
   });
 });
@@ -85,9 +86,9 @@ describe("planMigrations", () => {
     expect(planMigrations([m("1"), m("2"), m("3")], [applied("1"), applied("2")]).map((x) => x.version)).toEqual(["3"]);
   });
 
-  it("recognizes a database migrated by Flyway as up to date", () => {
-    const flywayRows = MIGRATIONS.map((x) => ({ version: x.version, checksum: FLYWAY_RECORDED_CHECKSUMS[x.version], success: true }));
-    expect(planMigrations(MIGRATIONS, flywayRows)).toEqual([]);
+  it("recognizes a database migrated by Flyway as up to date, apart from migrations added since", () => {
+    const flywayRows = Object.entries(FLYWAY_RECORDED_CHECKSUMS).map(([version, checksum]) => ({ version, checksum, success: true }));
+    expect(planMigrations(MIGRATIONS, flywayRows).map((x) => x.version)).toEqual(["5"]);
   });
 
   it("refuses an applied migration whose script changed", () => {

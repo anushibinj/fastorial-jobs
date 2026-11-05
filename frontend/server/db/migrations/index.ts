@@ -2,6 +2,7 @@ import { v1CreateJobsAndTags } from "@/server/db/migrations/V1__create_jobs_and_
 import { v2SeedTags } from "@/server/db/migrations/V2__seed_tags";
 import { v3CreateTagAliases } from "@/server/db/migrations/V3__create_tag_aliases";
 import { v4CreateApiKeys } from "@/server/db/migrations/V4__create_api_keys";
+import { v5CreatePostintimeSettings } from "@/server/db/migrations/V5__create_postintime_settings";
 
 /**
  * One versioned schema migration, described the way Flyway records it in `flyway_schema_history`.
@@ -29,4 +30,5 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: "2", description: "seed tags", script: "V2__seed_tags.sql", sql: v2SeedTags },
   { version: "3", description: "create tag aliases", script: "V3__create_tag_aliases.sql", sql: v3CreateTagAliases },
   { version: "4", description: "create api keys", script: "V4__create_api_keys.sql", sql: v4CreateApiKeys },
+  { version: "5", description: "create postintime settings", script: "V5__create_postintime_settings.sql", sql: v5CreatePostintimeSettings },
 ];
