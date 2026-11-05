@@ -1,54 +1,66 @@
-import { API_BASE_URL, apiFetch } from "@/lib/api/client";
-import type { ApiKey, DetectedTag, JobDetail, JobRequest, JobStatus, JobSummary, PageOf, TagDto } from "@/lib/types";
+import "server-only";
+import type { ApiKey, DetectedTag, JobDetail, JobSummary, PageOf, TagDto } from "@/lib/types";
+import { getServices } from "@/server/container";
+import {
+  parseApiKeyRequest,
+  parseDetectRequest,
+  parseExtendRequest,
+  parseStatusRequest,
+} from "@/server/requests/admin-requests";
+import { parseJobRequest } from "@/server/requests/job-request";
+import { parseAdminJobQuery } from "@/server/requests/list-queries";
+import { pathId } from "@/server/requests/request-params";
 
-/** Calls the token protected admin endpoints. Only import from server code. */
-function adminInit(init: RequestInit = {}): RequestInit {
-  return {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Admin-Token": process.env.ADMIN_TOKEN ?? "",
-      ...(init.headers ?? {}),
-    },
-  };
+/**
+ * Admin operations for the admin pages and server actions. Only import from server code; callers must
+ * check the admin session first (`requireAdmin`).
+ *
+ * These used to be HTTP calls to the backend with the admin token; they now call the services directly.
+ * Inputs from the browser (form payloads, ids, statuses) still pass through the same parsers as the REST
+ * API, because a server action is a public endpoint and its arguments cannot be trusted. Failures are
+ * thrown as `ApiException` with the same codes and messages the API returns. Every function is `async`,
+ * so invalid input always arrives as a rejected promise (callers use `.catch`), never as a synchronous throw.
+ */
+
+const ADMIN_PAGE_SIZE = 30;
+
+/** One page of every job, most recently edited first, optionally filtered by text and status. */
+export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<JobSummary>> {
+  const query = new URLSearchParams();
+  if (params.q) query.set("q", params.q);
+  if (params.status) query.set("status", params.status);
+  query.set("page", String(params.page ?? 0));
+  const { q, status, page } = parseAdminJobQuery(query);
+  return getServices().jobQueries.searchAdmin(q, status, page, ADMIN_PAGE_SIZE);
 }
 
-export function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<JobSummary>> {
-  const p = new URLSearchParams();
-  if (params.q) p.set("q", params.q);
-  if (params.status) p.set("status", params.status);
-  p.set("page", String(params.page ?? 0));
-  p.set("size", "30");
-  return apiFetch(`/api/admin/jobs?${p}`, adminInit());
-}
+export const adminGetJob = async (id: number | string): Promise<JobDetail> =>
+  getServices().jobQueries.getAdmin(pathId(String(id), "Job not found"));
 
-export const adminGetJob = (id: number | string): Promise<JobDetail> =>
-  apiFetch(`/api/admin/jobs/${id}`, adminInit());
+export const adminCreateJob = async (body: unknown): Promise<JobDetail> =>
+  getServices().jobCommands.create(parseJobRequest(body));
 
-export const adminCreateJob = (body: JobRequest): Promise<JobDetail> =>
-  apiFetch(`/api/admin/jobs`, adminInit({ method: "POST", body: JSON.stringify(body) }));
+export const adminUpdateJob = async (id: number | string, body: unknown): Promise<JobDetail> =>
+  getServices().jobCommands.update(pathId(String(id), "Job not found"), parseJobRequest(body));
 
-export const adminUpdateJob = (id: number | string, body: JobRequest): Promise<JobDetail> =>
-  apiFetch(`/api/admin/jobs/${id}`, adminInit({ method: "PUT", body: JSON.stringify(body) }));
+export const adminSetStatus = async (id: number | string, status: string): Promise<JobDetail> =>
+  getServices().jobCommands.setStatus(pathId(String(id), "Job not found"), parseStatusRequest({ status }));
 
-export const adminSetStatus = (id: number | string, status: JobStatus): Promise<JobDetail> =>
-  apiFetch(`/api/admin/jobs/${id}/status`, adminInit({ method: "PATCH", body: JSON.stringify({ status }) }));
+export const adminExtend = async (id: number | string, days?: number): Promise<JobDetail> =>
+  getServices().jobCommands.extend(pathId(String(id), "Job not found"), parseExtendRequest(days ? { days } : {}));
 
-export const adminExtend = (id: number | string, days?: number): Promise<JobDetail> =>
-  apiFetch(`/api/admin/jobs/${id}/extend`, adminInit({ method: "POST", body: JSON.stringify(days ? { days } : {}) }));
+export const adminTags = async (): Promise<TagDto[]> => getServices().tagCatalog.listTags();
 
-export const adminTags = (): Promise<TagDto[]> => apiFetch(`/api/admin/tags`, adminInit());
+export const adminDetectTags = async (title: unknown, description: unknown): Promise<DetectedTag[]> => {
+  const request = parseDetectRequest({ title, description });
+  return getServices().tagDetection.detect(request.title, request.description);
+};
 
-export const adminDetectTags = (title: string, description: string): Promise<DetectedTag[]> =>
-  apiFetch(`/api/admin/tags/detect`, adminInit({ method: "POST", body: JSON.stringify({ title, description }) }));
-
-export const adminListApiKeys = (): Promise<ApiKey[]> => apiFetch(`/api/admin/api-keys`, adminInit());
+export const adminListApiKeys = async (): Promise<ApiKey[]> => getServices().apiKeys.list();
 
 /** The returned `key` is the plaintext and is only available from this call. */
-export const adminCreateApiKey = (name: string): Promise<ApiKey> =>
-  apiFetch(`/api/admin/api-keys`, adminInit({ method: "POST", body: JSON.stringify({ name }) }));
+export const adminCreateApiKey = async (name: unknown): Promise<ApiKey> =>
+  getServices().apiKeys.create(parseApiKeyRequest({ name }));
 
-export async function adminRevokeApiKey(id: number | string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/admin/api-keys/${id}`, { ...adminInit({ method: "DELETE" }), cache: "no-store" });
-  if (!res.ok) throw new Error(`Revoke failed (${res.status})`);
-}
+export const adminRevokeApiKey = async (id: number | string): Promise<void> =>
+  getServices().apiKeys.revoke(pathId(String(id), "API key not found"));

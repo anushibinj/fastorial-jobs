@@ -1,0 +1,1529 @@
+[ {
+  "title" : "Senior Java Engineer",
+  "description" : "Spring Boot, Kafka, k8s and Kubernetes. Go to market.",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 0,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kubernetes",
+    "slug" : "kubernetes",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Kubernetes",
+      "count" : 1
+    }, {
+      "text" : "k8s",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kafka",
+    "slug" : "kafka",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kafka",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Spring Boot",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "We use JavaScript and Java.",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "JavaScript",
+    "slug" : "javascript",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "JavaScript",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "C++ and C# engineer",
+  "description" : "Also .NET, and Node.js.",
+  "detected" : [ {
+    "name" : "C#",
+    "slug" : "csharp",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 0,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "C#",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "C++",
+    "slug" : "cpp",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 0,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "C++",
+      "count" : 1
+    } ]
+  }, {
+    "name" : ".NET",
+    "slug" : "dotnet",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : ".NET",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Node.js",
+    "slug" : "node-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Node.js",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Spring Boot and Spring Cloud. springboot too.",
+  "detected" : [ {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Spring Boot",
+      "count" : 1
+    }, {
+      "text" : "springboot",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Spring",
+    "slug" : "spring",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Spring Cloud",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "We build on ASP.NET Core.",
+  "detected" : [ {
+    "name" : ".NET",
+    "slug" : "dotnet",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "ASP.NET Core",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "We say go for it and r is fine",
+  "detected" : [ ]
+}, {
+  "title" : "",
+  "description" : "Built with Go and R.",
+  "detected" : [ {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Go",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "R",
+    "slug" : "r",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "R",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Go ahead and apply. Go to market. Golang is used.",
+  "detected" : [ {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Golang",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Go ahead and apply. Go to market.",
+  "detected" : [ ]
+}, {
+  "title" : "",
+  "description" : "Join our R&D team",
+  "detected" : [ ]
+}, {
+  "title" : "Docker engineer",
+  "description" : "Kafka Kafka Kafka Kafka. Docker.",
+  "detected" : [ {
+    "name" : "Docker",
+    "slug" : "docker",
+    "category" : "TOOL",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Docker",
+      "count" : 2
+    } ]
+  }, {
+    "name" : "Kafka",
+    "slug" : "kafka",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 4,
+    "count" : 4,
+    "matches" : [ {
+      "text" : "Kafka",
+      "count" : 4
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Kubernetes, k8s and K8S",
+  "detected" : [ {
+    "name" : "Kubernetes",
+    "slug" : "kubernetes",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "Kubernetes",
+      "count" : 1
+    }, {
+      "text" : "k8s",
+      "count" : 1
+    }, {
+      "text" : "K8S",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "spring-boot and Spring   Boot",
+  "detected" : [ {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Spring   Boot",
+      "count" : 1
+    }, {
+      "text" : "spring-boot",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : null,
+  "description" : null,
+  "detected" : [ ]
+}, {
+  "title" : "",
+  "description" : " ",
+  "detected" : [ ]
+}, {
+  "title" : "Senior Backend Engineer (Java)",
+  "description" : "We need Java 17, Spring‑Boot, Postgres SQL, AWS—EC2 and S3. Experience with JPA/Hibernate, Redis, Docker & Kubernetes (k8s). Bonus: Golang, Python3, Terraform.",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 1
+    }, {
+      "text" : "Java 17",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "AWS",
+    "slug" : "aws",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "AWS",
+      "count" : 1
+    }, {
+      "text" : "EC2",
+      "count" : 1
+    }, {
+      "text" : "S3",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Hibernate",
+    "slug" : "hibernate",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Hibernate",
+      "count" : 1
+    }, {
+      "text" : "JPA",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kubernetes",
+    "slug" : "kubernetes",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Kubernetes",
+      "count" : 1
+    }, {
+      "text" : "k8s",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Docker",
+    "slug" : "docker",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Docker",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Golang",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "PostgreSQL",
+    "slug" : "postgresql",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Postgres",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Python",
+    "slug" : "python",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Python3",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Redis",
+    "slug" : "redis",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Redis",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Spring-Boot",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Terraform",
+    "slug" : "terraform",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Terraform",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Data Engineer",
+  "description" : "PySpark, Apache Spark, Airflow; Kafka-streams; GCP (BigQuery), dbt. R language and RStudio. C/C++ helpful.",
+  "detected" : [ {
+    "name" : "R",
+    "slug" : "r",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "R language",
+      "count" : 1
+    }, {
+      "text" : "RStudio",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Spark",
+    "slug" : "spark",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Apache Spark",
+      "count" : 1
+    }, {
+      "text" : "PySpark",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Airflow",
+    "slug" : "airflow",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Airflow",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "C++",
+    "slug" : "cpp",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "C/C++",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "GCP",
+    "slug" : "gcp",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "GCP",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kafka",
+    "slug" : "kafka",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kafka-streams",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Frontend",
+  "description" : "React.js, ReactJS, react js, Next.js, NextJS, Vue, VueJS, Angular 2+, TypeScript, GraphQL, Node, NodeJS",
+  "detected" : [ {
+    "name" : "React",
+    "slug" : "react",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "React.js",
+      "count" : 1
+    }, {
+      "text" : "react js",
+      "count" : 1
+    }, {
+      "text" : "ReactJS",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Next.js",
+    "slug" : "next-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Next.js",
+      "count" : 1
+    }, {
+      "text" : "NextJS",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Node.js",
+    "slug" : "node-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "NodeJS",
+      "count" : 1
+    }, {
+      "text" : "Node",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Vue.js",
+    "slug" : "vue-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "VueJS",
+      "count" : 1
+    }, {
+      "text" : "Vue",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Angular",
+    "slug" : "angular",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Angular 2+",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "GraphQL",
+    "slug" : "graphql",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "GraphQL",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "TypeScript",
+    "slug" : "typescript",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "TypeScript",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Full stack",
+  "description" : ".NET Core, ASP.NET, dotnet, C#, csharp, C sharp, MS SQL, T-SQL, Azure DevOps",
+  "detected" : [ {
+    "name" : ".NET",
+    "slug" : "dotnet",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : ".NET Core",
+      "count" : 1
+    }, {
+      "text" : "ASP.NET",
+      "count" : 1
+    }, {
+      "text" : "dotnet",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "C#",
+    "slug" : "csharp",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "C sharp",
+      "count" : 1
+    }, {
+      "text" : "csharp",
+      "count" : 1
+    }, {
+      "text" : "C#",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "SQL Server",
+    "slug" : "sql-server",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "MS SQL",
+      "count" : 1
+    }, {
+      "text" : "T-SQL",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Azure",
+    "slug" : "azure",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Azure DevOps",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Platform",
+  "description" : "CI with Jenkins pipeline, GitHub, GitLab, Bitbucket; IaC with Terraform; Helm charts; Grafana + Prometheus.",
+  "detected" : [ {
+    "name" : "Git",
+    "slug" : "git",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "Bitbucket",
+      "count" : 1
+    }, {
+      "text" : "GitHub",
+      "count" : 1
+    }, {
+      "text" : "GitLab",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Terraform",
+    "slug" : "terraform",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Terraform",
+      "count" : 1
+    }, {
+      "text" : "IaC",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Grafana",
+    "slug" : "grafana",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Grafana",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Jenkins",
+    "slug" : "jenkins",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Jenkins pipeline",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kubernetes",
+    "slug" : "kubernetes",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Helm",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Prometheus",
+    "slug" : "prometheus",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Prometheus",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "SRE",
+  "description" : "Go\nGo is great.\nWe use Go daily: Go, Go, Go!",
+  "detected" : [ {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "Go",
+      "count" : 3
+    } ]
+  } ]
+}, {
+  "title" : "ML",
+  "description" : "R\nR & D, R&D, R (stats), use R.",
+  "detected" : [ {
+    "name" : "R",
+    "slug" : "r",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "R",
+      "count" : 2
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "javascript JAVASCRIPT JavaScript js JS Js",
+  "detected" : [ {
+    "name" : "JavaScript",
+    "slug" : "javascript",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 6,
+    "count" : 6,
+    "matches" : [ {
+      "text" : "javascript",
+      "count" : 1
+    }, {
+      "text" : "JAVASCRIPT",
+      "count" : 1
+    }, {
+      "text" : "JavaScript",
+      "count" : 1
+    }, {
+      "text" : "js",
+      "count" : 1
+    }, {
+      "text" : "JS",
+      "count" : 1
+    }, {
+      "text" : "Js",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "élan Java café Kotlin/JVM Scala",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kotlin",
+    "slug" : "kotlin",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kotlin/JVM",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Scala",
+    "slug" : "scala",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Scala",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Mongo, MongoDB, Mongo DB, mongo db",
+  "detected" : [ {
+    "name" : "MongoDB",
+    "slug" : "mongodb",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 4,
+    "count" : 4,
+    "matches" : [ {
+      "text" : "Mongo DB",
+      "count" : 1
+    }, {
+      "text" : "mongo db",
+      "count" : 1
+    }, {
+      "text" : "MongoDB",
+      "count" : 1
+    }, {
+      "text" : "Mongo",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Elastic Search, ElasticSearch, ELK, OpenSearch, elastic",
+  "detected" : [ {
+    "name" : "Elasticsearch",
+    "slug" : "elasticsearch",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 5,
+    "count" : 5,
+    "matches" : [ {
+      "text" : "Elastic Search",
+      "count" : 1
+    }, {
+      "text" : "ElasticSearch",
+      "count" : 1
+    }, {
+      "text" : "OpenSearch",
+      "count" : 1
+    }, {
+      "text" : "elastic",
+      "count" : 1
+    }, {
+      "text" : "ELK",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Postgres-SQL postgresql POSTGRES pgsql psql",
+  "detected" : [ {
+    "name" : "PostgreSQL",
+    "slug" : "postgresql",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 5,
+    "count" : 5,
+    "matches" : [ {
+      "text" : "postgresql",
+      "count" : 1
+    }, {
+      "text" : "Postgres",
+      "count" : 1
+    }, {
+      "text" : "POSTGRES",
+      "count" : 1
+    }, {
+      "text" : "pgsql",
+      "count" : 1
+    }, {
+      "text" : "psql",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "node.js node js Node nodejs Node.JS",
+  "detected" : [ {
+    "name" : "Node.js",
+    "slug" : "node-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 5,
+    "count" : 5,
+    "matches" : [ {
+      "text" : "node.js",
+      "count" : 1
+    }, {
+      "text" : "node js",
+      "count" : 1
+    }, {
+      "text" : "Node.JS",
+      "count" : 1
+    }, {
+      "text" : "nodejs",
+      "count" : 1
+    }, {
+      "text" : "Node",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "java8 java 8 Java-8 JAVA 11 jdk JDK17",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 4,
+    "count" : 4,
+    "matches" : [ {
+      "text" : "JAVA 11",
+      "count" : 1
+    }, {
+      "text" : "java 8",
+      "count" : 1
+    }, {
+      "text" : "Java-8",
+      "count" : 1
+    }, {
+      "text" : "jdk",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Spring – Boot, Spring—Boot, Spring‐Boot",
+  "detected" : [ {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "Spring-Boot",
+      "count" : 2
+    }, {
+      "text" : "Spring - Boot",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "‘Java’ and “Kotlin”",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kotlin",
+    "slug" : "kotlin",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kotlin",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "C++17, C#10, .NET8, Node.js18",
+  "detected" : [ {
+    "name" : "Node.js",
+    "slug" : "node-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Node",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Go-to-market Go",
+  "detected" : [ {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Go",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Go Developer",
+  "description" : "Go",
+  "detected" : [ ]
+}, {
+  "title" : "",
+  "description" : "Use AWS: EC2, S3, Lambda, EKS. Also Amazon Web Services.",
+  "detected" : [ {
+    "name" : "AWS",
+    "slug" : "aws",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 6,
+    "count" : 6,
+    "matches" : [ {
+      "text" : "Amazon Web Services",
+      "count" : 1
+    }, {
+      "text" : "Lambda",
+      "count" : 1
+    }, {
+      "text" : "AWS",
+      "count" : 1
+    }, {
+      "text" : "EC2",
+      "count" : 1
+    }, {
+      "text" : "EKS",
+      "count" : 1
+    }, {
+      "text" : "S3",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "MySQL, My SQL, MariaDB",
+  "detected" : [ {
+    "name" : "MySQL",
+    "slug" : "mysql",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 3,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "MariaDB",
+      "count" : 1
+    }, {
+      "text" : "My SQL",
+      "count" : 1
+    }, {
+      "text" : "MySQL",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "",
+  "description" : "Microsoft SQL Server, SQL Server, sqlserver, mssql",
+  "detected" : [ {
+    "name" : "SQL Server",
+    "slug" : "sql-server",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 4,
+    "count" : 4,
+    "matches" : [ {
+      "text" : "Microsoft SQL Server",
+      "count" : 1
+    }, {
+      "text" : "SQL Server",
+      "count" : 1
+    }, {
+      "text" : "sqlserver",
+      "count" : 1
+    }, {
+      "text" : "mssql",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Senior Java Engineer",
+  "description" : "We are looking for a Senior Java Engineer to build microservices with Spring Boot and Kafka.\nYou will work with PostgreSQL and Redis, deploy on AWS using Docker and Kubernetes (k8s),\nand write CI pipelines in Jenkins. Experience with JavaScript is a plus. Go to market mindset.\nNice to have: Terraform, Hibernate/JPA.",
+  "detected" : [ {
+    "name" : "Java",
+    "slug" : "java",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Java",
+      "count" : 2
+    } ]
+  }, {
+    "name" : "Hibernate",
+    "slug" : "hibernate",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Hibernate",
+      "count" : 1
+    }, {
+      "text" : "JPA",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kubernetes",
+    "slug" : "kubernetes",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Kubernetes",
+      "count" : 1
+    }, {
+      "text" : "k8s",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "AWS",
+    "slug" : "aws",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "AWS",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Docker",
+    "slug" : "docker",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Docker",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "JavaScript",
+    "slug" : "javascript",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "JavaScript",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Jenkins",
+    "slug" : "jenkins",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Jenkins",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kafka",
+    "slug" : "kafka",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kafka",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "PostgreSQL",
+    "slug" : "postgresql",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "PostgreSQL",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Redis",
+    "slug" : "redis",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Redis",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Spring Boot",
+    "slug" : "spring-boot",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Spring Boot",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Terraform",
+    "slug" : "terraform",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Terraform",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Frontend Engineer (React.js / TypeScript)",
+  "description" : "Build UIs with ReactJS, Next.js and TypeScript. You know HTML, CSS and GraphQL.\nWe use Node.js on the backend with MongoDB. Knowledge of Vue is a plus, but not Angular.\nOur stack is also tested with Jest. R&D budget available.",
+  "detected" : [ {
+    "name" : "React",
+    "slug" : "react",
+    "category" : "FRAMEWORK",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "React.js",
+      "count" : 1
+    }, {
+      "text" : "ReactJS",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "TypeScript",
+    "slug" : "typescript",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "TypeScript",
+      "count" : 2
+    } ]
+  }, {
+    "name" : "Angular",
+    "slug" : "angular",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Angular",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "GraphQL",
+    "slug" : "graphql",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "GraphQL",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "MongoDB",
+    "slug" : "mongodb",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "MongoDB",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Next.js",
+    "slug" : "next-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Next.js",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Node.js",
+    "slug" : "node-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Node.js",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Vue.js",
+    "slug" : "vue-js",
+    "category" : "FRAMEWORK",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Vue",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : ".NET Developer",
+  "description" : "Work on ASP.NET Core services in C#, with some legacy C++ components.\nDatabase: SQL Server (T-SQL). Hosting on Azure. Familiar with Docker is a plus.",
+  "detected" : [ {
+    "name" : ".NET",
+    "slug" : "dotnet",
+    "category" : "FRAMEWORK",
+    "titleCount" : 1,
+    "descriptionCount" : 1,
+    "count" : 2,
+    "matches" : [ {
+      "text" : ".NET",
+      "count" : 1
+    }, {
+      "text" : "ASP.NET Core",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "SQL Server",
+    "slug" : "sql-server",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "SQL Server",
+      "count" : 1
+    }, {
+      "text" : "T-SQL",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Azure",
+    "slug" : "azure",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Azure",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "C#",
+    "slug" : "csharp",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "C#",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "C++",
+    "slug" : "cpp",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "C++",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Docker",
+    "slug" : "docker",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Docker",
+      "count" : 1
+    } ]
+  } ]
+}, {
+  "title" : "Backend Engineer - Golang",
+  "description" : "We write Go services (Golang) backed by Cassandra and Kafka. Our analysts use R and Python.\nCloud: Google Cloud Platform (GCP) and Terraform.",
+  "detected" : [ {
+    "name" : "Go",
+    "slug" : "go",
+    "category" : "LANGUAGE",
+    "titleCount" : 1,
+    "descriptionCount" : 2,
+    "count" : 3,
+    "matches" : [ {
+      "text" : "Golang",
+      "count" : 2
+    }, {
+      "text" : "Go",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "GCP",
+    "slug" : "gcp",
+    "category" : "CLOUD",
+    "titleCount" : 0,
+    "descriptionCount" : 2,
+    "count" : 2,
+    "matches" : [ {
+      "text" : "Google Cloud Platform",
+      "count" : 1
+    }, {
+      "text" : "GCP",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Cassandra",
+    "slug" : "cassandra",
+    "category" : "DATABASE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Cassandra",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Kafka",
+    "slug" : "kafka",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Kafka",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Python",
+    "slug" : "python",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Python",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "R",
+    "slug" : "r",
+    "category" : "LANGUAGE",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "R",
+      "count" : 1
+    } ]
+  }, {
+    "name" : "Terraform",
+    "slug" : "terraform",
+    "category" : "TOOL",
+    "titleCount" : 0,
+    "descriptionCount" : 1,
+    "count" : 1,
+    "matches" : [ {
+      "text" : "Terraform",
+      "count" : 1
+    } ]
+  } ]
+} ]

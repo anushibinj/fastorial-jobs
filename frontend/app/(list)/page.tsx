@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Filters } from "@/components/jobs/filters";
 import { JobFeed } from "@/components/jobs/job-feed";
-import { fetchFilters, fetchJobs } from "@/lib/api/client";
+import { fetchFilters, fetchJobs } from "@/lib/data/jobs";
 import { hasFilters, parseFilters, toSearchParams } from "@/lib/filters";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };

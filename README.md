@@ -5,30 +5,36 @@ Jobs are found by hand on LinkedIn, Naukri and other boards, then posted by the 
 
 ## Layout
 
+One Next.js app serves the site, the admin UI and the JSON API, and talks to PostgreSQL directly.
+(Until November 2026 the API was a separate Spring Boot service; its logic now lives in `frontend/server/`
+with the same endpoints, payloads and environment variables.)
+
 | Path | What |
 |---|---|
-| `backend/` | Spring Boot 3, Java 21, Gradle (Kotlin DSL), PostgreSQL, Flyway |
 | `frontend/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, PWA. pnpm only |
+| `frontend/server/` | The jobs API: services, PostgreSQL repositories, migrations (Flyway compatible) |
+| `frontend/app/api/` | Route handlers that expose the API under `/api/**` |
 | `docs/` | Local development, deployment, OpenAPI spec, seed script |
 | `firebase.json` | Firebase App Hosting backend for `frontend/` (see `frontend/apphosting.yaml`) |
-| `docker-compose.yml` | Local Postgres 16 |
+| `docker-compose.yml` | Local Postgres 16 (and the whole app with `--profile full`) |
 
 ## Quick start
 
 ```bash
-docker compose up -d
-cd backend && ADMIN_TOKEN=dev-admin CLEANUP_SECRET=dev-secret ./gradlew bootRun   # :8080
-cd frontend && cp .env.example .env.local && pnpm install && pnpm dev            # :3000
+docker compose up -d                                                   # Postgres on :5432
+cd frontend && cp .env.example .env.local && pnpm install && pnpm dev  # :3000, migrates the database on start
 ```
 
 ## Creating jobs from automations (API keys)
 
 Create a key in the admin UI under **Admin → API keys**. The key is shown once, so copy it
-straight away; the backend stores only a SHA-256 hash of it. Revoke it from the same page.
+straight away; only a SHA-256 hash of it is stored. Revoke it from the same page.
 Send it in the `X-API-Key` header. Keys can call the job and tag endpoints under
 `/api/admin/jobs` and `/api/admin/tags`; they cannot manage API keys.
 
-Replace `$API` with your backend URL (`http://localhost:8080` locally) and `$KEY` with your key.
+Replace `$API` with the site URL (`https://jobs.fastorial.dev`, or `http://localhost:3000` locally) and `$KEY`
+with your key. Automations that still point at the old Cloud Run backend URL must switch to the site URL;
+the paths, headers and payloads are unchanged.
 
 ```bash
 curl -X POST "$API/api/admin/jobs" \

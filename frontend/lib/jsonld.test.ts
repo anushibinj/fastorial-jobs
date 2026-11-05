@@ -21,7 +21,7 @@ describe("job posting json-ld", () => {
     expect(ld.skills).toBe("Java");
   });
   it("omits salary when absent", () => {
-    expect(buildJobPostingJsonLd({ ...job, salaryMin: undefined })).not.toHaveProperty("baseSalary");
+    expect(buildJobPostingJsonLd({ ...job, salaryMin: null })).not.toHaveProperty("baseSalary");
   });
   it("escapes angle brackets so the script tag cannot be closed early", () => {
     expect(serializeJsonLd({ a: "</script><b>" })).not.toContain("<");

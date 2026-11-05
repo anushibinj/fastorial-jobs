@@ -1,152 +1,170 @@
 # Deploying
 
-The frontend and backend are deployed separately and know each other only by URL.
+One service: the Next.js app in `frontend/` serves the pages, the admin UI and the JSON API, and talks to
+PostgreSQL directly.
 
 ```
-browser ─┬─> Firebase App Hosting (Next.js, frontend/)   https://jobs.fastorial.dev
-         │        └─ server side calls ──┐
-         └─ client side calls (CORS) ────┴─> Cloud Run: fastorial-jobs-backend (Spring Boot) -> Postgres
-Cloud Scheduler --daily--> POST /api/internal/jobs/cleanup (backend)
+browser, automations (X-API-Key) ──> Firebase App Hosting: Next.js (frontend/)  https://jobs.fastorial.dev
+                                        ├─ pages, admin UI, /api/**
+                                        └─ PostgreSQL (DB_URL)
+Cloud Scheduler --daily--> POST https://jobs.fastorial.dev/api/internal/jobs/cleanup
 ```
 
-| | Frontend | Backend |
-|---|---|---|
-| Runs on | Firebase App Hosting (backend id `fastorial-jobs`) | Cloud Run service `fastorial-jobs-backend` |
-| Config | `frontend/apphosting.yaml`, `firebase.json` | `deploy/backend.service.yaml` |
-| Deploys | automatically on push to the live branch | `.github/workflows/deploy.yml` or manually (section 2) |
-| Knows the other by | `NEXT_PUBLIC_API_URL` (build time) | `CORS_ALLOWED_ORIGINS` (run time) |
+| | |
+|---|---|
+| Runs on | Firebase App Hosting (backend id `fastorial-jobs`) |
+| Config | `frontend/apphosting.yaml`, `firebase.json` |
+| Deploys | automatically on push to the live branch |
+| Database schema | migrated automatically when a server instance starts (`frontend/instrumentation.ts`) |
 
 Firebase and GCP project: `fastorial` (`.firebaserc`). Run everything locally with `docker compose --profile full up --build`.
+
+Until November 2026 the API was a separate Spring Boot service on Cloud Run. If that service still exists,
+follow [section 3](#3-one-time-cutover-from-the-spring-boot-backend) once.
 
 ## Caching
 
 Public pages (`/`, `/jobs/:slug`, the OG images) are rendered on demand and send
 `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`; `sitemap.xml` uses a 60 second cache.
 App Hosting's CDN should honour that. Nothing relies on Next.js ISR or `revalidateTag`, because their cache lives on each
-container's disk. Admin pages send `private, no-store`, and the backend sends `no-store` on `/api/admin/**` and `/api/internal/**`.
+container's disk. Admin pages send `private, no-store`, every response of `/api/admin/**` and `/api/internal/**`
+sends `no-store` (errors included), and the public `/api/**` responses send no `Cache-Control`, as before.
 `next.config.ts` also sets `sw.js` to `no-cache`.
 
 The admin session cookie is named `__session`, the one cookie Firebase's CDN forwards to the server. Keep that name.
 
-## 1. Backend: Google Cloud setup (one time)
+## 1. Configuration (one time)
+
+All runtime settings are in `frontend/apphosting.yaml`. They use the same names as the former backend:
+
+| Variable | Source | Meaning |
+|---|---|---|
+| `DB_URL` | secret `fastorial-db-url` | JDBC (`jdbc:postgresql://host:5432/db?sslmode=require`) or `postgres://` URL |
+| `DB_USER` | secret `fastorial-db-user` | database user |
+| `DB_PASSWORD` | secret `fastorial-db-password` | database password |
+| `DB_POOL_SIZE` | value `5` | connections per instance (`maxInstances: 2`, so at most 10) |
+| `ADMIN_TOKEN` | secret `fastorial-admin-token` | admin UI login and `X-Admin-Token` |
+| `CLEANUP_SECRET` | secret `fastorial-cleanup-secret` | `X-Internal-Secret` of the daily cleanup |
+| `NEXT_PUBLIC_SITE_URL` | value, build time | public origin (canonical URLs, sitemap, share links) |
+
+Create the secrets from the repo root (each command prompts for the value and offers to grant this App Hosting backend
+access):
 
 ```bash
-PROJECT=fastorial
-REGION=asia-south1
-gcloud config set project $PROJECT           # the project must be on the Blaze plan
-gcloud services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com \
-  cloudscheduler.googleapis.com cloudbuild.googleapis.com
-
-gcloud artifacts repositories create fastorial-jobs --repository-format=docker --location=$REGION
-
-# secrets (names match deploy/backend.service.yaml)
-printf '%s' '<db password>'           | gcloud secrets create fastorial-db-password --data-file=-
-printf '%s' "$(openssl rand -hex 24)" | gcloud secrets create fastorial-admin-token --data-file=-
-printf '%s' "$(openssl rand -hex 24)" | gcloud secrets create fastorial-cleanup-secret --data-file=-
-# let the Cloud Run runtime service account read them
-SA=$(gcloud projects describe $PROJECT --format='value(projectNumber)')-compute@developer.gserviceaccount.com
-for s in fastorial-db-password fastorial-admin-token fastorial-cleanup-secret; do
-  gcloud secrets add-iam-policy-binding $s --member=serviceAccount:$SA --role=roles/secretmanager.secretAccessor
-done
+firebase apphosting:secrets:set fastorial-db-url        # e.g. jdbc:postgresql://<host>:5432/fastorial_jobs?sslmode=require
+firebase apphosting:secrets:set fastorial-db-user
+firebase apphosting:secrets:set fastorial-db-password
+firebase apphosting:secrets:set fastorial-admin-token   # openssl rand -hex 24
+firebase apphosting:secrets:set fastorial-cleanup-secret
 ```
 
-`fastorial-admin-token` is shared: the backend reads it as `ADMIN_TOKEN`, and so does the frontend (section 3).
+A secret that already exists in Secret Manager (created with `gcloud` for the old backend) only needs access granted
+(the command takes a comma separated list):
 
-### Production Postgres (open question)
+```bash
+firebase apphosting:secrets:grantaccess fastorial-db-password,fastorial-cleanup-secret,fastorial-admin-token --backend fastorial-jobs
+```
 
-The backend only needs a JDBC URL, so either works:
+A rollout fails when a secret in `apphosting.yaml` is missing or not accessible, so do this before pushing.
+
+### Production Postgres
 
 | Option | Notes |
 |---|---|
-| Cloud SQL (Postgres 16, same region) | Simplest and closest, paid from day one. Use private IP with Direct VPC egress on the Cloud Run service, `DB_URL=jdbc:postgresql://<private-ip>:5432/fastorial_jobs` |
-| Neon or Supabase free tier | Cheaper, one network hop, possible cold starts. Use the pooled TLS URL, `DB_URL=jdbc:postgresql://<host>/<db>?sslmode=require` |
+| Cloud SQL (Postgres 16, same region) | With a private IP, App Hosting must reach the VPC: uncomment `runConfig.vpcAccess` in `apphosting.yaml` and set the network. `DB_URL=jdbc:postgresql://<private-ip>:5432/fastorial_jobs` |
+| Neon or Supabase | Use the TLS URL with `?sslmode=require`. The pooled (transaction mode) URL works too: migrations take a transaction scoped lock |
 
-The pool is small on purpose (`DB_POOL_SIZE`, default 5, 5 instances at most). Flyway runs the migrations on startup.
+`sslmode` follows the JDBC driver: `require` encrypts without verifying the certificate, `verify-full` also verifies it.
+Without `sslmode` the connection is not encrypted (the JDBC driver would have tried TLS first; node-postgres cannot), so
+always set it for a database reached over the internet.
+
 Enable automated backups (Cloud SQL: point-in-time recovery on; Neon and Supabase: their built-in backups), then
 **test a restore** into a scratch database once before launch and note the steps here.
 
-### Min instances (open question)
+### Migrations
 
-`BACKEND_MIN_INSTANCES` defaults to 0 (cheapest). The JVM cold start takes a few seconds even with startup CPU boost, which
-crawlers and first visitors would feel. Set it to 1 once traffic justifies it. The frontend's `minInstances` lives in
-`frontend/apphosting.yaml`.
+`frontend/server/db/migrations/` holds the schema migrations (the former Flyway scripts, byte for byte). A starting
+server instance applies any that are missing, using Flyway's own `flyway_schema_history` table, so a database that
+Flyway already migrated is recognized as up to date. Like Flyway it refuses to run if an applied script was edited.
+To change the schema, add a new `V5__*.ts` module and list it in `migrations/index.ts`; never edit an applied one.
 
-## 2. Backend: deploy
+Unlike Spring, a failed migration does not stop the instance (Next.js would keep a half started server answering 500
+to everything). Instead every database access waits for the schema: while the database is unreachable or a migration
+fails, routes that need the database answer 500, the logs show `Database migration failed; retrying ...`, and the next
+request after 5 seconds tries again. Pages that do not need the database keep working, and the instance recovers by
+itself once the database is back. A migration that fails for good (a bug in a new script) therefore shows up as those
+log lines after a rollout: roll back in App Hosting and fix the script.
 
-Manually:
+### Min instances
 
-```bash
-REG=$REGION-docker.pkg.dev/$PROJECT/fastorial-jobs
-gcloud auth configure-docker $REGION-docker.pkg.dev
-docker build -t $REG/backend:v1 backend && docker push $REG/backend:v1
+`minInstances` defaults to 0 (cheapest). Measured on one development machine, from process start to the first successful
+API response (database connection and migration check included): about 0.6 s for this app, against 8.2 to 9 s for the
+former Spring Boot backend. Cloud Run's single vCPU will be slower in absolute terms, but cold starts should be mild;
+raise `minInstances` to 1 if first visitors still notice.
 
-export PROJECT REGION BACKEND_IMAGE=$REG/backend:v1
-export DB_URL='jdbc:postgresql://...' DB_USER=... BACKEND_MIN_INSTANCES=0
-export CORS_ALLOWED_ORIGINS=https://jobs.fastorial.dev      # comma separated, every origin that serves the frontend
-envsubst < deploy/backend.service.yaml > /tmp/backend.yaml
-gcloud run services replace /tmp/backend.yaml --region $REGION
-gcloud run services add-iam-policy-binding fastorial-jobs-backend --region $REGION --member=allUsers --role=roles/run.invoker
+## 2. Deploy
 
-gcloud run services describe fastorial-jobs-backend --region $REGION --format='value(status.url)'   # needed in section 3
-```
-
-Add every frontend origin to `CORS_ALLOWED_ORIGINS`, including the default `https://<backend-id>--<project>.<region>.hosted.app`
-URL if you test on it, and redeploy the backend after changing the list.
-
-Automatically: `.github/workflows/deploy.yml` (manual trigger) builds the backend image, pushes it to Artifact Registry and
-deploys it. It authenticates with Workload Identity Federation. Set these repository variables:
-`GCP_PROJECT` (`fastorial`), `GCP_REGION`, `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_DEPLOY_SERVICE_ACCOUNT`, `DB_URL`, `DB_USER`,
-`CORS_ALLOWED_ORIGINS`, and optionally `BACKEND_MIN_INSTANCES`. The service account needs Cloud Run Admin,
-Artifact Registry Writer and Service Account User.
-
-## 3. Frontend: Firebase App Hosting
-
-One time, from the repo root (not from `frontend/`):
-
-```bash
-firebase login
-firebase init apphosting       # already done: backend id fastorial-jobs, root directory /frontend, project fastorial
-```
-
-1. Set the real backend URL in `frontend/apphosting.yaml` (`NEXT_PUBLIC_API_URL`, currently a placeholder) and confirm
-   `NEXT_PUBLIC_SITE_URL`. Both are inlined into the build, so **a change needs a new rollout**.
-2. Create the admin token secret. Use the same value as the backend's `fastorial-admin-token`:
+1. Confirm `NEXT_PUBLIC_SITE_URL` in `frontend/apphosting.yaml` (inlined into the build, so **a change needs a new
+   rollout**).
+2. Push to the live branch. App Hosting builds with pnpm (from `pnpm-lock.yaml`) and rolls out. The build does not need
+   the database. Watch the rollout in the Firebase console, App Hosting. To roll out by hand:
+   `firebase apphosting:rollouts:create fastorial-jobs`.
+3. Check it on the `*.hosted.app` URL: `/` lists jobs and "Load more" works; the logs show
+   `[jobs] Database schema is up to date` (or the migrations that ran); the API answers:
 
    ```bash
-   firebase apphosting:secrets:set fastorial-admin-token
+   curl -s https://<site>/api/filters
+   curl -s -o /dev/null -w "%{http_code}\n" https://<site>/api/admin/jobs                         # 401
+   curl -s -o /dev/null -w "%{http_code}\n" -H "X-Admin-Token: $TOKEN" https://<site>/api/admin/jobs  # 200
    ```
-
-   Accept the prompt to grant the App Hosting backend access to it.
-3. Push to the live branch. App Hosting builds with pnpm (from `pnpm-lock.yaml`) and rolls out. Watch the rollout in the
-   Firebase console, App Hosting. To roll out by hand: `firebase apphosting:rollouts:create fastorial-jobs`.
-4. Check it: open the `*.hosted.app` URL, then `/` should list jobs and "Load more" should work. If "Load more" fails, look
-   for a CORS error in the browser console and fix `CORS_ALLOWED_ORIGINS` on the backend (section 2).
 
 Do not run `firebase deploy --only hosting`. There is no Hosting site in this setup.
 
-## 4. Custom domains
+## 3. One-time cutover from the Spring Boot backend
 
-- **Frontend:** Firebase console, App Hosting, the backend, Settings, Domains, add `jobs.fastorial.dev` and the DNS records
-  it shows. Managed HTTPS can take a few hours. Keep `NEXT_PUBLIC_SITE_URL=https://jobs.fastorial.dev`.
-- **Backend (optional):** use the `*.run.app` URL, or map a domain such as `api.fastorial.dev` in Cloud Run, Manage custom
-  domains. If the URL changes, update `NEXT_PUBLIC_API_URL` and roll out the frontend again.
+The API keeps its paths, headers, payloads and database, so the cutover only moves where it runs.
+
+1. Create or grant the secrets of section 1. Use the values the Cloud Run service `fastorial-jobs-backend` had: its
+   `DB_URL` and `DB_USER` (from the old GitHub repository variables or
+   `gcloud run services describe fastorial-jobs-backend --region $REGION`) go into `fastorial-db-url` and
+   `fastorial-db-user`; the existing `fastorial-db-password`, `fastorial-admin-token` and `fastorial-cleanup-secret`
+   only need access granted.
+2. If the database is on a private IP, configure `vpcAccess` (section 1).
+3. Push to the live branch and check the rollout (section 2). The schema is already at V4, so nothing is migrated.
+4. Point Cloud Scheduler at the site:
+
+   ```bash
+   gcloud scheduler jobs update http close-expired-jobs --location $REGION \
+     --uri "https://jobs.fastorial.dev/api/internal/jobs/cleanup"
+   ```
+
+5. Tell every automation that uses an API key to replace the old backend URL with `https://jobs.fastorial.dev`.
+   Keys stay valid; they live in the same database.
+6. When nothing calls the old service any more (its request logs are empty), delete it and its images:
+   `gcloud run services delete fastorial-jobs-backend --region $REGION`, then the `backend` images in Artifact
+   Registry. `CORS_ALLOWED_ORIGINS` is no longer needed: the browser calls the API on the site's own origin.
+
+## 4. Custom domain
+
+Firebase console, App Hosting, the backend, Settings, Domains, add `jobs.fastorial.dev` and the DNS records it shows.
+Managed HTTPS can take a few hours. Keep `NEXT_PUBLIC_SITE_URL=https://jobs.fastorial.dev`.
 
 ## 5. Stale job cleanup
 
-Cloud Run may scale to zero and throttles CPU outside requests, so an in-process `@Scheduled` cron is unreliable.
-Cloud Scheduler calls the backend once a day, early morning Asia/Kolkata:
+Cloud Run (which App Hosting uses) may scale to zero and throttles CPU outside requests, so an in-process cron is
+unreliable. Cloud Scheduler calls the app once a day, early morning Asia/Kolkata:
 
 ```bash
 gcloud scheduler jobs create http close-expired-jobs \
   --location $REGION --schedule "30 3 * * *" --time-zone "Asia/Kolkata" \
-  --uri "$(gcloud run services describe fastorial-jobs-backend --region $REGION --format='value(status.url)')/api/internal/jobs/cleanup" \
+  --uri "https://jobs.fastorial.dev/api/internal/jobs/cleanup" \
   --http-method POST \
   --headers "X-Internal-Secret=$(gcloud secrets versions access latest --secret fastorial-cleanup-secret)"
 ```
 
 The endpoint is idempotent and returns `{"closed": N}`. Expired jobs also disappear from the public list and the sitemap
-immediately, and their pages show the closed banner, before the sweep runs. For local development, run the backend with
-`SPRING_PROFILES_ACTIVE=local` to enable an in-process daily cron.
+immediately, and their pages show the closed banner, before the sweep runs. Locally, call it by hand:
+`curl -X POST -H "X-Internal-Secret: dev-secret" localhost:3000/api/internal/jobs/cleanup`.
 
 ## 6. After launch
 

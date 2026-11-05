@@ -1,0 +1,576 @@
+[ {
+  "input" : "https://www.linkedin.com/jobs/view/123/?trackingId=abc&utm_source=x#top",
+  "normalized" : "https://linkedin.com/jobs/view/123",
+  "hash" : "d180bd12e9ce83c32ba7ffddf2d23a12dbe14a5d555e569b3cd3212993627d02",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://LinkedIn.com/jobs/view/123",
+  "normalized" : "https://linkedin.com/jobs/view/123",
+  "hash" : "d180bd12e9ce83c32ba7ffddf2d23a12dbe14a5d555e569b3cd3212993627d02",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://www.linkedin.com/jobs/view/42/",
+  "normalized" : "https://linkedin.com/jobs/view/42",
+  "hash" : "688fdea6d310cf57216ae1f0c5e91bb837ae6cfbbd8da9507c6b3dfbb000d32b",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://linkedin.com/jobs/view/42?trackingId=abc",
+  "normalized" : "https://linkedin.com/jobs/view/42",
+  "hash" : "688fdea6d310cf57216ae1f0c5e91bb837ae6cfbbd8da9507c6b3dfbb000d32b",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://x.com/j?a=1&b=2",
+  "normalized" : "https://x.com/j?a=1&b=2",
+  "hash" : "f07aedcb73994a8584351eb91defb6aff59a56cbc85adec2e5d7f77775f03d9f",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://x.com/j?b=2&a=1",
+  "normalized" : "https://x.com/j?a=1&b=2",
+  "hash" : "f07aedcb73994a8584351eb91defb6aff59a56cbc85adec2e5d7f77775f03d9f",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://x.com/job?id=1",
+  "normalized" : "https://x.com/job?id=1",
+  "hash" : "a7bebd5115d7c039934eeff86aed5b059426f75be9fcdb2d40210f453e49acac",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://x.com",
+  "normalized" : "https://x.com",
+  "hash" : "4ade82c8c32b2cb329ebed8437eebd27deeeeb32db959899af6bb8e6d81a748f",
+  "isHttpUrl" : true
+}, {
+  "input" : "HTTP://WWW.EXAMPLE.COM:80/Path/",
+  "normalized" : "http://example.com/Path",
+  "hash" : "bfe07ffe58b56f0b587af6b7aac2023f6ba8cff2d59984e38e6723c1c2d538fb",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:443/a",
+  "normalized" : "https://example.com/a",
+  "hash" : "2dce0a4c50441bfccfa9caf4b58c3cba6e06c420505dd829f0436de1aa44baac",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:8443/a/",
+  "normalized" : "https://example.com:8443/a",
+  "hash" : "be01f593553344991b58f8c4c408bb6cb9e5a4c0ea6efe0606b17e90f67e7f8c",
+  "isHttpUrl" : true
+}, {
+  "input" : "http://example.com:443/x",
+  "normalized" : "http://example.com/x",
+  "hash" : "83422ef35e89f2d4ed48efa4dc481189bc50296a2fa125a6f9716010b7132da3",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:80/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a%20b/c%2Fd",
+  "normalized" : "https://example.com/a b/c/d",
+  "hash" : "a35ce5db09123c5330195dc7e1ddb7e4cb1c186fe33d72ab816011deebe0e584",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/caf%C3%A9",
+  "normalized" : "https://example.com/café",
+  "hash" : "b65dae36fa32fd0db71ab2d58573376219f4afbe1717022ca5ec766b8b5fb9aa",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/%E0%A4%A",
+  "normalized" : "https://example.com/%e0%a4%a",
+  "hash" : "25fbdb74e8c7a39f45c16c7c554f6f93f938d2599939b9889b5ee7c0b74d29b1",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a b",
+  "normalized" : "https://example.com/a b",
+  "hash" : "3db0c15f66e87fb98edc49398edf3a7558ef7feb3860f2263347c1845090b312",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://exa_mple.com/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://user:pass@example.com/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://[::1]:8080/x",
+  "normalized" : "https://[::1]:8080/x",
+  "hash" : "831bac89532014f9de18d39316e334a72c8c7f5c2e1ea5c63126ee6aa35e1646",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://[2001:db8::1]/x",
+  "normalized" : "https://[2001:db8::1]/x",
+  "hash" : "e20df0d18572b7a29806363c11078940215198248d55e19623aee3fe84ccb49c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://192.168.0.1/x",
+  "normalized" : "https://192.168.0.1/x",
+  "hash" : "bcf183183dca01b2652b8d993cc9e14c3d01a3f011756206dbed1c8d43ff158b",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://999.1.1.1/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com?Ref=1&REF=2&id=5",
+  "normalized" : "https://example.com?id=5",
+  "hash" : "eb473b7232f4a1d39c8da54591cef47df3e8d81465dda91f5687ee9d65467004",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?utm_campaign=a&utm_foo=b&UTM_X=c&q=1",
+  "normalized" : "https://example.com/?q=1",
+  "hash" : "2adae9772e1a55f605d8c71d7b74313ff6c15f80d2afd7f39c3aa8be66970a7a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?a&b=&c=3",
+  "normalized" : "https://example.com/?a&b&c=3",
+  "hash" : "b0f506b4888025b79eceee1bdbb4ae3827823e6464263e705c8f8148269bfcb5",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?a=1&&b=2",
+  "normalized" : "https://example.com/?a=1&b=2",
+  "hash" : "e74ade1b0dca42487dcff8b3b3a3e2572ee2c1a0a7c1fa2b6a7a65e9a78ca009",
+  "isHttpUrl" : true
+}, {
+  "input" : "  https://example.com/x  ",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "\thttps://example.com/tab\n",
+  "normalized" : "https://example.com/tab",
+  "hash" : "21dafe3c948583501436a2f613a21e35a78a99c9d55bd392c53fa5709399d7eb",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/x?",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com//",
+  "normalized" : "https://example.com/",
+  "hash" : "0f115db062b7c0dd030b16878c99dea5c354b49dc37b38eb8846179c7783e9d7",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com///a//",
+  "normalized" : "https://example.com///a",
+  "hash" : "bcb4a2d232e1ccbc6798eed11b1f30a8286b7f7abd42de673bcf4674d2e76335",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com",
+  "normalized" : "https://example.com",
+  "hash" : "100680ad546ce6a577f42f52df33b4cfdca756859e664b8d7de329b150d09ce9",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com#frag",
+  "normalized" : "https://example.com",
+  "hash" : "100680ad546ce6a577f42f52df33b4cfdca756859e664b8d7de329b150d09ce9",
+  "isHttpUrl" : true
+}, {
+  "input" : "example.com/jobs/1",
+  "normalized" : "https://example.com/jobs/1",
+  "hash" : "3fbd7ba759842c42fa111ccb54c53d97f45b0b177f0091a95f743c6d0cfc6f1a",
+  "isHttpUrl" : false
+}, {
+  "input" : "mailto:someone@example.com",
+  "normalized" : "mailto://",
+  "hash" : "60836ed034d98c0d4052a2295e488bb3ba512ecc03c34dbd1b218b6892403b23",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a?b=c d",
+  "normalized" : "https://example.com/a?b=c d",
+  "hash" : "0d6ff2fa011a3c92cd183987da57ba1f04d45632ebe52e7336f688eacfadcb64",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/über",
+  "normalized" : "https://example.com/über",
+  "hash" : "177645b5cf97a6bd66ffca142c984350b17c69a6f37d60e440297a9154802e05",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://exämple.com/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a/../b",
+  "normalized" : "https://example.com/a/../b",
+  "hash" : "246d39ca7400202cf74ae3adf943e91e72e582429af8c4dbf586a729fbed9ffc",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://EXAMPLE.com/%7Euser",
+  "normalized" : "https://example.com/~user",
+  "hash" : "ab9c6a86a4b68c3b76dfbab50c3e670793d220c2edf5cd9abe5189cffb4d5ae5",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a%2",
+  "normalized" : "https://example.com/a%2",
+  "hash" : "e38c59f17e6f22f258018f19f826b6f7fc5d6c1b3040c78de707dd0f49ac05e1",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a?x=%ZZ",
+  "normalized" : "https://example.com/a?x=%zz",
+  "hash" : "e9dbe6b8c732e8e02e6e33185235185bba5fe0de6e57cc68d9dbfed9698de2f4",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com:/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:99999/x",
+  "normalized" : "https://example.com:99999/x",
+  "hash" : "6e1d5e9e98438ef336e470e97e7e01ec08479c6903a1a4e0491fcb0bca95da81",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:abc/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://-example.com/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example-.com/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://1example.com/x",
+  "normalized" : "https://1example.com/x",
+  "hash" : "1aeb5125da25a78cb53eb4a37c75e0a62cf75c4067898d150d9061526f748086",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.123/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://localhost/x",
+  "normalized" : "https://localhost/x",
+  "hash" : "17c235961c9f62abffb55486bd0ab503e599e90e46d8fc4cd0aebc69716e63e1",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com./x",
+  "normalized" : "https://example.com./x",
+  "hash" : "37a0da86b40fb8f7fb5965ea1582b1762d553685388033d0cbbff6f88138dfab",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://www.example.com",
+  "normalized" : "https://example.com",
+  "hash" : "100680ad546ce6a577f42f52df33b4cfdca756859e664b8d7de329b150d09ce9",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://WWW.Example.com/X",
+  "normalized" : "https://example.com/X",
+  "hash" : "4fca714522e1d281877e79cecb5ed94a67b335af16668d9b99c6abe5ff9e3817",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://www./x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/path;jsessionid=1?x=1",
+  "normalized" : "https://example.com/path;jsessionid=1?x=1",
+  "hash" : "f31587f4208df9ef5b2c0a1282af6bb8780c3601908699b5f273245d59b8d190",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a?x=1#f?g",
+  "normalized" : "https://example.com/a?x=1",
+  "hash" : "4c70119c7bfdd28cfbae5905985d9f0d5dc6b40e4ce1782c25f9307e46f607b8",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a#b#c",
+  "normalized" : "https://example.com/a#b#c",
+  "hash" : "fa906b24f8306269dcb97e6c557f7a4be58594b1781fb25a2362188ec0fc3656",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a|b",
+  "normalized" : "https://example.com/a|b",
+  "hash" : "d8286bb62d7336de6f09e666fffee8bd273eec45775f5c72aec4fbd1b3f4e3ff",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a?x={1}",
+  "normalized" : "https://example.com/a?x={1}",
+  "hash" : "b682b63cd3018eb44cb1f14735a077881cb7671d7c7d96a04533bb2831de587e",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a?x=[1]",
+  "normalized" : "https://example.com/a?x=[1]",
+  "hash" : "53f7a934bcc1ee3bb5b73d9a5fef39a32802c48cdfdbe051d9c92ddf7bfa6ee4",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a\\b",
+  "normalized" : "https://example.com/a\\b",
+  "hash" : "fb1cef1576823180867e57e06629400a361c92b75d1109ff316ad7750b4c8eae",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a^b",
+  "normalized" : "https://example.com/a^b",
+  "hash" : "b4d7ec697e33cef0429e2564ea148358522e5732705028d73643c0d52f756e82",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a`b",
+  "normalized" : "https://example.com/a`b",
+  "hash" : "0874da7e547ea3b352ec18b9fa493b914c04472ef40a7b38611f74c449ccbebf",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a\"b",
+  "normalized" : "https://example.com/a\"b",
+  "hash" : "522e0a4b363c21b5f67c53e4f0183e68b3debf65fceee31d104babe23157b809",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a<b>",
+  "normalized" : "https://example.com/a<b>",
+  "hash" : "990314a2ed47a9455c6aa7aba136947673960c11029addb7b80b9f62830d5333",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/%41%42",
+  "normalized" : "https://example.com/AB",
+  "hash" : "7656cbcbbf6fafb303e25a3eaec4b1a721b4af061d6bd6bd060acbfb42c8aff9",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/%e2%82%ac",
+  "normalized" : "https://example.com/€",
+  "hash" : "05223cad030f96b4bb5d4a31829dd285c14ea4c3203daad01043fda642a42a5d",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/%FF",
+  "normalized" : "https://example.com/�",
+  "hash" : "f3816a2027ec7915cc3f3f3b607fc7f0d9e7f8d1f3c7a2fd5167a3edbaf23201",
+  "isHttpUrl" : true
+}, {
+  "input" : "HTTPS://example.com/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?b=2&a=1&a=0",
+  "normalized" : "https://example.com/?a=0&b=2",
+  "hash" : "f72bbbe4fa05e90878fe91e08a995414fe9ffa5ee9bc0bfea68c9ec171386cbe",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?A=1&a=2",
+  "normalized" : "https://example.com/?a=2",
+  "hash" : "47331290ee6d0465d468fb1011bda4a04ba927f29d1be0733bc5f87053ba63b1",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?=x",
+  "normalized" : "https://example.com/?=x",
+  "hash" : "9b8aaae218c23ea1c8065ebc91be1678d124725ecbe0528295a868424a294c6f",
+  "isHttpUrl" : true
+}, {
+  "input" : "ftp://example.com/x",
+  "normalized" : "ftp://example.com/x",
+  "hash" : "1dbcc60ee65e4d998ebcebe58ee37995ebfd952e0311429dab9e429189162940",
+  "isHttpUrl" : false
+}, {
+  "input" : "https:///x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com:443",
+  "normalized" : "https://example.com",
+  "hash" : "100680ad546ce6a577f42f52df33b4cfdca756859e664b8d7de329b150d09ce9",
+  "isHttpUrl" : true
+}, {
+  "input" : "//example.com/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : false
+}, {
+  "input" : "",
+  "normalized" : "https://",
+  "hash" : "66dfeeedabf1f022d223bd6b9f464d1ca241d6da54ab7ade5b2c7758b4e08fa8",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://ex%41mple.com/",
+  "normalized" : "https:///",
+  "hash" : "9e1c766935cd68d5fb6e0542c7384630df53f9ed9ab6c08785f1629b62408291",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://user@host@x.com/",
+  "normalized" : "https:///",
+  "hash" : "9e1c766935cd68d5fb6e0542c7384630df53f9ed9ab6c08785f1629b62408291",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/a?q=a%26b&r=%20",
+  "normalized" : "https://example.com/a?q=a%26b&r=%20",
+  "hash" : "6fcb7e9de642c21dd3c56af3be1571139acdaa4294e5f04840df9ea96ec0ac8c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a?q=caf%C3%A9",
+  "normalized" : "https://example.com/a?q=caf%C3%A9",
+  "hash" : "49e42a66dc38ddd3be45d209573c13ca9378b8b4be85c36ed77023c4b03cfddd",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a?q=ü",
+  "normalized" : "https://example.com/a?q=ü",
+  "hash" : "dc34ea143cd1676a5636ebfcd04f5738b0d3387fe807dc6298b9e10de865b2db",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a?gclid=1&fbclid=2&lipi=3&midToken=4&midSig=5&src=6&source=7&ref=8&refId=9&trk=10&keep=11",
+  "normalized" : "https://example.com/a?keep=11",
+  "hash" : "91d18378c3b8cf7c7edbfe4c04718d7ce9b02345ab18c6c4be8a05ae20ec3cf4",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://www.naukri.com/job-listings-senior-java-developer-acme-hyderabad-5-to-8-years-031125500123?src=jobsearchDesk&sid=1&xp=1&px=1",
+  "normalized" : "https://naukri.com/job-listings-senior-java-developer-acme-hyderabad-5-to-8-years-031125500123?px=1&sid=1&xp=1",
+  "hash" : "40b98ec0c24e94168b2ad2e0aed5ca7871b13dd1bce070793a73c56083170d88",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://careers.acme.com/jobs/12345/senior-engineer?gh_jid=12345",
+  "normalized" : "https://careers.acme.com/jobs/12345/senior-engineer?gh_jid=12345",
+  "hash" : "b4dd9608f1dd587c5270cd6aee60e09e38a18914cc77ca52e73788b870a8ea2c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://boards.greenhouse.io/acme/jobs/4567890",
+  "normalized" : "https://boards.greenhouse.io/acme/jobs/4567890",
+  "hash" : "9a013459381da8a4c4a9fffadfe851bcb47d3e570ba7ac6dff00ac69642b7dec",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://jobs.lever.co/acme/7a1c3d2e-1111-2222-3333-444455556666/apply",
+  "normalized" : "https://jobs.lever.co/acme/7a1c3d2e-1111-2222-3333-444455556666/apply",
+  "hash" : "6d9d04e49cad51e79accde8bf77712d46992b6d370ec8d55366d147542f34aa3",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://acme.wd5.myworkdayjobs.com/en-US/External/job/Hyderabad/Engineer_R-12345",
+  "normalized" : "https://acme.wd5.myworkdayjobs.com/en-US/External/job/Hyderabad/Engineer_R-12345",
+  "hash" : "47e0dd6ef23ea3e7f145222d6a408f3c2c2a3a17eba6c6b095a0beb725106e8e",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a+b?x=a+b",
+  "normalized" : "https://example.com/a+b?x=a+b",
+  "hash" : "acd18b437a5c8d5197cfed4277aaf8bf3143cefea3b3eeb931bc5b3711af5c19",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/~user/",
+  "normalized" : "https://example.com/~user",
+  "hash" : "ab9c6a86a4b68c3b76dfbab50c3e670793d220c2edf5cd9abe5189cffb4d5ae5",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a%2Fb/",
+  "normalized" : "https://example.com/a/b",
+  "hash" : "ed1d4137647b6cd085dda5d4a5b637b5e59f138e23ee1f99565e18872685c866",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/A/B/C/",
+  "normalized" : "https://example.com/A/B/C",
+  "hash" : "4c50f0a9a00f50f7f47e76e3fb0266a709b17e5a7b5a82c2f1c4648511c6476a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/./x",
+  "normalized" : "https://example.com/./x",
+  "hash" : "e8a61382d257be681fc72836798f90e681bff8bec0d6792b4b02ee37be0fdd39",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a?#",
+  "normalized" : "https://example.com/a",
+  "hash" : "2dce0a4c50441bfccfa9caf4b58c3cba6e06c420505dd829f0436de1aa44baac",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:0/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com:0443/x",
+  "normalized" : "https://example.com/x",
+  "hash" : "54cef8f42f3f31ad349075022cd36ce1a378d039c1df7af45d61d693d9a35c6a",
+  "isHttpUrl" : true
+}, {
+  "input" : "http://[::ffff:192.168.0.1]/x",
+  "normalized" : "http://[::ffff:192.168.0.1]/x",
+  "hash" : "e7252b754c9312c7398d69c4595e2350f54cff5349ec17e3da31542a7d769e18",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://[fe80::1%25eth0]/x",
+  "normalized" : "https://[fe80::1%25eth0]/x",
+  "hash" : "3cf4ee2c4b9f103205b23f96087f2d81620d5fe6eede6c64fc7501326b6e849c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://a.b-c.d/x",
+  "normalized" : "https://a.b-c.d/x",
+  "hash" : "77822a9c6a859873c6bb8b4948e9dbc20a66956e2cb2cdb8ac089f05ba49afdf",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://a..b.com/x",
+  "normalized" : "https:///x",
+  "hash" : "5fc4a097193bd2b04fc3859ad90579955d55e4750c5d53576fced5955609f126",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://xn--exmple-cua.com/x",
+  "normalized" : "https://xn--exmple-cua.com/x",
+  "hash" : "3cc076c4c091621c0c04ad2e542bfffa4bdfd7371215711199d795374dc1ccad",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://EXAMPLE.COM:8080",
+  "normalized" : "https://example.com:8080",
+  "hash" : "636919a74b9f9cc30557bb5eb9ece853825e5efb7bcc33955a6e2254e2cec95c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https:example.com/x",
+  "normalized" : "https://",
+  "hash" : "66dfeeedabf1f022d223bd6b9f464d1ca241d6da54ab7ade5b2c7758b4e08fa8",
+  "isHttpUrl" : false
+}, {
+  "input" : "https:/example.com/x",
+  "normalized" : "https:///example.com/x",
+  "hash" : "9c8ef370ea67a9d5269609405dc1547bf2e452156b5ddbcb342c5c2b910e3317",
+  "isHttpUrl" : false
+}, {
+  "input" : "javascript:alert(1)",
+  "normalized" : "javascript://",
+  "hash" : "8fe41ecb8943d70d7d17ad0894397a8b29da6de37a4e16c14fafdc7dd914a1d6",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/ x",
+  "normalized" : "https://example.com/ x",
+  "hash" : "bbb95759076f9cc2c6f3f0bf59af4b9facaf1a9fb23e43cf13f531b5ad5c6d10",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com/%c3%28",
+  "normalized" : "https://example.com/�(",
+  "hash" : "4e489fd3b0f523e9f03d788089ba3f810b69154116bb6904db52d5ec0bf2a8d3",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/a%00b",
+  "normalized" : "https://example.com/a\u0000b",
+  "hash" : "4b2b44bdd1bb4abd699ef26716b5a04cd8da96139db5380e273979a9131d79d2",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?%41=1",
+  "normalized" : "https://example.com/?%41=1",
+  "hash" : "2b25d2bc151ed993cdf75ec7035d5c3c3933c8b81be4b40bd9715c6cc49f24c2",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?UTM_SOURCE=1&utm=2",
+  "normalized" : "https://example.com/?utm=2",
+  "hash" : "4baeb10668dcfe06070c29d7cdddc25ff2ea0756add8518b5d5e8e526c43bf3c",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://example.com/?utm_=1",
+  "normalized" : "https://example.com/",
+  "hash" : "0f115db062b7c0dd030b16878c99dea5c354b49dc37b38eb8846179c7783e9d7",
+  "isHttpUrl" : true
+}, {
+  "input" : "https://ex ample.com/x",
+  "normalized" : "https://ex ample.com/x",
+  "hash" : "d23819cb4cfc5b4d05d2e391cea985322084d063c0f5ea064c69c05ca5d0d373",
+  "isHttpUrl" : false
+}, {
+  "input" : "https:// example.com/x",
+  "normalized" : "https:// example.com/x",
+  "hash" : "15231894845c03b9be076d87c8b0f4b69e2bcf2fed1e96e9c0f2843d508609c6",
+  "isHttpUrl" : false
+}, {
+  "input" : "https://example.com /x",
+  "normalized" : "https://example.com /x",
+  "hash" : "7a5302725e69235a3e96b58063a4fb19c32171cbf7dc9213d26cf99e315f9341",
+  "isHttpUrl" : false
+} ]

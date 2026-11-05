@@ -1,4 +1,4 @@
-import { fetchJob } from "@/lib/api/client";
+import { fetchJob } from "@/lib/data/jobs";
 import { defaultOgImage, jobOgImage, OG_SIZE } from "@/lib/og";
 import { buildPreviewMeta } from "@/lib/preview";
 import { SITE_NAME } from "@/lib/site";

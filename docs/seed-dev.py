@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Posts sample jobs to a local backend. Usage: ADMIN_TOKEN=dev-admin python3 docs/seed-dev.py [base_url]"""
+"""Posts sample jobs to the local app. Usage: ADMIN_TOKEN=dev-admin python3 docs/seed-dev.py [base_url]"""
 import json, os, sys, urllib.request, urllib.error
 
-BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8080"
+BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:3000"
 TOKEN = os.environ.get("ADMIN_TOKEN", "dev-admin")
 
 JOBS = [
