@@ -93,9 +93,9 @@ describeWithDatabase("persistence against PostgreSQL", () => {
             return new Migrator(single, MIGRATIONS, new MemoryLogger()).migrate();
           });
         const results = await Promise.all([migrateScratch(), migrateScratch()]);
-        expect(results.map((r) => r.length).sort()).toEqual([0, 4]); // the second waited for the lock
+        expect(results.map((r) => r.length).sort()).toEqual([0, MIGRATIONS.length]); // the second waited for the lock
         const { rows } = await ctx.db.query<{ n: number }>(`SELECT count(*) AS n FROM ${scratch}.flyway_schema_history`);
-        expect(rows[0].n).toBe(4);
+        expect(rows[0].n).toBe(MIGRATIONS.length);
       } finally {
         await ctx.db.query(`DROP SCHEMA ${scratch} CASCADE`);
       }
