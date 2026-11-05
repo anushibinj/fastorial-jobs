@@ -22,3 +22,11 @@ export function formatDate(iso?: string | null): string {
     new Date(iso),
   );
 }
+
+/** "12 Mar 2026, 14:05" in IST, for things where the time of day matters. */
+export function formatDateTime(iso?: string | null): string {
+  if (!iso) return "-";
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).format(new Date(iso));
+}
