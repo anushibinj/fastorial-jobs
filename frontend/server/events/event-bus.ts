@@ -39,7 +39,7 @@ export const fireAndForget: RunInBackground = (task) => void task();
  * throws is logged and does not stop the other listeners.
  */
 export class InProcessEventBus implements EventPublisher, EventSubscriber {
-  private readonly handlers = new Map<AppEvent["type"], Array<EventHandler<never>>>();
+  private readonly handlers = new Map<AppEvent["type"], Array<(event: AppEvent) => Promise<void> | void>>();
 
   constructor(
     private readonly logger: Logger,
@@ -47,7 +47,9 @@ export class InProcessEventBus implements EventPublisher, EventSubscriber {
   ) {}
 
   subscribe<T extends AppEvent["type"]>(type: T, handler: EventHandler<T>): void {
-    this.handlers.set(type, [...(this.handlers.get(type) ?? []), handler as EventHandler<never>]);
+    // The map is keyed by type, so a handler only ever receives events of the type it subscribed to.
+    const typed = (event: AppEvent) => handler(event as EventOf<T>);
+    this.handlers.set(type, [...(this.handlers.get(type) ?? []), typed]);
   }
 
   publish(event: AppEvent): void {
@@ -57,7 +59,7 @@ export class InProcessEventBus implements EventPublisher, EventSubscriber {
       await Promise.all(
         handlers.map(async (handler) => {
           try {
-            await (handler as EventHandler<typeof event.type>)(event);
+            await handler(event);
           } catch (error) {
             this.logger.error(`Listener for ${event.type} failed`, error);
           }
