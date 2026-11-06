@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { JobActions } from "@/components/admin/job-actions";
-import { Badge } from "@/components/ui/badge";
+import { JobTable } from "@/components/admin/job-table";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { adminListJobs } from "@/lib/admin/api";
-import { formatDate } from "@/lib/admin/dates";
 import { requireAdmin } from "@/lib/admin/session";
 import { cn } from "@/lib/utils";
 
@@ -66,39 +63,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
       ) : data.items.length === 0 ? (
         <p className="text-muted-foreground py-10 text-center">No jobs.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Job</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Posted</TableHead>
-                <TableHead>Expires</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.items.map((j) => (
-                <TableRow key={j.id}>
-                  <TableCell className="max-w-xs whitespace-normal">
-                    <Link href={`/admin/jobs/${j.id}/edit`} className="font-medium underline-offset-4 hover:underline">
-                      {j.title}
-                    </Link>
-                    <div className="text-muted-foreground text-xs">{j.companyName}</div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={j.status === "PUBLISHED" ? "default" : j.status === "CLOSED" ? "outline" : "secondary"}>{j.status}</Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(j.postedAt)}</TableCell>
-                  <TableCell>{formatDate(j.expiresAt)}</TableCell>
-                  <TableCell>
-                    <JobActions job={j} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <JobTable key={`${status}-${page}`} items={data.items} />
       )}
 
       {data && data.totalPages > 1 ? (

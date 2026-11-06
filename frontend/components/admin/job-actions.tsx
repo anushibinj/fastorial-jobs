@@ -1,7 +1,8 @@
 import { extendAction, setStatusAction } from "@/app/admin/actions";
+import { PushToPostintimeButton } from "@/components/admin/push-to-postintime-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { JobSummary } from "@/lib/types";
+import type { AdminJobSummary } from "@/lib/types";
 
 function StatusButton({ id, status, label }: { id: number; status: string; label: string }) {
   return (
@@ -15,8 +16,8 @@ function StatusButton({ id, status, label }: { id: number; status: string; label
   );
 }
 
-/** Row actions: publish / close, and extend (published) or reopen (closed). */
-export function JobActions({ job }: { job: JobSummary }) {
+/** Row actions: publish / close, extend (published) or reopen (closed), and push to PostInTime. */
+export function JobActions({ job }: { job: AdminJobSummary }) {
   const id = job.id as number;
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -31,6 +32,7 @@ export function JobActions({ job }: { job: JobSummary }) {
           </Button>
         </form>
       ) : null}
+      {job.status !== "DRAFT" ? <PushToPostintimeButton id={id} posted={job.postintimePostedAt !== null} /> : null}
     </div>
   );
 }
