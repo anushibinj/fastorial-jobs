@@ -5,6 +5,7 @@ import { savePostintimeSettingsAction, type PostintimeFormState } from "@/app/ad
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { PostintimeSettingsDto, PostStatus } from "@/lib/types";
 
@@ -39,6 +40,7 @@ export function PostintimeForm({ settings }: { settings: PostintimeSettingsDto }
   const [apiToken, setApiToken] = useState("");
   const [channelId, setChannelId] = useState(settings.channelId);
   const [postStatus, setPostStatus] = useState<PostStatus>(settings.postStatus);
+  const [postSuffix, setPostSuffix] = useState(settings.postSuffix);
   const [state, setState] = useState<PostintimeFormState>({});
   const [pending, startTransition] = useTransition();
   const fe = state.fieldErrors ?? {};
@@ -49,7 +51,7 @@ export function PostintimeForm({ settings }: { settings: PostintimeSettingsDto }
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
-          const result = await savePostintimeSettingsAction({ enabled, baseUrl, apiToken, channelId, postStatus });
+          const result = await savePostintimeSettingsAction({ enabled, baseUrl, apiToken, channelId, postStatus, postSuffix });
           setState(result);
           if (result.saved) setApiToken("");
         });
@@ -98,6 +100,13 @@ export function PostintimeForm({ settings }: { settings: PostintimeSettingsDto }
             ))}
           </SelectContent>
         </Select>
+      </Field>
+
+      <Field id="postSuffix" label="Post suffix" error={fe.postSuffix} hint="Added at the end of every post caption, e.g. hashtags or a footer. Line breaks are kept.">
+        <Textarea
+          id="postSuffix" name="postSuffix" rows={4} placeholder={"#jobs #hiring\nFollow us for more openings"}
+          value={postSuffix} onChange={(e) => setPostSuffix(e.target.value)} maxLength={2000} aria-invalid={!!fe.postSuffix}
+        />
       </Field>
 
       {endpoint ? (
