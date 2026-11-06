@@ -19,6 +19,7 @@ import { offsetOf, type PageRequest } from "@/server/jobs/paging";
 import type { JobRequest } from "@/server/requests/job-request";
 import type { Clock } from "@/server/shared/clock";
 import type { Logger } from "@/server/shared/logger";
+import { PostintimeQueue } from "@/server/postintime/postintime-queue";
 import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { DEFAULT_SETTINGS, PostintimeSettingsService, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
 import type { TagRecord } from "@/server/tags/tag-record";
@@ -234,6 +235,10 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
   const jobsUow = fakeUnitOfWork({ jobs: stores.jobs, tags: stores.tags });
   const postintimeSettings = new PostintimeSettingsService(fakeUnitOfWork({ settings: stores.postintime }), clock);
   const jobCommands = new JobCommandService(jobsUow, clock, config.jobs);
+  const postintime = new PostintimePublisher(
+    postintimeSettings, async () => ({ bytes: new Uint8Array(), contentType: "image/png" }), logger, undefined, undefined,
+    { recordPosted: (jobId, postId, at) => stores.jobs.markPostintimePosted(jobId, at, postId) },
+  );
   const services: Services = {
     config, db, clock, logger,
     schema: { ready: async () => undefined },
@@ -246,10 +251,8 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     tagDetection: new TagDetectionService(stores.tags, clock),
     apiKeys,
     postintimeSettings,
-    postintime: new PostintimePublisher(
-      postintimeSettings, async () => ({ bytes: new Uint8Array(), contentType: "image/png" }), logger, undefined, undefined,
-      { recordPosted: (jobId, postId, at) => stores.jobs.markPostintimePosted(jobId, at, postId) },
-    ),
+    postintime,
+    postintimeQueue: new PostintimeQueue(postintime, logger),
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };

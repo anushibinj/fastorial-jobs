@@ -51,11 +51,11 @@ export const adminSetStatus = async (id: number | string, status: string): Promi
 export const adminExtend = async (id: number | string, days?: number): Promise<JobDetail> =>
   getServices().jobCommands.extend(pathId(String(id), "Job not found"), parseExtendRequest(days ? { days } : {}));
 
-/** Pushes one job to PostInTime now. Never throws for a PostInTime problem; the outcome says what happened. */
+/** Queues one job for PostInTime and returns at once. Pushes are sent one at a time; the result lands in the PostInTime tab. */
 export const adminPushToPostintime = async (id: number | string): Promise<PushOutcome> => {
   const services = getServices();
   const job = await services.jobQueries.getAdmin(pathId(String(id), "Job not found"));
-  return services.postintime.publishJob(job);
+  return services.postintimeQueue.enqueueManual(job);
 };
 
 export const adminTags = async (): Promise<TagDto[]> => getServices().tagCatalog.listTags();

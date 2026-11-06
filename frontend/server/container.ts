@@ -8,7 +8,7 @@ import { MIGRATIONS } from "@/server/db/migrations";
 import { Migrator } from "@/server/db/migrator";
 import { SchemaGate, SchemaGatedDatabase, type SchemaReadiness } from "@/server/db/schema-gate";
 import { pgUnitOfWork } from "@/server/db/unit-of-work";
-import { fireAndForget, InProcessEventBus, type JobPostCreated, type RunInBackground } from "@/server/events/event-bus";
+import { fireAndForget, InProcessEventBus, type RunInBackground } from "@/server/events/event-bus";
 import { RouteFactory } from "@/server/http/routes";
 import { FilterService, PgJobFacetRepository } from "@/server/jobs/filter-service";
 import { JobCleanupService } from "@/server/jobs/job-cleanup-service";
@@ -16,10 +16,10 @@ import { JobCommandService } from "@/server/jobs/job-command-service";
 import { JobCreationQueue } from "@/server/jobs/job-creation-queue";
 import { JobQueryService } from "@/server/jobs/job-query-service";
 import { PgJobRepository } from "@/server/jobs/job-repository";
+import { PostintimeQueue } from "@/server/postintime/postintime-queue";
 import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { PgPostintimeSettingsRepository, PostintimeSettingsService } from "@/server/postintime/settings";
 import { renderJobSquareImage } from "@/server/postintime/square-image";
-import { SerialQueue } from "@/server/queue/serial-queue";
 import { systemClock, type Clock } from "@/server/shared/clock";
 import { consoleLogger, type Logger } from "@/server/shared/logger";
 import { PgTagRepository } from "@/server/tags/tag-repository";
@@ -50,6 +50,8 @@ export interface Services {
   postintimeSettings: PostintimeSettingsService;
   /** Pushes jobs to PostInTime, for the admin "Push to PostInTime" button. */
   postintime: PostintimePublisher;
+  /** Serializes every push to PostInTime, automatic or manual. */
+  postintimeQueue: PostintimeQueue;
   authenticator: RequestAuthenticator;
   routes: RouteFactory;
 }
@@ -97,10 +99,8 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     recordPosted: (jobId, postId, at) => jobsUow.write(({ jobs }) => jobs.markPostintimePosted(jobId, at, postId)),
   });
   // Pushes go through a queue so PostInTime only ever receives one post at a time.
-  const postintimeQueue = new SerialQueue<JobPostCreated>(
-    "postintime", (event) => postintime.onJobPostCreated(event), logger, runInBackground,
-  );
-  events.subscribe("JobPostCreated", (event) => postintimeQueue.enqueue(event));
+  const postintimeQueue = new PostintimeQueue(postintime, logger, runInBackground);
+  events.subscribe("JobPostCreated", (event) => postintimeQueue.enqueueCreated(event));
   const apiKeys = new ApiKeyService(apiKeysUow, clock);
   const authenticator = new RequestAuthenticator(
     { adminToken: config.adminToken, internalSecret: config.internalSecret },
@@ -123,6 +123,7 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     apiKeys,
     postintimeSettings,
     postintime,
+    postintimeQueue,
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };
