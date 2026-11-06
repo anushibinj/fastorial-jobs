@@ -155,7 +155,7 @@ function jobImageTree(m: PreviewMeta, l: (typeof LAYOUTS)[keyof typeof LAYOUTS])
           {m.imageLocation ? <div style={{ display: "flex" }}>{m.imageLocation}</div> : null}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
-          <Pill size={l.pill}>{m.experience}</Pill>
+          <Pill size={l.pill}>{`Experience: ${m.experience}`}</Pill>
           {m.agePill ? (
             <Pill size={l.pill} muted={m.closed}>
               {m.agePill}
