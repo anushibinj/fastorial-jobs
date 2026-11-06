@@ -98,10 +98,8 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
       </div>
 
       {/* md: inline row above the list. lg: sidebar (lg:contents on the wrapper lets the grid place this) */}
-      <div className="hidden md:block lg:col-start-1 lg:row-span-3 lg:row-start-1">
-        <div className="lg:sticky lg:top-[4.5rem] lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto lg:pr-1">
-          <FilterFields value={value} facets={facets} onChange={(patch) => go({ ...value, ...patch })} idPrefix="inline" inline />
-        </div>
+      <div className="hidden md:block lg:sticky lg:top-[4.5rem] lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto lg:pr-1">
+        <FilterFields value={value} facets={facets} onChange={(patch) => go({ ...value, ...patch })} idPrefix="inline" inline />
       </div>
 
       <ActiveFilters value={value} facets={facets} onChange={go} />
