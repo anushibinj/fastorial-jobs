@@ -14,6 +14,8 @@ export interface JobCriteria {
   expMax?: number | null;
   tags?: readonly string[] | null;
   status?: JobStatus | null;
+  /** true: only jobs pushed to PostInTime; false: only jobs not pushed yet. */
+  postedToPostintime?: boolean | null;
   liveAt?: Date | null;
 }
 
@@ -59,6 +61,9 @@ export function buildJobFilter(criteria: JobCriteria): SqlFilter {
   };
 
   if (criteria.status) clauses.push(`j.status = ${bind(criteria.status)}`);
+  if (criteria.postedToPostintime != null) {
+    clauses.push(`j.postintime_posted_at IS ${criteria.postedToPostintime ? "NOT NULL" : "NULL"}`);
+  }
   if (criteria.liveAt) clauses.push(`(j.expires_at IS NULL OR j.expires_at > ${bind(criteria.liveAt)})`);
   if (criteria.workMode) clauses.push(`j.work_mode = ${bind(criteria.workMode)}`);
   if (criteria.location != null && !isJavaBlank(criteria.location)) {
