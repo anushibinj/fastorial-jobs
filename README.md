@@ -116,7 +116,11 @@ Good to know:
 - The push runs after the response (Next.js `after()`), so a slow or broken PostInTime never delays or fails job creation.
   The page shows the outcome under **Last push**, including the HTTP status when PostInTime refuses.
 - Drafts and closed jobs are not pushed, and neither are edits: only the creation event counts. There is no retry; post a
-  missed job by hand in PostInTime.
+  missed job by hand from the admin jobs list (below).
+- **Admin → Jobs** shows a **PostInTime** column (Posted or Not posted, with the push time on hover). Each non-draft row has a
+  **Push to PostInTime** button (**Push again** once posted), which works even while the connection is switched off, as long
+  as it is filled in. Tick several rows to publish, close, extend or push them together; a job that fails does not stop the
+  rest, and the result lists what failed.
 - If the image cannot be drawn, the post is still sent, without media, and the result says so.
 - The 1:1 image is `jobSquareImage` in `frontend/lib/og.tsx`, built from the same `buildPreviewMeta` as the 1200 x 630 preview.
 
