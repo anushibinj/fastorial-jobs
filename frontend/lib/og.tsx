@@ -53,6 +53,32 @@ function Brand() {
   );
 }
 
+const ICON_PROPS = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+
+/** Lucide "building-2" and "map-pin", inlined because Satori cannot load icon fonts. */
+function BuildingIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size} {...ICON_PROPS} stroke={color}>
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+      <path d="M10 6h4" />
+      <path d="M10 10h4" />
+      <path d="M10 14h4" />
+      <path d="M10 18h4" />
+    </svg>
+  );
+}
+
+function MapPinIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size} {...ICON_PROPS} stroke={color}>
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
 function Pill({ children, muted = false, size = 34 }: { children: string; muted?: boolean; size?: number }) {
   return (
     <div
@@ -98,7 +124,8 @@ const LAYOUTS = {
 };
 
 function jobImageTree(m: PreviewMeta, l: (typeof LAYOUTS)[keyof typeof LAYOUTS]) {
-  const where = [m.imageCompany, m.imageLocation].filter(Boolean).join("  ·  ");
+  const iconSize = Math.round(l.where * 0.95);
+  const WHERE_COLOR = "#d4d4d4";
   return (
     <div style={{ ...root, padding: l.padding }}>
       <Brand />
@@ -120,8 +147,12 @@ function jobImageTree(m: PreviewMeta, l: (typeof LAYOUTS)[keyof typeof LAYOUTS])
         >
           {m.imageTitle}
         </div>
-        <div style={{ display: "flex", fontSize: l.where, color: "#d4d4d4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {where}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: l.where, color: WHERE_COLOR, overflow: "hidden", whiteSpace: "nowrap" }}>
+          {m.imageCompany ? <BuildingIcon size={iconSize} color={WHERE_COLOR} /> : null}
+          {m.imageCompany ? <div style={{ display: "flex" }}>{m.imageCompany}</div> : null}
+          {m.imageCompany && m.imageLocation ? <div style={{ display: "flex", color: MUTED, padding: "0 4px" }}>•</div> : null}
+          {m.imageLocation ? <MapPinIcon size={iconSize} color={WHERE_COLOR} /> : null}
+          {m.imageLocation ? <div style={{ display: "flex" }}>{m.imageLocation}</div> : null}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           <Pill size={l.pill}>{m.experience}</Pill>
