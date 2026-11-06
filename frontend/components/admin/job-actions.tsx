@@ -21,7 +21,7 @@ export function JobActions({ job }: { job: AdminJobSummary }) {
   const id = job.id as number;
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {job.status === "DRAFT" ? <StatusButton id={id} status="PUBLISHED" label="Publish" /> : null}
+      {job.status === "DRAFT" && job.pendingTags.length === 0 ? <StatusButton id={id} status="PUBLISHED" label="Publish" /> : null}
       {job.status === "PUBLISHED" ? <StatusButton id={id} status="CLOSED" label="Close" /> : null}
       {job.status !== "DRAFT" ? (
         <form action={extendAction} className="flex items-center gap-1">

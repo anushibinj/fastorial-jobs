@@ -7,6 +7,7 @@ import { JobActions } from "@/components/admin/job-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PENDING_TAGS_NOTE } from "@/components/admin/pending-tags";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/lib/admin/dates";
 import type { AdminJobSummary } from "@/lib/types";
@@ -114,9 +115,18 @@ export function JobTable({ items }: { items: AdminJobSummary[] }) {
                     {j.title}
                   </Link>
                   <div className="text-muted-foreground text-xs">{j.companyName}</div>
+                  {j.status === "DRAFT" && j.pendingTags.length > 0 ? (
+                    <p className="mt-1 text-xs text-amber-700 dark:text-amber-400" data-testid="pending-tags-note">
+                      {PENDING_TAGS_NOTE}{" "}
+                      <Link data-track="admin_job_review_tags_link" href={`/admin/jobs/${j.id}/edit`} className="font-medium underline underline-offset-4">
+                        Review {j.pendingTags.length} {j.pendingTags.length === 1 ? "tag" : "tags"}
+                      </Link>
+                    </p>
+                  ) : null}
                 </TableCell>
                 <TableCell>
                   <Badge variant={j.status === "PUBLISHED" ? "default" : j.status === "CLOSED" ? "outline" : "secondary"}>{j.status}</Badge>
+                  {j.pendingTags.length > 0 ? <Badge variant="outline" className="mt-1">Tag approval needed</Badge> : null}
                 </TableCell>
                 <TableCell>
                   <PostintimeBadge postedAt={j.postintimePostedAt} />

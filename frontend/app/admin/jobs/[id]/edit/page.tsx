@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PendingTags } from "@/components/admin/pending-tags";
 import { JobForm } from "@/components/admin/job-form";
 import { adminGetJob, adminTags } from "@/lib/admin/api";
 import { requireAdmin } from "@/lib/admin/session";
@@ -18,5 +19,10 @@ export default async function EditJobPage({ params }: PageProps<"/admin/jobs/[id
     adminTags(),
   ]);
   if (!job) notFound();
-  return <JobForm key={job.id} job={job} tags={tags.map((t) => ({ slug: t.slug ?? "", name: t.name ?? "" }))} />;
+  return (
+    <>
+      <PendingTags jobId={job.id} slugs={job.pendingTags} />
+      <JobForm key={`${job.id}-${job.tags.length}`} job={job} tags={tags.map((t) => ({ slug: t.slug ?? "", name: t.name ?? "" }))} />
+    </>
+  );
 }

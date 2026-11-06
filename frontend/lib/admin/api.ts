@@ -1,5 +1,5 @@
 import "server-only";
-import type { AdminJobSummary, ApiKey, DetectedTag, JobDetail, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
+import type { AdminJobDetail, AdminJobSummary, ApiKey, DetectedTag, JobDetail, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
 import { getServices } from "@/server/container";
 import {
   parseApiKeyRequest,
@@ -37,7 +37,7 @@ export async function adminListJobs(params: { q?: string; status?: string; posti
   return getServices().jobQueries.searchAdmin(q, status, page, ADMIN_PAGE_SIZE, posted);
 }
 
-export const adminGetJob = async (id: number | string): Promise<JobDetail> =>
+export const adminGetJob = async (id: number | string): Promise<AdminJobDetail> =>
   getServices().jobQueries.getAdmin(pathId(String(id), "Job not found"));
 
 export const adminCreateJob = async (body: unknown): Promise<JobDetail> =>
@@ -51,6 +51,14 @@ export const adminSetStatus = async (id: number | string, status: string): Promi
 
 export const adminExtend = async (id: number | string, days?: number): Promise<JobDetail> =>
   getServices().jobCommands.extend(pathId(String(id), "Job not found"), parseExtendRequest(days ? { days } : {}));
+
+/** Adds a pending tag of a draft to the tag vocabulary and to the job. */
+export const adminApprovePendingTag = async (id: number | string, slug: string, name: string, category: string): Promise<JobDetail> =>
+  getServices().jobCommands.approvePendingTag(pathId(String(id), "Job not found"), slug, name, category);
+
+/** Drops a pending tag of a draft without creating it. */
+export const adminSkipPendingTag = async (id: number | string, slug: string): Promise<JobDetail> =>
+  getServices().jobCommands.skipPendingTag(pathId(String(id), "Job not found"), slug);
 
 /** Queues one job for PostInTime and returns at once. Pushes are sent one at a time; the result lands in the PostInTime tab. */
 export const adminPushToPostintime = async (id: number | string): Promise<PushOutcome> => {

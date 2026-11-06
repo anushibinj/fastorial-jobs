@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   adminCreateApiKey,
+  adminApprovePendingTag,
   adminCreateJob,
   adminDetectTags,
   adminExtend,
@@ -12,6 +13,7 @@ import {
   adminRevokeApiKey,
   adminSavePostintimeSettings,
   adminSetStatus,
+  adminSkipPendingTag,
   adminUpdateJob,
 } from "@/lib/admin/api";
 import { checkToken, requireAdmin, SESSION_COOKIE, sessionValue } from "@/lib/admin/session";
@@ -58,6 +60,22 @@ export async function saveJobAction(id: string | null, payload: JobRequest): Pro
   }
   revalidatePath("/admin/jobs");
   redirect("/admin/jobs");
+}
+
+/** Approves one pending tag of a draft (creates it if needed and attaches it), or skips it. */
+export async function reviewPendingTagAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const slug = String(formData.get("slug") ?? "");
+  try {
+    if (formData.get("decision") === "skip") await adminSkipPendingTag(id, slug);
+    else await adminApprovePendingTag(id, slug, String(formData.get("name") ?? ""), String(formData.get("category") ?? ""));
+  } catch (e) {
+    return toFormState(e);
+  }
+  revalidatePath("/admin/jobs");
+  revalidatePath(`/admin/jobs/${id}/edit`);
+  return {};
 }
 
 export async function setStatusAction(formData: FormData): Promise<void> {
