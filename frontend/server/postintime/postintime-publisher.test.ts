@@ -195,4 +195,11 @@ describe("PostintimePublisher.publishJob", () => {
     expect(outcome).toEqual({ ok: false, message: "Failed to post job 12: PostInTime answered HTTP 401: nope" });
     expect(recorded).toEqual([]);
   });
+
+  it("hints at a wrong Server URL when the answer is the web app's HTML 405 page", async () => {
+    respond = () => new Response("<html><title>405 Not Allowed</title></html>", { status: 405 });
+    const outcome = await publisher.publishJob(job());
+    expect(outcome.ok).toBe(false);
+    expect(outcome.message).toMatch(/HTTP 405.*web app, not its API/);
+  });
 });
