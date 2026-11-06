@@ -9,6 +9,7 @@ import type {
 
 /** UI facing names for the API contract types (see `lib/api/contract.ts`). */
 export type {
+  AdminJobDetail,
   AdminJobSummary,
   FiltersResponse,
   JobDetail,

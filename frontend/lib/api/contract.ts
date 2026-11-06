@@ -59,6 +59,13 @@ export interface JobSummary {
 export interface AdminJobSummary extends JobSummary {
   /** When the job was last pushed to PostInTime, or null when it never was. */
   postintimePostedAt: IsoInstant | null;
+  /** Tag slugs from the post that are not in the vocabulary. Non-empty means "Tag approval needed". */
+  pendingTags: string[];
+}
+
+/** A job for the admin edit page: the public detail plus the tag slugs waiting for approval. */
+export interface AdminJobDetail extends JobDetail {
+  pendingTags: string[];
 }
 
 /** A single job with every field. */

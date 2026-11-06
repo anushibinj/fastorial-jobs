@@ -1,7 +1,7 @@
-import type { AdminJobSummary, JobDetail, JobStatus, JobSummary, PageResponse, SitemapEntry, WorkMode } from "@/lib/api/contract";
+import type { AdminJobDetail, AdminJobSummary, JobDetail, JobStatus, JobSummary, PageResponse, SitemapEntry, WorkMode } from "@/lib/api/contract";
 import type { JobSettings } from "@/server/config/app-config";
 import type { UnitOfWork } from "@/server/db/unit-of-work";
-import { toAdminJobSummary, toJobDetail, toJobSummary } from "@/server/jobs/job-mapper";
+import { toAdminJobDetail, toAdminJobSummary, toJobDetail, toJobSummary } from "@/server/jobs/job-mapper";
 import { toIso } from "@/server/shared/iso";
 import type { JobRepository } from "@/server/jobs/job-repository";
 import { toPageRequest, toPageResponse } from "@/server/jobs/paging";
@@ -74,11 +74,11 @@ export class JobQueryService {
    *
    * @throws ApiException 404 when there is no such job.
    */
-  getAdmin(id: number): Promise<JobDetail> {
+  getAdmin(id: number): Promise<AdminJobDetail> {
     return this.uow.read(async ({ jobs }) => {
       const job = await jobs.findById(id);
       if (!job) throw ApiException.notFound("Job not found");
-      return toJobDetail(job);
+      return toAdminJobDetail(job);
     });
   }
 }

@@ -37,4 +37,9 @@ export interface JobRecord {
   createdAt: Date;
   updatedAt: Date;
   tags: TagRecord[];
+  /**
+   * Tag slugs the post named that are not in the tag vocabulary yet. While any remain, the job is a
+   * draft marked "Tag approval needed" and cannot be published (see `JobCommandService`).
+   */
+  pendingTags: string[];
 }

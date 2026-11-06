@@ -40,7 +40,7 @@ export interface JobRepository {
   nextId(): Promise<number>;
   /** @throws DuplicateApplyUrlError when the apply URL hash is taken. */
   insert(job: JobRecord): Promise<void>;
-  /** Updates every mutable column and replaces the tags. @throws DuplicateApplyUrlError */
+  /** Updates every mutable column (pending tags included) and replaces the tags. @throws DuplicateApplyUrlError */
   update(job: JobRecord): Promise<void>;
   /** Updates only status, posted date, expiry and update time (status changes and extensions). */
   saveSchedule(job: JobRecord): Promise<void>;
@@ -57,7 +57,7 @@ const JOB_COLUMNS = `j.id, j.slug, j.title, j.company_name, j.company_logo_url, 
   j.apply_url_hash, j.source, j.location_city, j.location_state, j.location_country, j.work_mode,
   j.experience_min_years, j.experience_max_years, j.salary_min, j.salary_max, j.salary_currency,
   j.salary_period, j.status, j.posted_at, j.expires_at, j.postintime_posted_at, j.postintime_post_id, j.created_at,
-  j.updated_at`;
+  j.updated_at, j.pending_tags`;
 
 interface JobRow {
   id: number;
@@ -86,6 +86,7 @@ interface JobRow {
   postintime_post_id: string | null;
   created_at: Date;
   updated_at: Date;
+  pending_tags: string[];
 }
 
 /** Maps a `jobs` row plus its tags to a record. */
@@ -118,6 +119,7 @@ export function toJobRecord(row: JobRow, tags: TagRecord[]): JobRecord {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     tags,
+    pendingTags: row.pending_tags ?? [],
   };
 }
 
@@ -170,10 +172,10 @@ export class PgJobRepository implements JobRepository {
         `INSERT INTO jobs (id, slug, title, company_name, company_logo_url, description, apply_url, apply_url_hash,
            source, location_city, location_state, location_country, work_mode, experience_min_years,
            experience_max_years, salary_min, salary_max, salary_currency, salary_period, status, posted_at,
-           expires_at, created_at, updated_at)
+           expires_at, created_at, updated_at, pending_tags)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21,
-           $22, $23, $24)`,
-        [job.id, job.slug, ...this.mutableValues(job), job.createdAt, job.updatedAt],
+           $22, $23, $24, $25)`,
+        [job.id, job.slug, ...this.mutableValues(job), job.createdAt, job.updatedAt, job.pendingTags],
       );
     } catch (error) {
       if (isDuplicateApplyUrl(error)) throw new DuplicateApplyUrlError();
@@ -189,9 +191,9 @@ export class PgJobRepository implements JobRepository {
            apply_url_hash = $7, source = $8, location_city = $9, location_state = $10, location_country = $11,
            work_mode = $12, experience_min_years = $13, experience_max_years = $14, salary_min = $15,
            salary_max = $16, salary_currency = $17, salary_period = $18, status = $19, posted_at = $20,
-           expires_at = $21, updated_at = $22
+           expires_at = $21, updated_at = $22, pending_tags = $23
          WHERE id = $1`,
-        [job.id, ...this.mutableValues(job), job.updatedAt],
+        [job.id, ...this.mutableValues(job), job.updatedAt, job.pendingTags],
       );
     } catch (error) {
       if (isDuplicateApplyUrl(error)) throw new DuplicateApplyUrlError();

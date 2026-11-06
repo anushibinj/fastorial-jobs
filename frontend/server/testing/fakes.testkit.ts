@@ -330,6 +330,7 @@ export function jobRecord(extra: Partial<JobRecord> = {}): JobRecord {
     createdAt: now,
     updatedAt: now,
     tags: [],
+    pendingTags: [],
     ...extra,
   };
 }
