@@ -146,6 +146,21 @@ describe("API endpoints with in-memory services", () => {
     expect((await json(await endpoints.listAdminJobs(req("/api/admin/jobs", { headers: admin }), noParams))).total).toBe(1);
   });
 
+  it("queue bulk job creation, answer 202 at once and create the jobs afterwards", async () => {
+    const { endpoints, services } = setup();
+    const job = (n: number) => ({ title: `T${n}`, companyName: "C", applyUrl: `https://x.com/${n}`, source: "OTHER", workMode: "REMOTE", experienceMinYears: 1 });
+    const body = JSON.stringify({ jobs: [job(1), { title: "" }, job(2)] });
+    const res = await endpoints.createJobsBulk(req("/", { method: "POST", headers: admin, body }), noParams);
+    expect(res.status).toBe(202);
+    const out = await json(res);
+    expect(out.queued).toBe(2);
+    expect(out.rejected.map((r: { index: number }) => r.index)).toEqual([1]);
+    await services.jobCreationQueue.idle();
+    expect((await json(await endpoints.listAdminJobs(req("/api/admin/jobs", { headers: admin }), noParams))).total).toBe(2);
+    const bad = await endpoints.createJobsBulk(req("/", { method: "POST", headers: admin, body: "{}" }), noParams);
+    expect(bad.status).toBe(400);
+  });
+
   it("list and detect tags", async () => {
     const { endpoints } = setup();
     expect(await json(await endpoints.listTags(req("/", { headers: admin }), noParams))).toHaveLength(3);
