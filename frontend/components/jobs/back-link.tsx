@@ -19,7 +19,7 @@ export function BackLink() {
         }
       }}
     >
-      <ArrowLeft className="size-4" /> Back
+      <ArrowLeft className="size-4" /> Back to all jobs
     </Link>
   );
 }
