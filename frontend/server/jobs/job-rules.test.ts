@@ -149,6 +149,12 @@ describe("job query", () => {
     expect(f.where).toContain("lower(j.title) LIKE $10 ESCAPE '\\'");
   });
 
+  it("buildJobFilter filters on whether the job was pushed to PostInTime", () => {
+    expect(buildJobFilter({ postedToPostintime: true }).where).toBe("j.postintime_posted_at IS NOT NULL");
+    expect(buildJobFilter({ postedToPostintime: false }).where).toBe("j.postintime_posted_at IS NULL");
+    expect(buildJobFilter({ postedToPostintime: null })).toEqual({ where: "TRUE", params: [] });
+  });
+
   it("buildJobFilter ignores blank text, blank location and an all-empty tag list", () => {
     expect(buildJobFilter({ q: "  ", location: "", tags: ["", " "] })).toEqual({ where: "TRUE", params: [] });
   });
