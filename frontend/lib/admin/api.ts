@@ -27,13 +27,14 @@ import { pathId } from "@/server/requests/request-params";
 const ADMIN_PAGE_SIZE = 30;
 
 /** One page of every job, most recently edited first, optionally filtered by text and status. */
-export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<AdminJobSummary>> {
+export async function adminListJobs(params: { q?: string; status?: string; postintime?: string; page?: number }): Promise<PageOf<AdminJobSummary>> {
   const query = new URLSearchParams();
   if (params.q) query.set("q", params.q);
   if (params.status) query.set("status", params.status);
   query.set("page", String(params.page ?? 0));
   const { q, status, page } = parseAdminJobQuery(query);
-  return getServices().jobQueries.searchAdmin(q, status, page, ADMIN_PAGE_SIZE);
+  const posted = params.postintime === "posted" ? true : params.postintime === "not-posted" ? false : null;
+  return getServices().jobQueries.searchAdmin(q, status, page, ADMIN_PAGE_SIZE, posted);
 }
 
 export const adminGetJob = async (id: number | string): Promise<JobDetail> =>

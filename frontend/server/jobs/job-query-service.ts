@@ -61,10 +61,10 @@ export class JobQueryService {
   }
 
   /** Every job (any status unless filtered, expired included), most recently edited first. */
-  searchAdmin(q: string | null, status: JobStatus | null, page: number | null, size: number | null): Promise<PageResponse<AdminJobSummary>> {
+  searchAdmin(q: string | null, status: JobStatus | null, page: number | null, size: number | null, postedToPostintime: boolean | null = null): Promise<PageResponse<AdminJobSummary>> {
     const request = toPageRequest(page, size, this.settings);
     return this.uow.read(async ({ jobs }) => {
-      const { items, total } = await jobs.search({ q, status }, "updatedDesc", request);
+      const { items, total } = await jobs.search(postedToPostintime === null ? { q, status } : { q, status, postedToPostintime }, "updatedDesc", request);
       return toPageResponse(items.map(toAdminJobSummary), request, total);
     });
   }
