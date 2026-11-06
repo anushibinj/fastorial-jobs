@@ -7,6 +7,7 @@ import {
   parseExtendRequest,
   parseStatusRequest,
 } from "@/server/requests/admin-requests";
+import type { PushOutcome } from "@/server/postintime/postintime-publisher";
 import { parseSettingsRequest } from "@/server/postintime/settings";
 import { parseJobRequest } from "@/server/requests/job-request";
 import { parseAdminJobQuery } from "@/server/requests/list-queries";
@@ -49,6 +50,13 @@ export const adminSetStatus = async (id: number | string, status: string): Promi
 
 export const adminExtend = async (id: number | string, days?: number): Promise<JobDetail> =>
   getServices().jobCommands.extend(pathId(String(id), "Job not found"), parseExtendRequest(days ? { days } : {}));
+
+/** Pushes one job to PostInTime now. Never throws for a PostInTime problem; the outcome says what happened. */
+export const adminPushToPostintime = async (id: number | string): Promise<PushOutcome> => {
+  const services = getServices();
+  const job = await services.jobQueries.getAdmin(pathId(String(id), "Job not found"));
+  return services.postintime.publishJob(job);
+};
 
 export const adminTags = async (): Promise<TagDto[]> => getServices().tagCatalog.listTags();
 
