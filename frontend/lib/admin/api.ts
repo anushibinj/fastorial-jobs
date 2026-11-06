@@ -1,5 +1,5 @@
 import "server-only";
-import type { ApiKey, DetectedTag, JobDetail, JobSummary, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
+import type { AdminJobSummary, ApiKey, DetectedTag, JobDetail, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
 import { getServices } from "@/server/container";
 import {
   parseApiKeyRequest,
@@ -26,7 +26,7 @@ import { pathId } from "@/server/requests/request-params";
 const ADMIN_PAGE_SIZE = 30;
 
 /** One page of every job, most recently edited first, optionally filtered by text and status. */
-export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<JobSummary>> {
+export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<AdminJobSummary>> {
   const query = new URLSearchParams();
   if (params.q) query.set("q", params.q);
   if (params.status) query.set("status", params.status);

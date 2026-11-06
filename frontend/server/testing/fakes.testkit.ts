@@ -132,6 +132,10 @@ export class InMemoryJobRepository implements JobRepository {
     const i = this.jobs.findIndex((j) => j.id === job.id);
     this.jobs[i] = { ...this.jobs[i], status: job.status, postedAt: job.postedAt, expiresAt: job.expiresAt, updatedAt: job.updatedAt };
   }
+  async markPostintimePosted(id: number, at: Date, postId: string | null) {
+    const i = this.jobs.findIndex((j) => j.id === id);
+    if (i >= 0) this.jobs[i] = { ...this.jobs[i], postintimePostedAt: at, postintimePostId: postId };
+  }
   async closeExpired(now: Date) {
     let n = 0;
     for (const j of this.jobs) {
@@ -306,6 +310,8 @@ export function jobRecord(extra: Partial<JobRecord> = {}): JobRecord {
     status: "PUBLISHED",
     postedAt: now,
     expiresAt: new Date(now.getTime() + 30 * 86_400_000),
+    postintimePostedAt: null,
+    postintimePostId: null,
     createdAt: now,
     updatedAt: now,
     tags: [],

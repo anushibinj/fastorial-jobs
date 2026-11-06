@@ -1,7 +1,7 @@
-import type { JobDetail, JobStatus, JobSummary, PageResponse, SitemapEntry, WorkMode } from "@/lib/api/contract";
+import type { AdminJobSummary, JobDetail, JobStatus, JobSummary, PageResponse, SitemapEntry, WorkMode } from "@/lib/api/contract";
 import type { JobSettings } from "@/server/config/app-config";
 import type { UnitOfWork } from "@/server/db/unit-of-work";
-import { toJobDetail, toJobSummary } from "@/server/jobs/job-mapper";
+import { toAdminJobSummary, toJobDetail, toJobSummary } from "@/server/jobs/job-mapper";
 import { toIso } from "@/server/shared/iso";
 import type { JobRepository } from "@/server/jobs/job-repository";
 import { toPageRequest, toPageResponse } from "@/server/jobs/paging";
@@ -61,11 +61,11 @@ export class JobQueryService {
   }
 
   /** Every job (any status unless filtered, expired included), most recently edited first. */
-  searchAdmin(q: string | null, status: JobStatus | null, page: number | null, size: number | null): Promise<PageResponse<JobSummary>> {
+  searchAdmin(q: string | null, status: JobStatus | null, page: number | null, size: number | null): Promise<PageResponse<AdminJobSummary>> {
     const request = toPageRequest(page, size, this.settings);
     return this.uow.read(async ({ jobs }) => {
       const { items, total } = await jobs.search({ q, status }, "updatedDesc", request);
-      return toPageResponse(items.map(toJobSummary), request, total);
+      return toPageResponse(items.map(toAdminJobSummary), request, total);
     });
   }
 

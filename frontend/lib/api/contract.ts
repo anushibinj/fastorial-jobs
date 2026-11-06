@@ -55,6 +55,12 @@ export interface JobSummary {
   tags: TagDto[];
 }
 
+/** A list row for the admin UI: a job summary plus whether it was pushed to PostInTime. */
+export interface AdminJobSummary extends JobSummary {
+  /** When the job was last pushed to PostInTime, or null when it never was. */
+  postintimePostedAt: IsoInstant | null;
+}
+
 /** A single job with every field. */
 export interface JobDetail {
   id: number;

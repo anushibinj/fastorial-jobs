@@ -44,6 +44,8 @@ export interface JobRepository {
   update(job: JobRecord): Promise<void>;
   /** Updates only status, posted date, expiry and update time (status changes and extensions). */
   saveSchedule(job: JobRecord): Promise<void>;
+  /** Remembers that the job was pushed to PostInTime at `at`, with the post id it got (if any). */
+  markPostintimePosted(id: number, at: Date, postId: string | null): Promise<void>;
   /** Closes every published job whose expiry is before `now`. Returns how many changed. */
   closeExpired(now: Date): Promise<number>;
   /** Published jobs whose expiry is after `now`, most recently updated first. */
@@ -54,7 +56,8 @@ export interface JobRepository {
 const JOB_COLUMNS = `j.id, j.slug, j.title, j.company_name, j.company_logo_url, j.description, j.apply_url,
   j.apply_url_hash, j.source, j.location_city, j.location_state, j.location_country, j.work_mode,
   j.experience_min_years, j.experience_max_years, j.salary_min, j.salary_max, j.salary_currency,
-  j.salary_period, j.status, j.posted_at, j.expires_at, j.created_at, j.updated_at`;
+  j.salary_period, j.status, j.posted_at, j.expires_at, j.postintime_posted_at, j.postintime_post_id, j.created_at,
+  j.updated_at`;
 
 interface JobRow {
   id: number;
@@ -79,6 +82,8 @@ interface JobRow {
   status: JobStatus;
   posted_at: Date | null;
   expires_at: Date | null;
+  postintime_posted_at: Date | null;
+  postintime_post_id: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -108,6 +113,8 @@ export function toJobRecord(row: JobRow, tags: TagRecord[]): JobRecord {
     status: row.status,
     postedAt: row.posted_at,
     expiresAt: row.expires_at,
+    postintimePostedAt: row.postintime_posted_at,
+    postintimePostId: row.postintime_post_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     tags,
@@ -198,6 +205,10 @@ export class PgJobRepository implements JobRepository {
       "UPDATE jobs SET status = $2, posted_at = $3, expires_at = $4, updated_at = $5 WHERE id = $1",
       [job.id, job.status, job.postedAt, job.expiresAt, job.updatedAt],
     );
+  }
+
+  async markPostintimePosted(id: number, at: Date, postId: string | null): Promise<void> {
+    await this.db.query("UPDATE jobs SET postintime_posted_at = $2, postintime_post_id = $3 WHERE id = $1", [id, at, postId]);
   }
 
   async closeExpired(now: Date): Promise<number> {
