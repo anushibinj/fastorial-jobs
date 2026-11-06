@@ -8,16 +8,18 @@ import { MIGRATIONS } from "@/server/db/migrations";
 import { Migrator } from "@/server/db/migrator";
 import { SchemaGate, SchemaGatedDatabase, type SchemaReadiness } from "@/server/db/schema-gate";
 import { pgUnitOfWork } from "@/server/db/unit-of-work";
-import { fireAndForget, InProcessEventBus, type RunInBackground } from "@/server/events/event-bus";
+import { fireAndForget, InProcessEventBus, type JobPostCreated, type RunInBackground } from "@/server/events/event-bus";
 import { RouteFactory } from "@/server/http/routes";
 import { FilterService, PgJobFacetRepository } from "@/server/jobs/filter-service";
 import { JobCleanupService } from "@/server/jobs/job-cleanup-service";
 import { JobCommandService } from "@/server/jobs/job-command-service";
+import { JobCreationQueue } from "@/server/jobs/job-creation-queue";
 import { JobQueryService } from "@/server/jobs/job-query-service";
 import { PgJobRepository } from "@/server/jobs/job-repository";
 import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { PgPostintimeSettingsRepository, PostintimeSettingsService } from "@/server/postintime/settings";
 import { renderJobSquareImage } from "@/server/postintime/square-image";
+import { SerialQueue } from "@/server/queue/serial-queue";
 import { systemClock, type Clock } from "@/server/shared/clock";
 import { consoleLogger, type Logger } from "@/server/shared/logger";
 import { PgTagRepository } from "@/server/tags/tag-repository";
@@ -38,6 +40,8 @@ export interface Services {
   jobQueries: JobQueryService;
   jobCommands: JobCommandService;
   jobCleanup: JobCleanupService;
+  /** Bulk job creation: requests are stored in memory and created one by one in the background. */
+  jobCreationQueue: JobCreationQueue;
   filters: FilterService;
   tagCatalog: TagCatalogService;
   tagDetection: TagDetectionService;
@@ -92,12 +96,17 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
   const postintime = new PostintimePublisher(postintimeSettings, renderJobSquareImage, logger, undefined, undefined, {
     recordPosted: (jobId, postId, at) => jobsUow.write(({ jobs }) => jobs.markPostintimePosted(jobId, at, postId)),
   });
-  events.subscribe("JobPostCreated", (event) => postintime.onJobPostCreated(event));
+  // Pushes go through a queue so PostInTime only ever receives one post at a time.
+  const postintimeQueue = new SerialQueue<JobPostCreated>(
+    "postintime", (event) => postintime.onJobPostCreated(event), logger, runInBackground,
+  );
+  events.subscribe("JobPostCreated", (event) => postintimeQueue.enqueue(event));
   const apiKeys = new ApiKeyService(apiKeysUow, clock);
   const authenticator = new RequestAuthenticator(
     { adminToken: config.adminToken, internalSecret: config.internalSecret },
     apiKeys,
   );
+  const jobCommands = new JobCommandService(jobsUow, clock, config.jobs, events);
   return {
     config,
     db,
@@ -105,7 +114,8 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     clock,
     logger,
     jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
-    jobCommands: new JobCommandService(jobsUow, clock, config.jobs, events),
+    jobCommands,
+    jobCreationQueue: new JobCreationQueue(jobCommands, logger, runInBackground),
     jobCleanup: new JobCleanupService(jobsUow, clock, logger),
     filters: new FilterService(facetsUow),
     tagCatalog: new TagCatalogService(tagRepository),

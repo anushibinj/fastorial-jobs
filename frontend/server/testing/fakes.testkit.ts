@@ -8,6 +8,7 @@ import type { UnitOfWork } from "@/server/db/unit-of-work";
 import { RouteFactory } from "@/server/http/routes";
 import { FilterService, type JobFacetRepository } from "@/server/jobs/filter-service";
 import { JobCleanupService } from "@/server/jobs/job-cleanup-service";
+import { JobCreationQueue } from "@/server/jobs/job-creation-queue";
 import { JobCommandService } from "@/server/jobs/job-command-service";
 import { JobQueryService } from "@/server/jobs/job-query-service";
 import { TagCatalogService, TagDetectionService } from "@/server/tags/tag-services";
@@ -232,11 +233,13 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
   const authenticator = new RequestAuthenticator({ adminToken: config.adminToken, internalSecret: config.internalSecret }, apiKeys);
   const jobsUow = fakeUnitOfWork({ jobs: stores.jobs, tags: stores.tags });
   const postintimeSettings = new PostintimeSettingsService(fakeUnitOfWork({ settings: stores.postintime }), clock);
+  const jobCommands = new JobCommandService(jobsUow, clock, config.jobs);
   const services: Services = {
     config, db, clock, logger,
     schema: { ready: async () => undefined },
     jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
-    jobCommands: new JobCommandService(jobsUow, clock, config.jobs),
+    jobCommands,
+    jobCreationQueue: new JobCreationQueue(jobCommands, logger),
     jobCleanup: new JobCleanupService(jobsUow, clock, logger),
     filters: new FilterService(fakeUnitOfWork({ facets: stores.facets })),
     tagCatalog: new TagCatalogService(stores.tags),

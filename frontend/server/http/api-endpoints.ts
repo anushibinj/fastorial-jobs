@@ -9,7 +9,8 @@ import {
   parseStatusRequest,
 } from "@/server/requests/admin-requests";
 import { handleMcpRequest } from "@/server/mcp/mcp-endpoint";
-import { parseJobRequest } from "@/server/requests/job-request";
+import { ApiException } from "@/server/shared/api-exception";
+import { parseJobRequest, type JobRequest } from "@/server/requests/job-request";
 import { parseAdminJobQuery, parsePublicJobQuery } from "@/server/requests/list-queries";
 import { pathId } from "@/server/requests/request-params";
 
@@ -62,6 +63,30 @@ export function createApiEndpoints(s: Services) {
     createJob: routes.protectedRoute("adminOrApiKey", async (request) => {
       const body = parseJobRequest(await readJsonBody(request, true));
       return jsonResponse(await s.jobCommands.create(body), 201);
+    }),
+
+    /**
+     * `POST /api/admin/jobs/bulk` with `{"jobs": [...]}`: 202 as soon as the jobs are stored in the
+     * in-memory queue. They are created in the background; entries that are not valid job requests
+     * are not queued and come back in `rejected` with their position.
+     */
+    createJobsBulk: routes.protectedRoute("adminOrApiKey", async (request) => {
+      const body = await readJsonBody(request, true);
+      const list = (body as { jobs?: unknown } | null)?.jobs;
+      if (!Array.isArray(list)) {
+        throw new ApiException(400, "VALIDATION_FAILED", "Expected {\"jobs\": [...]}", { jobs: "Must be an array" });
+      }
+      const accepted: JobRequest[] = [];
+      const rejected: Array<{ index: number; message: string }> = [];
+      list.forEach((item, index) => {
+        try {
+          accepted.push(parseJobRequest(item));
+        } catch (e) {
+          rejected.push({ index, message: ApiException.is(e) ? e.message : "Invalid job" });
+        }
+      });
+      const queued = s.jobCreationQueue.submit(accepted);
+      return jsonResponse({ queued, rejected }, 202);
     }),
 
     /** `PUT /api/admin/jobs/{id}`: replaces the job's fields. */
