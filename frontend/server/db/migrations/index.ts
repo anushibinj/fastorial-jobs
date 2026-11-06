@@ -5,6 +5,7 @@ import { v4CreateApiKeys } from "@/server/db/migrations/V4__create_api_keys";
 import { v5CreatePostintimeSettings } from "@/server/db/migrations/V5__create_postintime_settings";
 import { v6AddJobPostintimePostedAt } from "@/server/db/migrations/V6__add_job_postintime_posted_at";
 import { v7CreateQueueItems } from "@/server/db/migrations/V7__create_queue_items";
+import { v8AddPostintimePostSuffix } from "@/server/db/migrations/V8__add_postintime_post_suffix";
 
 /**
  * One versioned schema migration, described the way Flyway records it in `flyway_schema_history`.
@@ -35,4 +36,5 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: "5", description: "create postintime settings", script: "V5__create_postintime_settings.sql", sql: v5CreatePostintimeSettings },
   { version: "6", description: "add job postintime posted at", script: "V6__add_job_postintime_posted_at.sql", sql: v6AddJobPostintimePostedAt },
   { version: "7", description: "create queue items", script: "V7__create_queue_items.sql", sql: v7CreateQueueItems },
+  { version: "8", description: "add postintime post suffix", script: "V8__add_postintime_post_suffix.sql", sql: v8AddPostintimePostSuffix },
 ];
