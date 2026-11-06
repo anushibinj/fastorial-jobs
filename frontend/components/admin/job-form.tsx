@@ -238,7 +238,7 @@ export function JobForm({ job, tags }: { job?: JobDetail; tags: TagOption[] }) {
               <FormLabel htmlFor="tag-picker">Tech stack</FormLabel>
               <TagPicker id="tag-picker" options={tags} value={selected} onChange={onPick} placeholder="Add tag" />
             </FormItem>
-            <Button type="button" variant="outline" size="lg" className="min-h-11" onClick={() => runDetect("redetect")} disabled={detecting}>
+            <Button type="button" variant="outline" size="lg" className="min-h-11" data-track="admin_job_form_redetect_tags_button" onClick={() => runDetect("redetect")} disabled={detecting}>
               <RefreshCw className={detecting ? "animate-spin" : ""} /> Re-detect
             </Button>
           </div>
@@ -252,6 +252,7 @@ export function JobForm({ job, tags }: { job?: JobDetail; tags: TagOption[] }) {
                     <button
                       type="button"
                       aria-label={`Remove ${nameOf(slug)}`}
+                      data-track="admin_job_form_remove_tag_button"
                       className="relative grid size-6 place-items-center rounded-full after:absolute after:-inset-2.5 after:content-['']"
                       onClick={() => removeTag(slug)}
                     >
@@ -280,11 +281,11 @@ export function JobForm({ job, tags }: { job?: JobDetail; tags: TagOption[] }) {
         </div>
 
         <div className="flex gap-2">
-          <Button type="submit" size="lg" className="min-h-11 flex-1 sm:flex-none sm:px-8" disabled={saving}>
+          <Button data-track={job ? "admin_job_form_save_button" : "admin_job_form_create_button"} type="submit" size="lg" className="min-h-11 flex-1 sm:flex-none sm:px-8" disabled={saving}>
             {saving ? "Saving…" : job ? "Save" : "Create"}
           </Button>
           <Button asChild variant="outline" size="lg" className="min-h-11">
-            <Link href="/admin/jobs">Cancel</Link>
+            <Link data-track="admin_job_form_cancel_link" href="/admin/jobs">Cancel</Link>
           </Button>
         </div>
       </form>

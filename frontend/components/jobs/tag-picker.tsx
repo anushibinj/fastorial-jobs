@@ -33,6 +33,7 @@ export function TagPicker({ options, value, onChange, placeholder = "Any", id }:
       <PopoverTrigger asChild>
         <Button
           id={id}
+          data-track="home_filter_tags_picker_button"
           type="button"
           variant="outline"
           role="combobox"

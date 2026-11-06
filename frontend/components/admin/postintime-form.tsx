@@ -116,7 +116,7 @@ export function PostintimeForm({ settings }: { settings: PostintimeSettingsDto }
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" size="lg" className="min-h-11" disabled={pending}>
+        <Button data-track="admin_postintime_settings_save_button" type="submit" size="lg" className="min-h-11" disabled={pending}>
           {pending ? "Saving…" : "Save"}
         </Button>
         {state.saved ? (

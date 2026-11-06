@@ -10,6 +10,7 @@ export function BackLink() {
   return (
     <Link
       href="/"
+      data-track="job_detail_back_link"
       className="text-muted-foreground hover:text-foreground -ml-2 inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm"
       onClick={(e) => {
         const sameSite = document.referrer && new URL(document.referrer).origin === window.location.origin;

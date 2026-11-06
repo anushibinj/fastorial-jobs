@@ -52,7 +52,7 @@ export default async function ApiKeysPage() {
                   ) : (
                     <form action={revokeApiKeyAction}>
                       <input type="hidden" name="id" value={k.id} />
-                      <Button type="submit" variant="outline" size="sm" className="min-h-9">
+                      <Button data-track="admin_api_key_revoke_button" type="submit" variant="outline" size="sm" className="min-h-9">
                         Revoke
                       </Button>
                     </form>

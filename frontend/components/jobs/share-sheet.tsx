@@ -62,14 +62,14 @@ function ShareActions({ job, onDone }: { job: JobLike; onDone: () => void }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" onClick={() => copy(jobUrl(job.slug ?? ""))}>
+      <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" data-track="job_share_copy_link_button" onClick={() => copy(jobUrl(job.slug ?? ""))}>
         <Link2 /> Copy link
       </Button>
-      <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" onClick={() => copy(buildShareText(job))}>
+      <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" data-track="job_share_copy_text_button" onClick={() => copy(buildShareText(job))}>
         <ListChecks /> Copy text
       </Button>
       {canNativeShare ? (
-        <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" onClick={nativeShare}>
+        <Button type="button" variant="outline" size="lg" className="min-h-11 justify-start" data-track="job_share_native_button" onClick={nativeShare}>
           <Share2 /> Share…
         </Button>
       ) : null}

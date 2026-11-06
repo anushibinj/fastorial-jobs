@@ -21,6 +21,14 @@ env:
     availability:
       - BUILD
 
+  # Google Analytics 4 measurement id (e.g. G-XXXXXXXXXX). Not a secret: it is public in the page source.
+  # Set the value to empty to disable analytics.
+  - variable: G_ANALYTICS_TAG
+    value: G-R89QW9918E
+    availability:
+      - BUILD
+      - RUNTIME
+
   # Database. Same variable names and meaning as the former Spring Boot backend, so the existing values
   # work unchanged: DB_URL may stay in JDBC form (jdbc:postgresql://host:5432/db?sslmode=require).
   # Schema migrations run automatically when a server instance starts (see instrumentation.ts).

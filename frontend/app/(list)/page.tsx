@@ -21,7 +21,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           <div className="text-muted-foreground flex flex-col items-center gap-2 py-10 text-center">
             <p>No jobs found.</p>
             {hasFilters(filters) ? (
-              <Link href="/" className="text-foreground min-h-11 content-center underline underline-offset-4">
+              <Link href="/" data-track="home_empty_clear_filters_link" className="text-foreground min-h-11 content-center underline underline-offset-4">
                 Clear filters
               </Link>
             ) : null}

@@ -49,19 +49,19 @@ export function JobTable({ items }: { items: AdminJobSummary[] }) {
         <span className="px-1 text-sm" aria-live="polite">
           {none ? "Select jobs to change them together" : `${selected.size} selected`}
         </span>
-        <Button type="submit" name="op" value="PUBLISHED" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
+        <Button type="submit" name="op" value="PUBLISHED" data-track="admin_bulk_publish_button" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
           Publish
         </Button>
-        <Button type="submit" name="op" value="CLOSED" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
+        <Button type="submit" name="op" value="CLOSED" data-track="admin_bulk_close_button" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
           Close
         </Button>
         <span className="flex items-center gap-1">
           <Input name="days" type="number" min={1} max={365} defaultValue={30} aria-label="Days to extend by" className="h-9 w-16 px-2" />
-          <Button type="submit" name="op" value="extend" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
+          <Button type="submit" name="op" value="extend" data-track="admin_bulk_extend_button" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
             Extend
           </Button>
         </span>
-        <Button type="submit" name="op" value="postintime" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
+        <Button type="submit" name="op" value="postintime" data-track="admin_bulk_push_postintime_button" variant="outline" size="sm" className="min-h-9" disabled={none || pending}>
           Push to PostInTime
         </Button>
         {pending ? <span className="text-muted-foreground text-sm">Working…</span> : null}
@@ -105,11 +105,12 @@ export function JobTable({ items }: { items: AdminJobSummary[] }) {
                     className={CHECKBOX}
                     aria-label={`Select ${j.title}`}
                     checked={selected.has(j.id)}
+                    data-track="admin_job_select_checkbox"
                     onChange={(e) => toggle(j.id, e.target.checked)}
                   />
                 </TableCell>
                 <TableCell className="max-w-xs whitespace-normal">
-                  <Link href={`/admin/jobs/${j.id}/edit`} className="font-medium underline-offset-4 hover:underline">
+                  <Link data-track="admin_job_edit_link" href={`/admin/jobs/${j.id}/edit`} className="font-medium underline-offset-4 hover:underline">
                     {j.title}
                   </Link>
                   <div className="text-muted-foreground text-xs">{j.companyName}</div>

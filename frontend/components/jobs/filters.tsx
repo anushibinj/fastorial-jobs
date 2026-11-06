@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { track } from "@/lib/analytics";
 import { EMPTY_FILTERS, toSearchParams, type FilterState } from "@/lib/filters";
 import { WORK_MODE_LABEL } from "@/lib/format";
 import type { FiltersResponse, WorkMode } from "@/lib/types";
@@ -45,11 +46,12 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
           open={sheetOpen}
           onOpenChange={(o) => {
             if (o) setDraft(value);
+            track(o ? "filters_sheet_open" : "filters_sheet_dismiss");
             setSheetOpen(o);
           }}
         >
           <SheetTrigger asChild>
-            <Button variant="outline" className="relative min-h-11 min-w-11 px-3 md:hidden" aria-label="Filters">
+            <Button variant="outline" className="relative min-h-11 min-w-11 px-3 md:hidden" aria-label="Filters" data-track="home_filters_open_button">
               <SlidersHorizontal />
               {activeCount > 0 ? (
                 <span className="bg-primary text-primary-foreground absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full text-[11px]">
@@ -70,6 +72,7 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
                 variant="outline"
                 size="lg"
                 className="min-h-11 flex-1"
+                data-track="home_filters_clear_button"
                 onClick={() => {
                   go({ ...EMPTY_FILTERS, q: value.q });
                   setSheetOpen(false);
@@ -80,6 +83,7 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
               <Button
                 size="lg"
                 className="min-h-11 flex-1"
+                data-track="home_filters_apply_button"
                 onClick={() => {
                   go({ ...value, ...draft, q: value.q });
                   setSheetOpen(false);
@@ -122,6 +126,7 @@ function SearchBox({ value, onCommit }: { value: string; onCommit: (q: string) =
     if (text.trim() === last.current) return;
     const t = setTimeout(() => {
       last.current = text.trim();
+      track("home_search_typed", { query_length: text.trim().length });
       onCommit(text.trim());
     }, 450);
     return () => clearTimeout(t);
@@ -135,6 +140,7 @@ function SearchBox({ value, onCommit }: { value: string; onCommit: (q: string) =
       onSubmit={(e) => {
         e.preventDefault();
         last.current = text.trim();
+        track("home_search_submit", { query_length: text.trim().length });
         onCommit(text.trim());
       }}
     >
@@ -178,7 +184,10 @@ function FilterFields({
   return (
     <div className={inline ? "flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end lg:flex-col lg:items-stretch" : "flex flex-col gap-4"}>
       <Field label="Location" id={`${idPrefix}-location`} inline={inline}>
-        <Select value={value.location || ANY} onValueChange={(v) => onChange({ location: v === ANY ? "" : v })}>
+        <Select value={value.location || ANY} onValueChange={(v) => {
+          track("home_filter_location_select", { value: v === ANY ? "any" : v });
+          onChange({ location: v === ANY ? "" : v });
+        }}>
           <SelectTrigger id={`${idPrefix}-location`} className="min-h-11 w-full">
             <SelectValue placeholder="Any" />
           </SelectTrigger>
@@ -194,7 +203,10 @@ function FilterFields({
       </Field>
 
       <Field label="Work mode" id={`${idPrefix}-mode`} inline={inline}>
-        <Select value={value.mode || ANY} onValueChange={(v) => onChange({ mode: v === ANY ? "" : v })}>
+        <Select value={value.mode || ANY} onValueChange={(v) => {
+          track("home_filter_work_mode_select", { value: v === ANY ? "any" : v });
+          onChange({ mode: v === ANY ? "" : v });
+        }}>
           <SelectTrigger id={`${idPrefix}-mode`} className="min-h-11 w-full">
             <SelectValue placeholder="Any" />
           </SelectTrigger>
@@ -212,11 +224,17 @@ function FilterFields({
       </Field>
 
       <Field label="My experience (years)" id={`${idPrefix}-exp`} inline={inline}>
-        <ExperienceInput id={`${idPrefix}-exp`} value={value.exp} onCommit={(exp) => onChange({ exp })} />
+        <ExperienceInput id={`${idPrefix}-exp`} value={value.exp} onCommit={(exp) => {
+          track("home_filter_experience_set", { value: exp === "" ? "any" : exp });
+          onChange({ exp });
+        }} />
       </Field>
 
       <Field label="Tech stack" id={`${idPrefix}-tags`} inline={inline}>
-        <TagPicker id={`${idPrefix}-tags`} options={tags} value={value.tags} onChange={(t) => onChange({ tags: t })} />
+        <TagPicker id={`${idPrefix}-tags`} options={tags} value={value.tags} onChange={(t) => {
+          track("home_filter_tags_change", { count: t.length });
+          onChange({ tags: t });
+        }} />
       </Field>
     </div>
   );
@@ -277,6 +295,7 @@ function ExperienceInput({ id, value, onCommit }: { id: string; value: string; o
         <button
           type="button"
           aria-label="Clear experience"
+          data-track="home_filter_experience_clear_button"
           className="text-muted-foreground absolute top-1/2 right-0 grid size-11 -translate-y-1/2 place-items-center"
           onClick={() => {
             setText("");
@@ -314,6 +333,8 @@ function ActiveFilters({ value, facets, onChange }: { value: FilterState; facets
             <button
               type="button"
               onClick={c.remove}
+              data-track="home_active_filter_remove_chip"
+              data-track-label={c.key.startsWith("tag-") ? "tag" : c.key}
               aria-label={`Remove ${c.label}`}
               className="relative grid size-6 place-items-center rounded-full after:absolute after:-inset-2.5 after:content-['']"
             >

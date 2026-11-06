@@ -14,20 +14,20 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
       {signedIn ? (
         <nav className="border-b">
           <div className="mx-auto flex w-full max-w-6xl items-center gap-1 px-4">
-            <Link href="/admin/jobs" className="min-h-11 content-center px-2 text-sm font-medium">
+            <Link data-track="admin_nav_jobs_link" href="/admin/jobs" className="min-h-11 content-center px-2 text-sm font-medium">
               Jobs
             </Link>
-            <Link href="/admin/jobs/new" className="min-h-11 content-center px-2 text-sm font-medium">
+            <Link data-track="admin_nav_new_job_link" href="/admin/jobs/new" className="min-h-11 content-center px-2 text-sm font-medium">
               New job
             </Link>
-            <Link href="/admin/api-keys" className="min-h-11 content-center px-2 text-sm font-medium">
+            <Link data-track="admin_nav_api_keys_link" href="/admin/api-keys" className="min-h-11 content-center px-2 text-sm font-medium">
               API keys
             </Link>
-            <Link href="/admin/postintime" className="min-h-11 content-center px-2 text-sm font-medium">
+            <Link data-track="admin_nav_postintime_link" href="/admin/postintime" className="min-h-11 content-center px-2 text-sm font-medium">
               PostInTime
             </Link>
             <form action={logoutAction} className="ml-auto">
-              <Button type="submit" variant="ghost" className="min-h-11">
+              <Button data-track="admin_sign_out_button" type="submit" variant="ghost" className="min-h-11">
                 Sign out
               </Button>
             </form>
