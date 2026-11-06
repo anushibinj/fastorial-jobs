@@ -25,6 +25,7 @@ describe("MIGRATIONS", () => {
       ["5", "V5__create_postintime_settings.sql", "create postintime settings"],
       ["6", "V6__add_job_postintime_posted_at.sql", "add job postintime posted at"],
       ["7", "V7__create_queue_items.sql", "create queue items"],
+      ["8", "V8__add_postintime_post_suffix.sql", "add postintime post suffix"],
     ]);
   });
 
@@ -90,7 +91,7 @@ describe("planMigrations", () => {
 
   it("recognizes a database migrated by Flyway as up to date, apart from migrations added since", () => {
     const flywayRows = Object.entries(FLYWAY_RECORDED_CHECKSUMS).map(([version, checksum]) => ({ version, checksum, success: true }));
-    expect(planMigrations(MIGRATIONS, flywayRows).map((x) => x.version)).toEqual(["5", "6", "7"]);
+    expect(planMigrations(MIGRATIONS, flywayRows).map((x) => x.version)).toEqual(["5", "6", "7", "8"]);
   });
 
   it("refuses an applied migration whose script changed", () => {

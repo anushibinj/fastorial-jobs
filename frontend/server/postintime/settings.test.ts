@@ -10,7 +10,7 @@ import { fakeUnitOfWork, InMemoryPostintimeSettingsRepository, MutableClock } fr
 
 const CHANNEL = "3f2b8a52-6c1e-4f7e-9a53-0b6f7c1d2e44";
 const valid: PostintimeSettingsInput = {
-  enabled: true, baseUrl: "https://pit.example.com/", apiToken: "pit_secret", channelId: CHANNEL, postStatus: "ready",
+  enabled: true, baseUrl: "https://pit.example.com/", apiToken: "pit_secret", channelId: CHANNEL, postStatus: "ready", postSuffix: "#jobs\n#hiring",
 };
 
 let repo: InMemoryPostintimeSettingsRepository;
@@ -49,11 +49,11 @@ describe("normalizeBaseUrl", () => {
 
 describe("parseSettingsRequest", () => {
   it("reads the form and defaults what is missing", () => {
-    expect(parseSettingsRequest({ enabled: true, baseUrl: "u", apiToken: "t", channelId: "c", postStatus: "ready" })).toEqual({
-      enabled: true, baseUrl: "u", apiToken: "t", channelId: "c", postStatus: "ready",
+    expect(parseSettingsRequest({ enabled: true, baseUrl: "u", apiToken: "t", channelId: "c", postStatus: "ready", postSuffix: "#a\n#b" })).toEqual({
+      enabled: true, baseUrl: "u", apiToken: "t", channelId: "c", postStatus: "ready", postSuffix: "#a\n#b",
     });
     expect(parseSettingsRequest({ enabled: "yes" })).toEqual({
-      enabled: false, baseUrl: "", apiToken: "", channelId: "", postStatus: "draft",
+      enabled: false, baseUrl: "", apiToken: "", channelId: "", postStatus: "draft", postSuffix: "",
     });
   });
 
@@ -66,7 +66,7 @@ describe("PostintimeSettingsService.update", () => {
   it("saves a normalized connection and never returns the token", async () => {
     const dto = await service.update(valid);
     expect(dto).toEqual({
-      enabled: true, baseUrl: "https://pit.example.com", channelId: CHANNEL, postStatus: "ready",
+      enabled: true, baseUrl: "https://pit.example.com", channelId: CHANNEL, postStatus: "ready", postSuffix: "#jobs\n#hiring",
       hasToken: true, lastResult: null, lastAttemptAt: null,
     });
     expect(JSON.stringify(dto)).not.toContain("pit_secret");
@@ -80,6 +80,14 @@ describe("PostintimeSettingsService.update", () => {
     expect(repo.settings.apiToken).toBe("pit_secret");
     await service.update({ ...valid, apiToken: " pit_new " });
     expect(repo.settings.apiToken).toBe("pit_new");
+  });
+
+  it("trims the post suffix and rejects one that is too long", async () => {
+    await service.update({ ...valid, postSuffix: "\n  #a\n#b  \n" });
+    expect(repo.settings.postSuffix).toBe("#a\n#b");
+    expect(await fieldErrors(service.update({ ...valid, postSuffix: "x".repeat(2001) }))).toEqual({
+      postSuffix: "Post suffix must be at most 2000 characters",
+    });
   });
 
   it("keeps the last result when the connection is saved", async () => {

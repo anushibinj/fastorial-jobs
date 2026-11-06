@@ -76,6 +76,12 @@ describe("PostintimePublisher.onJobPostCreated", () => {
     expect([media.name, media.type, media.size]).toEqual(["senior-java-engineer-acme-pune-12-square.png", "image/png", 4]);
   });
 
+  it("appends the post suffix to the caption", async () => {
+    repo.settings = { ...repo.settings, postSuffix: "#jobs\n#hiring" };
+    await publisher.onJobPostCreated(event(job()));
+    expect(String(calls[0].form.get("caption"))).toMatch(/\n\n#jobs\n#hiring$/);
+  });
+
   it("remembers the outcome for the admin page", async () => {
     await publisher.onJobPostCreated(event(job()));
     expect(repo.settings.lastResult).toBe("Posted job 12 (senior-java-engineer-acme-pune-12) as post post-1");

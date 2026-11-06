@@ -272,7 +272,7 @@ describeWithDatabase("persistence against PostgreSQL", () => {
   });
   describe("PgPostintimeSettingsRepository", () => {
     const repo = () => new PgPostintimeSettingsRepository(ctx.db);
-    const connection = { enabled: true, baseUrl: "https://pit.example.com", apiToken: "pit_x", channelId: "c1", postStatus: "ready" as const };
+    const connection = { enabled: true, baseUrl: "https://pit.example.com", apiToken: "pit_x", channelId: "c1", postStatus: "ready" as const, postSuffix: "#jobs\n#hiring" };
 
     it("returns the defaults before anything was saved", async () => {
       expect(await repo().get()).toEqual(DEFAULT_SETTINGS);
