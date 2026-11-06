@@ -47,7 +47,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
   const age = formatPostedAgo(job.postedAt);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 pt-2 pb-28 lg:pb-10">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-2 pb-10">
       {!closed ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildJobPostingJsonLd(job)) }} />
       ) : null}
@@ -69,6 +69,10 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
             </p>
             {!closed && age ? <p className="text-muted-foreground text-sm">Posted {age}</p> : null}
           </div>
+          {/* phones and tablets: actions inline right below the title block */}
+          <div className="mt-1 lg:hidden">
+            <ApplyActions job={job} />
+          </div>
           <TagChips tags={job.tags} />
           {job.description ? (
             <div className="prose prose-neutral dark:prose-invert prose-headings:font-semibold mt-3 max-w-none break-words">
@@ -89,13 +93,6 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
             <ApplyActions job={job} stacked />
           </div>
         </aside>
-      </div>
-
-      {/* phones and tablets: sticky bottom bar, safe area aware */}
-      <div className="bg-background/95 pb-safe pl-safe pr-safe fixed inset-x-0 bottom-0 z-30 border-t backdrop-blur lg:hidden supports-[backdrop-filter]:bg-background/80">
-        <div className="mx-auto max-w-6xl px-4 py-2">
-          <ApplyActions job={job} />
-        </div>
       </div>
     </main>
   );
