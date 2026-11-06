@@ -72,7 +72,7 @@ curl -X POST "$API/api/admin/jobs" \
 | `salaryMin`, `salaryMax`, `salaryCurrency`, `salaryPeriod` | no | If any amount is set, currency (3 letters) and period (`YEARLY`, `MONTHLY`) are required |
 | `status` | no | `DRAFT`, `PUBLISHED` (default), `CLOSED` |
 | `postedAt`, `expiresAt` | no | ISO-8601 instants, e.g. `2026-11-03T09:00:00Z`. Expiry defaults to 30 days after posting |
-| `tags` | no | Tag slugs; list them with `GET /api/admin/tags` |
+| `tags` | no | Tag slugs; list them with `GET /api/admin/tags`. Slugs that do not exist do not fail the request: the job is accepted (`201`) but saved as a `DRAFT` marked "Tag approval needed", and an admin approves or skips each new tag in the admin UI before publishing |
 | `description`, `companyLogoUrl`, `locationCity`, `locationState`, `locationCountry` | no | |
 
 Success is `201 Created` with the job, including its `id` and `slug`. A bad or revoked key
