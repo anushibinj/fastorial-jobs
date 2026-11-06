@@ -5,7 +5,8 @@ import { ApplyActions } from "@/components/jobs/apply-actions";
 import { BackLink } from "@/components/jobs/back-link";
 import { TagChips } from "@/components/jobs/tag-chips";
 import { fetchJob } from "@/lib/data/jobs";
-import { formatExperience, formatLocation, formatPostedAgo, formatSalary } from "@/lib/format";
+import { JobMeta } from "@/components/jobs/work-mode";
+import { formatExperience, formatPostedAgo, formatSalary } from "@/lib/format";
 import { isClosed } from "@/lib/job-state";
 import { buildJobPostingJsonLd, serializeJsonLd } from "@/lib/jsonld";
 import { buildPreviewMeta } from "@/lib/preview";
@@ -61,8 +62,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
           ) : null}
           <h1 className="text-2xl leading-tight font-bold tracking-tight">{job.title}</h1>
           <div className="flex flex-col gap-1">
-            <p className="text-lg">{job.companyName}</p>
-            <p className="text-muted-foreground">{formatLocation(job)}</p>
+            <JobMeta company={job.companyName} city={job.locationCity} mode={job.workMode} className="text-muted-foreground" companyClassName="text-foreground text-lg" />
             <p className="text-muted-foreground">
               {formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears)}
               {salary ? <span className="text-foreground font-medium">{`  ·  ${salary}`}</span> : null}
