@@ -46,7 +46,7 @@ export function JobFeed({ initial, filters }: { initial: PageOf<JobSummary>; fil
       </ul>
       {error ? <p className="text-destructive text-center text-sm">Could not load more.</p> : null}
       {hasNext ? (
-        <Button variant="outline" size="lg" className="min-h-11 self-center px-6" onClick={loadMore} disabled={loading}>
+        <Button variant="outline" size="lg" className="min-h-11 self-center px-6" onClick={loadMore} data-track="home_load_more_button" disabled={loading}>
           {loading ? "Loading…" : "Load more"}
         </Button>
       ) : null}

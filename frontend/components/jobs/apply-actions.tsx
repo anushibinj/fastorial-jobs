@@ -15,7 +15,7 @@ export function ApplyActions({ job, stacked = false }: { job: JobDetail; stacked
         </Button>
       ) : (
         <Button size="lg" className="min-h-11 flex-1" asChild>
-          <a href={job.applyUrl} target="_blank" rel="noopener noreferrer nofollow">
+          <a data-track="job_detail_apply_link" href={job.applyUrl} target="_blank" rel="noopener noreferrer nofollow">
             Apply <ExternalLink />
           </a>
         </Button>

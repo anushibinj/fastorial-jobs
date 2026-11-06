@@ -31,6 +31,7 @@ export function ShareDialog({ job, label = false, className }: Props) {
         size={label ? "lg" : "icon-lg"}
         className={`relative z-10 min-h-11 ${label ? "px-4" : "min-w-11"} ${className ?? ""}`}
         aria-label="Share"
+        data-track="job_share_open_button"
         disabled={closed}
         onClick={() => {
           setWanted(true);

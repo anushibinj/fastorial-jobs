@@ -17,7 +17,7 @@ export function JobCard({ job }: { job: JobSummary }) {
         <div className="flex items-start justify-between gap-2">
           <h2 className="text-base leading-snug font-semibold">
             {/* stretched link: the whole card is tappable, the share button sits above it */}
-            <Link href={`/jobs/${job.slug}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-ring/50 after:rounded-xl">
+            <Link href={`/jobs/${job.slug}`} data-track="home_job_card_link" className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-ring/50 after:rounded-xl">
               {job.title}
             </Link>
           </h2>
