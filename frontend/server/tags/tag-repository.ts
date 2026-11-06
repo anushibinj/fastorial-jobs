@@ -10,6 +10,8 @@ export interface TagRepository {
   findAll(): Promise<TagRecord[]>;
   /** The tags with these slugs, in no particular order. Unknown slugs are simply absent. */
   findBySlugs(slugs: readonly string[]): Promise<TagRecord[]>;
+  /** Adds a tag to the vocabulary. Returns null when the slug or the name is already taken. */
+  insert(name: string, slug: string, category: TagCategory): Promise<TagRecord | null>;
   /** Every alias with its tag, in id order. */
   findAllAliases(): Promise<TagAliasRecord[]>;
 }
@@ -47,6 +49,14 @@ export class PgTagRepository implements TagRepository {
       [slugs],
     );
     return rows.map(toTagRecord);
+  }
+
+  async insert(name: string, slug: string, category: TagCategory): Promise<TagRecord | null> {
+    const { rows } = await this.db.query<TagRow>(
+      "INSERT INTO tags (name, slug, category) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING id, name, slug, category",
+      [name, slug, category],
+    );
+    return rows.length > 0 ? toTagRecord(rows[0]) : null;
   }
 
   async findAllAliases(): Promise<TagAliasRecord[]> {

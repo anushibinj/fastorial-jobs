@@ -1,4 +1,4 @@
-import type { JobDetail, JobStatus } from "@/lib/api/contract";
+import { TAG_CATEGORIES, type JobDetail, type JobStatus, type TagCategory } from "@/lib/api/contract";
 import type { JobSettings } from "@/server/config/app-config";
 import type { UnitOfWork } from "@/server/db/unit-of-work";
 import type { EventPublisher } from "@/server/events/event-bus";
@@ -81,18 +81,40 @@ function duplicateApplyUrl(existing?: JobRecord): ApiException {
  * @throws ApiException `400 VALIDATION_FAILED` naming every unknown slug.
  */
 export async function resolveTags(tags: TagRepository, slugs: readonly string[] | null): Promise<TagRecord[]> {
-  if (slugs === null || slugs.length === 0) return [];
-  const wanted = [...new Set(slugs.map(javaTrim).filter((s) => s !== ""))];
-  const found = await tags.findBySlugs(wanted);
-  if (found.length !== wanted.length) {
-    const have = new Set(found.map((t) => t.slug));
-    const missing = wanted.filter((s) => !have.has(s));
+  const { found, unknown } = await partitionTags(tags, slugs);
+  if (unknown.length > 0) {
+    const missing = unknown;
     // The message mirrors Java's Set.toString(), the field error a plain list.
     throw new ApiException(400, "VALIDATION_FAILED", `Unknown tag(s): [${missing.join(", ")}]`, {
       tags: `Unknown tag(s): ${missing.join(", ")}`,
     });
   }
   return found;
+}
+
+/**
+ * Splits tag slugs into the tags that exist and the slugs that do not. Slugs are trimmed and
+ * de-duplicated; empty ones are ignored.
+ */
+export async function partitionTags(
+  tags: TagRepository,
+  slugs: readonly string[] | null,
+): Promise<{ found: TagRecord[]; unknown: string[] }> {
+  if (slugs === null || slugs.length === 0) return { found: [], unknown: [] };
+  const wanted = [...new Set(slugs.map(javaTrim).filter((s) => s !== ""))];
+  const found = await tags.findBySlugs(wanted);
+  const have = new Set(found.map((t) => t.slug));
+  return { found, unknown: wanted.filter((s) => !have.has(s)) };
+}
+
+/** The 409 for publishing a job that still has tags waiting for approval. */
+function pendingTagsBlockPublishing(job: Pick<JobRecord, "pendingTags">): ApiException {
+  return new ApiException(
+    409,
+    "TAG_APPROVAL_NEEDED",
+    `Approve or skip these tags before publishing: ${job.pendingTags.join(", ")}`,
+    { tags: `Tag approval needed: ${job.pendingTags.join(", ")}` },
+  );
 }
 
 /**
@@ -112,7 +134,10 @@ export class JobCommandService {
    * the default period unless the request says otherwise. The slug is built from title, company, city
    * and the new id.
    *
-   * @throws ApiException 400 for invalid input or unknown tags, 409 for a duplicate apply URL.
+   * Tag slugs that are not in the vocabulary do not fail the request: the job is accepted but stored
+   * as a DRAFT with those slugs in `pendingTags` ("Tag approval needed"), whatever status was asked.
+   *
+   * @throws ApiException 400 for invalid input, 409 for a duplicate apply URL.
    */
   async create(request: JobRequest): Promise<JobDetail> {
     // async, so a validation error becomes a rejected promise rather than a synchronous throw.
@@ -121,9 +146,10 @@ export class JobCommandService {
     const created = await this.uow.write(async ({ jobs, tags }) => {
       await this.assertNotDuplicate(jobs, hash, null);
       const now = this.clock.now();
-      const fields = requestFields(request, await resolveTags(tags, request.tags));
+      const { found, unknown } = await partitionTags(tags, request.tags);
+      const fields = requestFields(request, found);
       const schedule = initialSchedule(
-        request.status ?? "PUBLISHED", request.postedAt, request.expiresAt, now, this.settings.defaultExpiryDays,
+        unknown.length > 0 ? "DRAFT" : (request.status ?? "PUBLISHED"), request.postedAt, request.expiresAt, now, this.settings.defaultExpiryDays,
       );
       const id = await jobs.nextId();
       const job: JobRecord = {
@@ -136,6 +162,7 @@ export class JobCommandService {
         postintimePostId: null,
         createdAt: now,
         updatedAt: now,
+        pendingTags: unknown,
       };
       await this.save(() => jobs.insert(job));
       return toJobDetail(job);
@@ -161,6 +188,9 @@ export class JobCommandService {
       const fields = requestFields(request, await resolveTags(tags, request.tags));
       let schedule = { status: job.status, postedAt: job.postedAt, expiresAt: job.expiresAt };
       if (request.status !== null) schedule = changeStatus(schedule, request.status, now, this.settings.defaultExpiryDays);
+      if (schedule.status === "PUBLISHED" && job.status !== "PUBLISHED" && job.pendingTags.length > 0) {
+        throw pendingTagsBlockPublishing(job);
+      }
       if (request.postedAt !== null) schedule.postedAt = request.postedAt;
       if (request.expiresAt !== null) schedule.expiresAt = request.expiresAt;
       const updated: JobRecord = { ...job, ...fields, applyUrlHash: hash, ...schedule, updatedAt: now };
@@ -172,11 +202,13 @@ export class JobCommandService {
   /**
    * Changes the status (publish, close, back to draft). See `changeStatus` for the date rules.
    *
-   * @throws ApiException 404 for an unknown id.
+   * @throws ApiException 404 for an unknown id, 409 TAG_APPROVAL_NEEDED when publishing a job whose
+   *   pending tags were not approved or skipped yet.
    */
   setStatus(id: number, status: JobStatus): Promise<JobDetail> {
     return this.uow.write(async ({ jobs }) => {
       const job = await this.find(jobs, id);
+      if (status === "PUBLISHED" && job.pendingTags.length > 0) throw pendingTagsBlockPublishing(job);
       const now = this.clock.now();
       const updated: JobRecord = { ...job, ...changeStatus(job, status, now, this.settings.defaultExpiryDays), updatedAt: now };
       await jobs.saveSchedule(updated);
@@ -206,6 +238,61 @@ export class JobCommandService {
       await jobs.saveSchedule(updated);
       return toJobDetail(updated);
     });
+  }
+
+  /**
+   * Approves one pending tag: adds it to the tag vocabulary (unless a tag with that slug already
+   * exists), attaches it to the job and removes it from the pending list. The job stays a draft; the
+   * admin publishes it once every pending tag is approved or skipped.
+   *
+   * @throws ApiException 400 for an invalid name or category, 404 for an unknown job, 409 when the slug
+   *   is not pending for this job or another tag already has that name.
+   */
+  async approvePendingTag(id: number, slug: string, name: string, category: string): Promise<JobDetail> {
+    const cleanName = javaTrim(name);
+    if (cleanName === "" || cleanName.length > 60) {
+      throw new ApiException(400, "VALIDATION_FAILED", "Tag name must be 1 to 60 characters", { name: "Tag name must be 1 to 60 characters" });
+    }
+    if (!(TAG_CATEGORIES as readonly string[]).includes(category)) {
+      throw new ApiException(400, "VALIDATION_FAILED", "Unknown tag category", { category: "Unknown tag category" });
+    }
+    return this.uow.write(async ({ jobs, tags }) => {
+      const job = await this.findWithPending(jobs, id, slug);
+      const tag = (await tags.findBySlugs([slug]))[0] ?? (await tags.insert(cleanName, slug, category as TagCategory));
+      if (tag === null) {
+        throw new ApiException(409, "CONFLICT", `A tag named ${cleanName} already exists`, { name: "Tag name already in use" });
+      }
+      const updated: JobRecord = {
+        ...job,
+        tags: job.tags.some((t) => t.id === tag.id) ? job.tags : [...job.tags, tag],
+        pendingTags: job.pendingTags.filter((s) => s !== slug),
+        updatedAt: this.clock.now(),
+      };
+      await jobs.update(updated);
+      return toJobDetail(updated);
+    });
+  }
+
+  /**
+   * Skips one pending tag: drops it from the pending list without creating it. The job keeps its other tags.
+   *
+   * @throws ApiException 404 for an unknown job, 409 when the slug is not pending for this job.
+   */
+  skipPendingTag(id: number, slug: string): Promise<JobDetail> {
+    return this.uow.write(async ({ jobs }) => {
+      const job = await this.findWithPending(jobs, id, slug);
+      const updated: JobRecord = { ...job, pendingTags: job.pendingTags.filter((s) => s !== slug), updatedAt: this.clock.now() };
+      await jobs.update(updated);
+      return toJobDetail(updated);
+    });
+  }
+
+  private async findWithPending(jobs: JobRepository, id: number, slug: string): Promise<JobRecord> {
+    const job = await this.find(jobs, id);
+    if (!job.pendingTags.includes(slug)) {
+      throw new ApiException(409, "INVALID_STATE", `Tag ${slug} is not waiting for approval on this job`);
+    }
+    return job;
   }
 
   private async find(jobs: JobRepository, id: number): Promise<JobRecord> {

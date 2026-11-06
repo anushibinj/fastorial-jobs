@@ -19,6 +19,7 @@ function fakeRepo(tags: TagRecord[], aliases: TagAliasRecord[]) {
       repo.findAllCalls++;
       return tags;
     }),
+    insert: async () => null,
     findBySlugs: async (slugs: readonly string[]) => tags.filter((t) => slugs.includes(t.slug)),
     findAllAliases: async () => aliases,
   };

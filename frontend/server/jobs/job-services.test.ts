@@ -284,3 +284,54 @@ describe("filters", () => {
     expect(result.experience[0].count).toBe(1);
   });
 });
+
+describe("unknown tags on a new post", () => {
+  it("accepts the post as a draft with the unknown slugs pending, keeping the known tags", async () => {
+    const d = await commands.create(jobRequest({ status: "PUBLISHED", tags: ["java", "cobol-9000", "zzz"] }));
+    expect([d.status, d.postedAt, d.tags.map((t) => t.slug)]).toEqual(["DRAFT", null, ["java"]]);
+    expect(jobs.jobs[0].pendingTags).toEqual(["cobol-9000", "zzz"]);
+    expect((await queries.getAdmin(d.id)).pendingTags).toEqual(["cobol-9000", "zzz"]);
+  });
+
+  it("creates posts with only known tags as before, with nothing pending", async () => {
+    await commands.create(jobRequest({ tags: ["java"] }));
+    expect([jobs.jobs[0].status, jobs.jobs[0].pendingTags]).toEqual(["PUBLISHED", []]);
+  });
+
+  it("refuses to publish until every pending tag is approved or skipped", async () => {
+    const { id } = await commands.create(jobRequest({ tags: ["java", "rust-ish", "zzz"] }));
+    const e = await apiError(commands.setStatus(id, "PUBLISHED"));
+    expect([e.status, e.code]).toEqual([409, "TAG_APPROVAL_NEEDED"]);
+    expect((await apiError(commands.update(id, jobRequest({ status: "PUBLISHED", tags: ["java"] })))).code).toBe("TAG_APPROVAL_NEEDED");
+
+    const approved = await commands.approvePendingTag(id, "rust-ish", "Rust-ish", "LANGUAGE");
+    expect(approved.tags.map((t) => t.slug).sort()).toEqual(["java", "rust-ish"]);
+    expect((await apiError(commands.setStatus(id, "PUBLISHED"))).code).toBe("TAG_APPROVAL_NEEDED");
+
+    const skipped = await commands.skipPendingTag(id, "zzz");
+    expect(skipped.tags.map((t) => t.slug).sort()).toEqual(["java", "rust-ish"]);
+    expect(jobs.jobs[0].pendingTags).toEqual([]);
+
+    const published = await commands.setStatus(id, "PUBLISHED");
+    expect(published.status).toBe("PUBLISHED");
+    expect((await tags.findBySlugs(["rust-ish"]))[0]).toMatchObject({ name: "Rust-ish", category: "LANGUAGE" });
+  });
+
+  it("attaches an existing tag instead of creating a duplicate when the slug was created meanwhile", async () => {
+    const { id } = await commands.create(jobRequest({ tags: ["newtag"] }));
+    await tags.insert("NewTag", "newtag", "TOOL");
+    const d = await commands.approvePendingTag(id, "newtag", "Other name", "CLOUD");
+    expect(d.tags.map((t) => [t.slug, t.name, t.category])).toEqual([["newtag", "NewTag", "TOOL"]]);
+  });
+
+  it("rejects bad approvals: unknown slug, bad name or category, name already used", async () => {
+    const { id } = await commands.create(jobRequest({ tags: ["newtag"] }));
+    expect((await apiError(commands.approvePendingTag(id, "other", "Other", "TOOL"))).status).toBe(409);
+    expect((await apiError(commands.approvePendingTag(id, "newtag", "  ", "TOOL"))).status).toBe(400);
+    expect((await apiError(commands.approvePendingTag(id, "newtag", "X", "NOPE"))).status).toBe(400);
+    expect((await apiError(commands.approvePendingTag(id, "newtag", "Java", "TOOL"))).status).toBe(409);
+    expect((await apiError(commands.skipPendingTag(id, "other"))).status).toBe(409);
+    expect((await apiError(commands.skipPendingTag(999, "newtag"))).status).toBe(404);
+    expect(jobs.jobs[0].pendingTags).toEqual(["newtag"]);
+  });
+});

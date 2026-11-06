@@ -84,6 +84,12 @@ export const AWS: TagRecord = { id: 3, name: "AWS", slug: "aws", category: "CLOU
 /** Tag repository over a fixed list. */
 export class InMemoryTagRepository implements TagRepository {
   constructor(private readonly tags: TagRecord[] = [JAVA, KAFKA, AWS]) {}
+  async insert(name: string, slug: string, category: TagRecord["category"]) {
+    if (this.tags.some((t) => t.slug === slug || t.name === name)) return null;
+    const tag = { id: Math.max(0, ...this.tags.map((t) => t.id)) + 1, name, slug, category };
+    this.tags.push(tag);
+    return tag;
+  }
   async findAllOrderedByName() {
     return [...this.tags].sort((a, b) => a.name.localeCompare(b.name));
   }
