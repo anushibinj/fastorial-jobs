@@ -9,7 +9,7 @@ function StatusButton({ id, status, label }: { id: number; status: string; label
     <form action={setStatusAction}>
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="status" value={status} />
-      <Button type="submit" variant="outline" size="sm" className="min-h-9">
+      <Button data-track={`admin_job_${status.toLowerCase()}_button`} type="submit" variant="outline" size="sm" className="min-h-9">
         {label}
       </Button>
     </form>
@@ -27,7 +27,7 @@ export function JobActions({ job }: { job: AdminJobSummary }) {
         <form action={extendAction} className="flex items-center gap-1">
           <input type="hidden" name="id" value={id} />
           <Input name="days" type="number" min={1} max={365} defaultValue={30} aria-label="Days" className="h-9 w-16 px-2" />
-          <Button type="submit" variant="outline" size="sm" className="min-h-9">
+          <Button data-track={job.status === "CLOSED" ? "admin_job_reopen_button" : "admin_job_extend_button"} type="submit" variant="outline" size="sm" className="min-h-9">
             {job.status === "CLOSED" ? "Reopen" : "Extend"}
           </Button>
         </form>

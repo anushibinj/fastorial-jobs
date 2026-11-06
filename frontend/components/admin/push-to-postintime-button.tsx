@@ -11,7 +11,7 @@ export function PushToPostintimeButton({ id, posted }: { id: number; posted: boo
     <form action={formAction} className="flex flex-col items-start gap-1">
       <input type="hidden" name="ids" value={id} />
       <input type="hidden" name="op" value="postintime" />
-      <Button type="submit" variant="outline" size="sm" className="min-h-9" disabled={pending}>
+      <Button data-track="admin_job_push_postintime_button" type="submit" variant="outline" size="sm" className="min-h-9" disabled={pending}>
         {pending ? "Pushing…" : posted ? "Push again" : "Push to PostInTime"}
       </Button>
       {state.message && !pending ? (

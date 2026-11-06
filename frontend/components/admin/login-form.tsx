@@ -22,7 +22,7 @@ export function LoginForm() {
         <Input id="token" name="token" type="password" autoComplete="current-password" required className="h-11" aria-invalid={!!state.error} />
         {state.error ? <p className="text-destructive text-sm">{state.error}</p> : null}
       </div>
-      <Button type="submit" size="lg" className="min-h-11" disabled={pending}>
+      <Button data-track="admin_login_submit_button" type="submit" size="lg" className="min-h-11" disabled={pending}>
         {pending ? "Signing in…" : "Sign in"}
       </Button>
     </form>

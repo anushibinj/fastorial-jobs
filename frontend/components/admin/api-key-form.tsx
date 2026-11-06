@@ -25,7 +25,7 @@ export function ApiKeyForm() {
           <Label htmlFor="name">Key name</Label>
           <Input id="name" name="name" placeholder="e.g. Zapier" maxLength={100} required className="h-11 w-64" aria-invalid={!!state.error} />
         </div>
-        <Button type="submit" size="lg" className="min-h-11" disabled={pending}>
+        <Button data-track="admin_api_key_create_button" type="submit" size="lg" className="min-h-11" disabled={pending}>
           {pending ? "Creating…" : "Create API key"}
         </Button>
       </form>

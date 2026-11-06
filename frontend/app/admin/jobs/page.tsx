@@ -49,6 +49,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
             <li key={s.value}>
               <Link
                 href={href(s.value, 0)}
+                data-track="admin_jobs_status_filter_link"
+                data-track-label={s.value}
                 aria-current={status === s.value ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-11 items-center rounded-lg px-3 text-sm",
@@ -64,6 +66,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
             <li key={f.value}>
               <Link
                 href={href(status, 0, pit === f.value ? "" : f.value)}
+                data-track="admin_jobs_postintime_filter_link"
+                data-track-label={f.value}
                 aria-current={pit === f.value ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-11 items-center whitespace-nowrap rounded-lg px-3 text-sm",
@@ -76,7 +80,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
           ))}
         </ul>
         <Button asChild size="lg" className="min-h-11">
-          <Link href="/admin/jobs/new">New job</Link>
+          <Link data-track="admin_jobs_new_job_button" href="/admin/jobs/new">New job</Link>
         </Button>
       </div>
 
@@ -91,7 +95,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
       {data && data.totalPages > 1 ? (
         <div className="flex items-center justify-between text-sm">
           {page > 0 ? (
-            <Link href={href(status, page - 1)} className="min-h-11 content-center underline underline-offset-4">
+            <Link data-track="admin_jobs_prev_page_link" href={href(status, page - 1)} className="min-h-11 content-center underline underline-offset-4">
               Previous
             </Link>
           ) : (
@@ -101,7 +105,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin/jobs
             {page + 1} / {data.totalPages}
           </span>
           {data.hasNext ? (
-            <Link href={href(status, page + 1)} className="min-h-11 content-center underline underline-offset-4">
+            <Link data-track="admin_jobs_next_page_link" href={href(status, page + 1)} className="min-h-11 content-center underline underline-offset-4">
               Next
             </Link>
           ) : (
