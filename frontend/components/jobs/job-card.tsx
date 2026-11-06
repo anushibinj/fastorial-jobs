@@ -26,9 +26,9 @@ export function JobCard({ job }: { job: JobSummary }) {
         </div>
         <JobMeta company={job.companyName} city={job.locationCity} mode={job.workMode} className="text-muted-foreground text-sm" companyClassName="text-foreground" />
         <p className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm">
-          <span>{formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears)}</span>
+          <span>{`Experience: ${formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears)}`}</span>
           {age ? <span aria-hidden>·</span> : null}
-          {age ? <span>{age}</span> : null}
+          {age ? <span>{`Posted ${age}`}</span> : null}
           {salary ? <span aria-hidden>·</span> : null}
           {salary ? <span className="text-foreground font-medium">{salary}</span> : null}
           {closed ? <Badge variant="outline">Closed</Badge> : null}
