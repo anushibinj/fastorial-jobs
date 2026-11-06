@@ -14,6 +14,23 @@ export interface RenderedImage {
 /** Draws the 1:1 version of a job's link preview image. */
 export type JobImageRenderer = (job: JobDetail) => Promise<RenderedImage>;
 
+/** Remembers on the job that it was pushed, so the admin list can show it. */
+export interface PostRegistry {
+  recordPosted(jobId: number, postId: string | null, at: Date): Promise<void>;
+}
+
+/** What a manual push did: `ok` false when it was skipped or failed, `message` says why. */
+export interface PushOutcome {
+  ok: boolean;
+  message: string;
+}
+
+/** What `push` learned from PostInTime. */
+interface Pushed {
+  message: string;
+  postId: string | null;
+}
+
 /** PostInTime limits the title to 300 characters. */
 const MAX_TITLE = 300;
 const DEFAULT_TIMEOUT_MS = 20_000;
@@ -49,6 +66,7 @@ export class PostintimePublisher {
     private readonly logger: Logger,
     private readonly http: typeof fetch = fetch,
     private readonly timeoutMs: number = DEFAULT_TIMEOUT_MS,
+    private readonly registry?: PostRegistry,
   ) {}
 
   async onJobPostCreated({ job }: JobPostCreated): Promise<void> {
@@ -57,7 +75,7 @@ export class PostintimePublisher {
       const settings = await this.settings.load();
       // A draft is not on the site yet, so there is nothing to link to. Publishing one later is not "created".
       if (!settings.enabled || job.status !== "PUBLISHED") return;
-      result = await this.push(job, settings);
+      result = (await this.pushAndRecord(job, settings)).message;
       this.logger.info(`PostInTime: ${result}`);
     } catch (error) {
       result = `Failed to post job ${job.id}: ${describeError(error)}`;
@@ -66,7 +84,40 @@ export class PostintimePublisher {
     await this.settings.recordResult(result).catch((e) => this.logger.error("PostInTime: could not save the result", e));
   }
 
-  private async push(job: JobDetail, settings: PostintimeSettings): Promise<string> {
+  /**
+   * Pushes one job by hand (the admin "Push to PostInTime" button). Unlike the automatic push it works
+   * while the connection is switched off, as long as it is filled in, and it posts a job again if it was
+   * posted before. Drafts are refused: they are not on the site, so there is nothing to link to.
+   * Never throws; the outcome is also saved as the "last result".
+   */
+  async publishJob(job: JobDetail): Promise<PushOutcome> {
+    let outcome: PushOutcome;
+    try {
+      const settings = await this.settings.load();
+      if (!settings.baseUrl || !settings.apiToken || !settings.channelId) {
+        return { ok: false, message: "PostInTime is not set up yet: fill in the server URL, API token and channel id" };
+      }
+      if (job.status === "DRAFT") return { ok: false, message: `Job ${job.id} is a draft; publish it first` };
+      outcome = { ok: true, message: (await this.pushAndRecord(job, settings)).message };
+      this.logger.info(`PostInTime: ${outcome.message}`);
+    } catch (error) {
+      outcome = { ok: false, message: `Failed to post job ${job.id}: ${describeError(error)}` };
+      this.logger.error(`PostInTime: ${outcome.message}`, error);
+    }
+    await this.settings.recordResult(outcome.message).catch((e) => this.logger.error("PostInTime: could not save the result", e));
+    return outcome;
+  }
+
+  /** Pushes the job, then marks it posted. A failure to mark it is logged only: the post already exists. */
+  private async pushAndRecord(job: JobDetail, settings: PostintimeSettings): Promise<Pushed> {
+    const pushed = await this.push(job, settings);
+    await this.registry
+      ?.recordPosted(job.id, pushed.postId, new Date())
+      .catch((e) => this.logger.error(`PostInTime: could not mark job ${job.id} as posted`, e));
+    return pushed;
+  }
+
+  private async push(job: JobDetail, settings: PostintimeSettings): Promise<Pushed> {
     const form = new FormData();
     form.set("title", truncate(job.companyName ? `${job.title} at ${job.companyName}` : job.title, MAX_TITLE));
     form.set("caption", buildShareText(job));
@@ -93,7 +144,7 @@ export class PostintimePublisher {
       throw new Error(`PostInTime answered HTTP ${response.status}${body ? `: ${snippet(body)}` : ""}`);
     }
     const created = (await response.json().catch(() => null)) as { id?: unknown } | null;
-    const postId = typeof created?.id === "string" ? ` as post ${created.id}` : "";
-    return `Posted job ${job.id} (${job.slug})${postId}${imageNote}`;
+    const postId = typeof created?.id === "string" ? created.id : null;
+    return { message: `Posted job ${job.id} (${job.slug})${postId ? ` as post ${postId}` : ""}${imageNote}`, postId };
   }
 }

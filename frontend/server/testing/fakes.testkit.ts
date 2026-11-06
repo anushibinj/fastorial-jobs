@@ -18,6 +18,7 @@ import { offsetOf, type PageRequest } from "@/server/jobs/paging";
 import type { JobRequest } from "@/server/requests/job-request";
 import type { Clock } from "@/server/shared/clock";
 import type { Logger } from "@/server/shared/logger";
+import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { DEFAULT_SETTINGS, PostintimeSettingsService, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
 import type { TagRecord } from "@/server/tags/tag-record";
 import type { TagRepository } from "@/server/tags/tag-repository";
@@ -230,6 +231,7 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
   const apiKeys = new ApiKeyService(fakeUnitOfWork({ apiKeys: stores.apiKeys }), clock);
   const authenticator = new RequestAuthenticator({ adminToken: config.adminToken, internalSecret: config.internalSecret }, apiKeys);
   const jobsUow = fakeUnitOfWork({ jobs: stores.jobs, tags: stores.tags });
+  const postintimeSettings = new PostintimeSettingsService(fakeUnitOfWork({ settings: stores.postintime }), clock);
   const services: Services = {
     config, db, clock, logger,
     schema: { ready: async () => undefined },
@@ -240,7 +242,11 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     tagCatalog: new TagCatalogService(stores.tags),
     tagDetection: new TagDetectionService(stores.tags, clock),
     apiKeys,
-    postintimeSettings: new PostintimeSettingsService(fakeUnitOfWork({ settings: stores.postintime }), clock),
+    postintimeSettings,
+    postintime: new PostintimePublisher(
+      postintimeSettings, async () => ({ bytes: new Uint8Array(), contentType: "image/png" }), logger, undefined, undefined,
+      { recordPosted: (jobId, postId, at) => stores.jobs.markPostintimePosted(jobId, at, postId) },
+    ),
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };

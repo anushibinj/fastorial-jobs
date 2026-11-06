@@ -32,12 +32,14 @@ let calls: Call[];
 let respond: () => Response | Promise<Response>;
 let render: () => Promise<RenderedImage>;
 let publisher: PostintimePublisher;
+let recorded: Array<[number, string | null]>;
 
 beforeEach(() => {
   repo = new InMemoryPostintimeSettingsRepository();
   repo.settings = { ...repo.settings, enabled: true, baseUrl: "https://pit.example.com", apiToken: "pit_secret", channelId: CHANNEL, postStatus: "ready" };
   logger = new MemoryLogger();
   calls = [];
+  recorded = [];
   respond = () => Response.json({ id: "post-1" }, { status: 201 });
   render = async () => PNG;
   const fakeFetch = (async (url: string, init: RequestInit) => {
@@ -45,7 +47,9 @@ beforeEach(() => {
     return respond();
   }) as unknown as typeof fetch;
   const settings = new PostintimeSettingsService(fakeUnitOfWork({ settings: repo }), new MutableClock());
-  publisher = new PostintimePublisher(settings, () => render(), logger, fakeFetch, 50);
+  publisher = new PostintimePublisher(settings, () => render(), logger, fakeFetch, 50, {
+    recordPosted: async (id, postId) => void recorded.push([id, postId]),
+  });
 });
 
 describe("postsUrl", () => {
@@ -134,5 +138,55 @@ describe("PostintimePublisher.onJobPostCreated", () => {
     repo.get = () => Promise.reject(new Error("db down"));
     await expect(publisher.onJobPostCreated(event(job()))).resolves.toBeUndefined();
     expect(calls).toEqual([]);
+  });
+});
+
+describe("marking jobs as posted", () => {
+  it("records the job and the post id after an automatic push", async () => {
+    await publisher.onJobPostCreated(event(job()));
+    expect(recorded).toEqual([[12, "post-1"]]);
+  });
+
+  it("records nothing when the push fails", async () => {
+    respond = () => new Response("nope", { status: 500 });
+    await publisher.onJobPostCreated(event(job()));
+    expect(recorded).toEqual([]);
+  });
+});
+
+describe("PostintimePublisher.publishJob", () => {
+  it("posts even while the connection is switched off, and records it", async () => {
+    repo.settings = { ...repo.settings, enabled: false };
+    const outcome = await publisher.publishJob(job());
+    expect(outcome).toEqual({ ok: true, message: "Posted job 12 (senior-java-engineer-acme-pune-12) as post post-1" });
+    expect(recorded).toEqual([[12, "post-1"]]);
+    expect(repo.settings.lastResult).toBe(outcome.message);
+  });
+
+  it("posts a job again that was posted before", async () => {
+    await publisher.publishJob(job());
+    await publisher.publishJob(job());
+    expect(calls).toHaveLength(2);
+  });
+
+  it("refuses a draft", async () => {
+    const outcome = await publisher.publishJob(job({ status: "DRAFT" }));
+    expect(outcome).toEqual({ ok: false, message: "Job 12 is a draft; publish it first" });
+    expect(calls).toEqual([]);
+  });
+
+  it("refuses when the connection is not filled in", async () => {
+    repo.settings = { ...repo.settings, apiToken: "" };
+    const outcome = await publisher.publishJob(job());
+    expect(outcome.ok).toBe(false);
+    expect(outcome.message).toMatch(/not set up yet/);
+    expect(calls).toEqual([]);
+  });
+
+  it("reports a failure instead of throwing", async () => {
+    respond = () => new Response("nope", { status: 401 });
+    const outcome = await publisher.publishJob(job());
+    expect(outcome).toEqual({ ok: false, message: "Failed to post job 12: PostInTime answered HTTP 401: nope" });
+    expect(recorded).toEqual([]);
   });
 });

@@ -44,6 +44,8 @@ export interface Services {
   apiKeys: ApiKeyService;
   /** The PostInTime connection that the admin "PostInTime" tab edits. */
   postintimeSettings: PostintimeSettingsService;
+  /** Pushes jobs to PostInTime, for the admin "Push to PostInTime" button. */
+  postintime: PostintimePublisher;
   authenticator: RequestAuthenticator;
   routes: RouteFactory;
 }
@@ -87,7 +89,9 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
   const postintimeSettings = new PostintimeSettingsService(settingsUow, clock);
   // Events: a created job is pushed to PostInTime. More listeners subscribe here.
   const events = new InProcessEventBus(logger, runInBackground);
-  const postintime = new PostintimePublisher(postintimeSettings, renderJobSquareImage, logger);
+  const postintime = new PostintimePublisher(postintimeSettings, renderJobSquareImage, logger, undefined, undefined, {
+    recordPosted: (jobId, postId, at) => jobsUow.write(({ jobs }) => jobs.markPostintimePosted(jobId, at, postId)),
+  });
   events.subscribe("JobPostCreated", (event) => postintime.onJobPostCreated(event));
   const apiKeys = new ApiKeyService(apiKeysUow, clock);
   const authenticator = new RequestAuthenticator(
@@ -108,6 +112,7 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     tagDetection: new TagDetectionService(tagRepository, clock),
     apiKeys,
     postintimeSettings,
+    postintime,
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };
