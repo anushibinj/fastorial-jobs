@@ -3,6 +3,18 @@ import { timingSafeEqual } from "node:crypto";
 export const ADMIN_HEADER = "X-Admin-Token";
 export const API_KEY_HEADER = "X-API-Key";
 export const INTERNAL_HEADER = "X-Internal-Secret";
+export const AUTHORIZATION_HEADER = "Authorization";
+
+/**
+ * The API key a request carries: the `X-API-Key` header, or else `Authorization: Bearer <key>` (which
+ * is what most MCP clients can send). Null when neither is present.
+ */
+export function apiKeyFrom(headers: Headers): string | null {
+  const direct = headers.get(API_KEY_HEADER);
+  if (direct !== null) return direct;
+  const match = /^Bearer\s+(\S+)$/i.exec(headers.get(AUTHORIZATION_HEADER) ?? "");
+  return match ? match[1] : null;
+}
 
 /**
  * Who may call an endpoint.
@@ -55,7 +67,7 @@ export class RequestAuthenticator {
   async isAuthorized(headers: Headers, policy: AccessPolicy): Promise<boolean> {
     if (policy === "internal") return this.matches(this.secrets.internalSecret, headers.get(INTERNAL_HEADER));
     if (this.matches(this.secrets.adminToken, headers.get(ADMIN_HEADER))) return true;
-    return policy === "adminOrApiKey" && this.apiKeys.authenticate(headers.get(API_KEY_HEADER));
+    return policy === "adminOrApiKey" && this.apiKeys.authenticate(apiKeyFrom(headers));
   }
 
   private matches(expected: string, given: string | null): boolean {

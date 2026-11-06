@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { API_KEY_PREFIX, ApiKeyService, hashApiKey, toApiKeyDto } from "@/server/api-keys/api-key-service";
-import { constantTimeEquals, RequestAuthenticator, type ApiKeyVerifier } from "@/server/auth/request-authenticator";
+import { apiKeyFrom, constantTimeEquals, RequestAuthenticator, type ApiKeyVerifier } from "@/server/auth/request-authenticator";
 import { ApiException } from "@/server/shared/api-exception";
 import { fakeUnitOfWork, InMemoryApiKeyRepository, MutableClock } from "@/server/testing/fakes.testkit";
 
@@ -99,6 +99,14 @@ describe("RequestAuthenticator.isAuthorized", () => {
     expect(await auth.isAuthorized(h, "internal")).toBe(false);
   });
 
+  it("accepts an API key sent as a Bearer token, but never the admin token that way", async () => {
+    const auth = new RequestAuthenticator({ adminToken: "a", internalSecret: "i" }, verifier("k"));
+    expect(await auth.isAuthorized(headers({ Authorization: "Bearer k" }), "adminOrApiKey")).toBe(true);
+    expect(await auth.isAuthorized(headers({ Authorization: "bearer k" }), "adminOrApiKey")).toBe(true);
+    expect(await auth.isAuthorized(headers({ Authorization: "Bearer k" }), "admin")).toBe(false);
+    expect(await auth.isAuthorized(headers({ Authorization: "Bearer a" }), "admin")).toBe(false);
+  });
+
   it("does not consult API keys when the admin token matches", async () => {
     const keys = verifier("k");
     const auth = new RequestAuthenticator({ adminToken: "a", internalSecret: "i" }, keys);
@@ -118,5 +126,15 @@ describe("RequestAuthenticator.isAuthorized", () => {
     expect(await auth.isAuthorized(headers({ "X-Admin-Token": "" }), "admin")).toBe(false);
     expect(await auth.isAuthorized(headers({ "X-Internal-Secret": "" }), "internal")).toBe(false);
     expect(await auth.isAuthorized(headers({}), "admin")).toBe(false);
+  });
+});
+
+describe("apiKeyFrom", () => {
+  it("prefers X-API-Key, falls back to a Bearer token, and is null otherwise", () => {
+    expect(apiKeyFrom(new Headers({ "X-API-Key": "x", Authorization: "Bearer y" }))).toBe("x");
+    expect(apiKeyFrom(new Headers({ Authorization: "Bearer y" }))).toBe("y");
+    expect(apiKeyFrom(new Headers({ Authorization: "Basic y" }))).toBeNull();
+    expect(apiKeyFrom(new Headers({ Authorization: "Bearer" }))).toBeNull();
+    expect(apiKeyFrom(new Headers())).toBeNull();
   });
 });
