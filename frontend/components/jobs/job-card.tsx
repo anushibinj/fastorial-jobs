@@ -4,7 +4,8 @@ import { TagChips } from "@/components/jobs/tag-chips";
 import { isClosed } from "@/lib/job-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatExperience, formatLocation, formatPostedAgo, formatSalary } from "@/lib/format";
+import { JobMeta } from "@/components/jobs/work-mode";
+import { formatExperience, formatPostedAgo, formatSalary } from "@/lib/format";
 import type { JobSummary } from "@/lib/types";
 
 export function JobCard({ job }: { job: JobSummary }) {
@@ -23,8 +24,7 @@ export function JobCard({ job }: { job: JobSummary }) {
           </h2>
           <ShareDialog job={job} className="-mt-2 -mr-2 shrink-0" />
         </div>
-        <p className="text-sm">{job.companyName}</p>
-        <p className="text-muted-foreground text-sm">{formatLocation(job)}</p>
+        <JobMeta company={job.companyName} city={job.locationCity} mode={job.workMode} className="text-muted-foreground text-sm" companyClassName="text-foreground" />
         <p className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm">
           <span>{formatExperience(job.experienceMinYears ?? 0, job.experienceMaxYears)}</span>
           {age ? <span aria-hidden>·</span> : null}
