@@ -8,6 +8,7 @@ import {
   parseExtendRequest,
   parseStatusRequest,
 } from "@/server/requests/admin-requests";
+import { handleMcpRequest } from "@/server/mcp/mcp-endpoint";
 import { parseJobRequest } from "@/server/requests/job-request";
 import { parseAdminJobQuery, parsePublicJobQuery } from "@/server/requests/list-queries";
 import { pathId } from "@/server/requests/request-params";
@@ -92,6 +93,11 @@ export function createApiEndpoints(s: Services) {
       const { title, description } = parseDetectRequest(await readJsonBody(request, true));
       return jsonResponse(await s.tagDetection.detect(title, description));
     }),
+
+    // ---- MCP: the admin job and tag operations as tools (admin token or API key) ----
+
+    /** `POST /api/mcp`: MCP over Streamable HTTP (stateless). The key may also be sent as a Bearer token. */
+    mcp: routes.protectedRoute("adminOrApiKey", (request) => handleMcpRequest(s, request)),
 
     // ---- API keys: admin token only (former ApiKeyController) ----
 
