@@ -38,8 +38,9 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
   const activeCount = [value.location, value.mode, value.exp, value.tags.length ? "t" : ""].filter((v) => v !== "").length;
 
   return (
-    <div className="flex min-w-0 flex-col gap-3 lg:contents" aria-busy={pending}>
-      <div className="flex gap-2 lg:col-start-2">
+    <div className="contents" aria-busy={pending}>
+      {/* pinned under the header (h-14) on every breakpoint; wrapper is display:contents so it sticks across the whole page */}
+      <div className="bg-background sticky top-14 z-30 -mx-4 flex gap-2 px-4 py-2 lg:col-start-2 lg:mx-0 lg:px-0">
         <SearchBox value={value.q} onCommit={(q) => go({ ...value, q })} />
         {/* phone only */}
         <Sheet
@@ -98,7 +99,7 @@ export function Filters({ value, facets }: { value: FilterState; facets: Facets 
 
       {/* md: inline row above the list. lg: sidebar (lg:contents on the wrapper lets the grid place this) */}
       <div className="hidden md:block lg:col-start-1 lg:row-span-3 lg:row-start-1">
-        <div className="lg:sticky lg:top-20">
+        <div className="lg:sticky lg:top-[4.5rem] lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto lg:pr-1">
           <FilterFields value={value} facets={facets} onChange={(patch) => go({ ...value, ...patch })} idPrefix="inline" inline />
         </div>
       </div>
