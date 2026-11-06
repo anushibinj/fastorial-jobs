@@ -13,6 +13,7 @@ with the same endpoints, payloads and environment variables.)
 |---|---|
 | `frontend/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, PWA. pnpm only |
 | `frontend/server/` | The jobs API: services, PostgreSQL repositories, migrations (Flyway compatible) |
+| `frontend/server/mcp/` | The MCP server: the admin job and tag operations as tools, served at `/api/mcp` |
 | `frontend/app/api/` | Route handlers that expose the API under `/api/**` |
 | `docs/` | Local development, deployment, OpenAPI spec, seed script |
 | `firebase.json` | Firebase App Hosting backend for `frontend/` (see `frontend/apphosting.yaml`) |
@@ -78,6 +79,21 @@ Success is `201 Created` with the job, including its `id` and `slug`. A bad or r
 returns `401`, and validation problems return `400` with per-field `fieldErrors`.
 Other useful calls with the same header: `GET /api/admin/jobs`, `PUT /api/admin/jobs/{id}`,
 `PATCH /api/admin/jobs/{id}/status` (`{"status":"CLOSED"}`) and `POST /api/admin/jobs/{id}/extend`.
+
+## Using the API from an AI assistant (MCP)
+
+The same job and tag operations are available as [Model Context Protocol](https://modelcontextprotocol.io) tools
+at `POST /api/mcp` (Streamable HTTP, stateless, JSON responses). It uses the same API keys as the REST API:
+send the key as `X-API-Key`, or as `Authorization: Bearer <key>` for clients that only support that. The admin
+token also works. A bad or missing key returns `401`.
+
+Tools: `list_jobs`, `get_job`, `create_job`, `update_job`, `set_job_status`, `extend_job`, `list_tags` and
+`detect_tags`. They validate exactly like the REST endpoints; a failure comes back as a tool error whose text is
+the usual `{ code, message, fieldErrors }` body. API key management and the cleanup job are not exposed.
+
+```bash
+claude mcp add --transport http fastorial-jobs "$API/api/mcp" --header "X-API-Key: $KEY"
+```
 
 ## Pushing new jobs to PostInTime
 
