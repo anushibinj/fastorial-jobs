@@ -30,6 +30,10 @@ export interface JobRecord {
   status: JobStatus;
   postedAt: Date | null;
   expiresAt: Date | null;
+  /** When the job was last pushed to PostInTime, or null when it never was. */
+  postintimePostedAt: Date | null;
+  /** The post id PostInTime returned for that push, when it returned one. */
+  postintimePostId: string | null;
   createdAt: Date;
   updatedAt: Date;
   tags: TagRecord[];

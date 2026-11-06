@@ -1,4 +1,4 @@
-import type { IsoInstant, JobDetail, JobSummary } from "@/lib/api/contract";
+import type { AdminJobSummary, IsoInstant, JobDetail, JobSummary } from "@/lib/api/contract";
 import type { JobRecord } from "@/server/jobs/job-record";
 import { toIso } from "@/server/shared/iso";
 import { toSortedTagDtos } from "@/server/tags/tag-mapper";
@@ -26,6 +26,11 @@ export function toJobSummary(job: JobRecord): JobSummary {
     expiresAt: toIso(job.expiresAt),
     tags: toSortedTagDtos(job.tags),
   };
+}
+
+/** A list row for the admin UI: the summary plus the PostInTime state. */
+export function toAdminJobSummary(job: JobRecord): AdminJobSummary {
+  return { ...toJobSummary(job), postintimePostedAt: toIso(job.postintimePostedAt) };
 }
 
 /** A job with every public field (the former `JobDetail.from`). Property order matches the Java record. */

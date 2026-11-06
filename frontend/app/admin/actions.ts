@@ -8,6 +8,7 @@ import {
   adminCreateJob,
   adminDetectTags,
   adminExtend,
+  adminPushToPostintime,
   adminRevokeApiKey,
   adminSavePostintimeSettings,
   adminSetStatus,
@@ -71,6 +72,58 @@ export async function extendAction(formData: FormData): Promise<void> {
   const days = Number(formData.get("days"));
   await adminExtend(String(formData.get("id")), Number.isFinite(days) && days > 0 ? days : undefined);
   revalidatePath("/admin/jobs");
+}
+
+export type BulkState = { message?: string; failed?: boolean };
+
+/** The most jobs one bulk request handles; the admin list shows 30 per page. */
+const MAX_BULK = 100;
+const BULK_OPS = ["PUBLISHED", "CLOSED", "DRAFT", "extend", "postintime"] as const;
+type BulkOp = (typeof BULK_OPS)[number];
+
+function describeFailure(e: unknown): string {
+  return ApiException.is(e) ? e.message : "Something went wrong";
+}
+
+/**
+ * Applies one operation to every selected job: a new status, an extension (which reopens closed jobs),
+ * or a push to PostInTime. Jobs are handled one after another; one that fails (a draft cannot be
+ * extended, PostInTime refuses) does not stop the others, and the result says how many worked.
+ */
+export async function bulkJobsAction(_prev: BulkState, formData: FormData): Promise<BulkState> {
+  await requireAdmin();
+  const op = String(formData.get("op") ?? "") as BulkOp;
+  const ids = [...new Set(formData.getAll("ids").map(String))];
+  if (!BULK_OPS.includes(op)) return { message: "Choose an action", failed: true };
+  if (ids.length === 0) return { message: "Select at least one job", failed: true };
+  if (ids.length > MAX_BULK) return { message: `Select at most ${MAX_BULK} jobs`, failed: true };
+  const days = Number(formData.get("days"));
+
+  let done = 0;
+  const problems: string[] = [];
+  for (const id of ids) {
+    try {
+      if (op === "postintime") {
+        const outcome = await adminPushToPostintime(id);
+        if (!outcome.ok) {
+          problems.push(`#${id}: ${outcome.message}`);
+          continue;
+        }
+      } else if (op === "extend") {
+        await adminExtend(id, Number.isFinite(days) && days > 0 ? days : undefined);
+      } else {
+        await adminSetStatus(id, op);
+      }
+      done++;
+    } catch (e) {
+      problems.push(`#${id}: ${describeFailure(e)}`);
+    }
+  }
+  revalidatePath("/admin/jobs");
+  const noun = done === 1 ? "job" : "jobs";
+  if (problems.length === 0) return { message: `Done for ${done} ${noun}` };
+  const shown = problems.slice(0, 3).join("; ") + (problems.length > 3 ? `; and ${problems.length - 3} more` : "");
+  return { message: `${done} of ${ids.length} done. Failed: ${shown}`, failed: true };
 }
 
 export async function detectTagsAction(title: string, description: string): Promise<DetectedTag[]> {

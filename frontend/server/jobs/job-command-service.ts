@@ -132,6 +132,8 @@ export class JobCommandService {
         applyUrlHash: hash,
         ...fields,
         ...schedule,
+        postintimePostedAt: null,
+        postintimePostId: null,
         createdAt: now,
         updatedAt: now,
       };

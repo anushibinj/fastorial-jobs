@@ -49,7 +49,8 @@ Legend: [x] done and verified here, [~] done in code but needs a real environmen
 - [x] Publisher posts title, share text and a 1080 x 1080 version of the link preview image to `POST /api/v1/public/channels/{id}/posts`
 - [x] Checked in a browser against a stand-in PostInTime server (post, draft skipped, 401 shown, off switch) and against PostgreSQL 16
 - [ ] Try it once against the real PostInTime backend (the stand-in follows its controller: multipart `title`, `caption`, `status`, `media`, header `X-Api-Key`)
-- [ ] Retry failed pushes, or a "Push again" button on the jobs list, if missed posts turn out to matter
+- [x] "Push to PostInTime" button, posted status column and bulk actions on the admin jobs list (`jobs.postintime_posted_at`, V6)
+- [ ] Retry failed pushes automatically, if missed posts turn out to matter
 
 ## Where v1 differs from the plan
 - Spring Initializr only generates Spring Boot 4, so the skeleton was generated and then pinned to Boot 3.5.

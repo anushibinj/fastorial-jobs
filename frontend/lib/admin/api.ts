@@ -1,5 +1,5 @@
 import "server-only";
-import type { ApiKey, DetectedTag, JobDetail, JobSummary, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
+import type { AdminJobSummary, ApiKey, DetectedTag, JobDetail, PageOf, PostintimeSettingsDto, TagDto } from "@/lib/types";
 import { getServices } from "@/server/container";
 import {
   parseApiKeyRequest,
@@ -7,6 +7,7 @@ import {
   parseExtendRequest,
   parseStatusRequest,
 } from "@/server/requests/admin-requests";
+import type { PushOutcome } from "@/server/postintime/postintime-publisher";
 import { parseSettingsRequest } from "@/server/postintime/settings";
 import { parseJobRequest } from "@/server/requests/job-request";
 import { parseAdminJobQuery } from "@/server/requests/list-queries";
@@ -26,7 +27,7 @@ import { pathId } from "@/server/requests/request-params";
 const ADMIN_PAGE_SIZE = 30;
 
 /** One page of every job, most recently edited first, optionally filtered by text and status. */
-export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<JobSummary>> {
+export async function adminListJobs(params: { q?: string; status?: string; page?: number }): Promise<PageOf<AdminJobSummary>> {
   const query = new URLSearchParams();
   if (params.q) query.set("q", params.q);
   if (params.status) query.set("status", params.status);
@@ -49,6 +50,13 @@ export const adminSetStatus = async (id: number | string, status: string): Promi
 
 export const adminExtend = async (id: number | string, days?: number): Promise<JobDetail> =>
   getServices().jobCommands.extend(pathId(String(id), "Job not found"), parseExtendRequest(days ? { days } : {}));
+
+/** Pushes one job to PostInTime now. Never throws for a PostInTime problem; the outcome says what happened. */
+export const adminPushToPostintime = async (id: number | string): Promise<PushOutcome> => {
+  const services = getServices();
+  const job = await services.jobQueries.getAdmin(pathId(String(id), "Job not found"));
+  return services.postintime.publishJob(job);
+};
 
 export const adminTags = async (): Promise<TagDto[]> => getServices().tagCatalog.listTags();
 

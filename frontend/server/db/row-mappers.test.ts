@@ -17,7 +17,7 @@ describe("toJobRecord", () => {
       apply_url_hash: "h", source: "NAUKRI" as const, location_city: "Pune", location_state: null, location_country: "India",
       work_mode: "ONSITE" as const, experience_min_years: 2, experience_max_years: 4, salary_min: 100, salary_max: 200,
       salary_currency: "INR", salary_period: "MONTHLY" as const, status: "CLOSED" as const, posted_at: at, expires_at: null,
-      created_at: at, updated_at: at,
+      postintime_posted_at: null, postintime_post_id: null, created_at: at, updated_at: at,
     };
     const tags = [{ id: 1, name: "Java", slug: "java", category: "LANGUAGE" as const }];
     expect(toJobRecord(row, tags)).toEqual({
@@ -25,7 +25,7 @@ describe("toJobRecord", () => {
       applyUrlHash: "h", source: "NAUKRI", locationCity: "Pune", locationState: null, locationCountry: "India",
       workMode: "ONSITE", experienceMinYears: 2, experienceMaxYears: 4, salaryMin: 100, salaryMax: 200,
       salaryCurrency: "INR", salaryPeriod: "MONTHLY", status: "CLOSED", postedAt: at, expiresAt: null,
-      createdAt: at, updatedAt: at, tags,
+      postintimePostedAt: null, postintimePostId: null, createdAt: at, updatedAt: at, tags,
     });
   });
 });
