@@ -40,6 +40,12 @@ export function postsUrl(settings: Pick<PostintimeSettings, "baseUrl" | "channel
   return `${settings.baseUrl}/api/v1/public/channels/${encodeURIComponent(settings.channelId)}/posts`;
 }
 
+/** The caption with the admin's suffix (hashtags, footer) on its own paragraph; unchanged when the suffix is blank. */
+export function withSuffix(caption: string, suffix: string): string {
+  const extra = suffix.trim();
+  return extra === "" ? caption : `${caption.trimEnd()}\n\n${extra}`;
+}
+
 /** First characters of a response body, on one line, for the result shown in the admin UI. */
 function snippet(text: string): string {
   const oneLine = text.replace(/\s+/g, " ").trim();
@@ -120,7 +126,7 @@ export class PostintimePublisher {
   private async push(job: JobDetail, settings: PostintimeSettings): Promise<Pushed> {
     const form = new FormData();
     form.set("title", truncate(job.companyName ? `${job.title} at ${job.companyName}` : job.title, MAX_TITLE));
-    form.set("caption", buildShareText(job));
+    form.set("caption", withSuffix(buildShareText(job), settings.postSuffix));
     form.set("status", settings.postStatus);
     let imageNote = "";
     try {

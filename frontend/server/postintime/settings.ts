@@ -20,6 +20,8 @@ export interface PostintimeSettings {
   /** Id of the PostInTime channel that receives the posts. */
   channelId: string;
   postStatus: PostStatus;
+  /** Appended to the caption of every post (hashtags, footer). May span lines. */
+  postSuffix: string;
   /** One line about the latest push, shown in the admin UI. */
   lastResult: string | null;
   lastAttemptAt: Date | null;
@@ -32,17 +34,18 @@ export interface PostintimeSettingsInput {
   apiToken: string;
   channelId: string;
   postStatus: PostStatus;
+  postSuffix: string;
 }
 
 export const DEFAULT_SETTINGS: PostintimeSettings = {
-  enabled: false, baseUrl: "", apiToken: "", channelId: "", postStatus: "draft", lastResult: null, lastAttemptAt: null,
+  enabled: false, baseUrl: "", apiToken: "", channelId: "", postStatus: "draft", postSuffix: "", lastResult: null, lastAttemptAt: null,
 };
 
 export interface PostintimeSettingsRepository {
   /** The settings, or the defaults when nothing was saved yet. */
   get(): Promise<PostintimeSettings>;
   /** Saves the connection fields and keeps the last result. */
-  save(settings: Pick<PostintimeSettings, "enabled" | "baseUrl" | "apiToken" | "channelId" | "postStatus">, at: Date): Promise<void>;
+  save(settings: Pick<PostintimeSettings, "enabled" | "baseUrl" | "apiToken" | "channelId" | "postStatus" | "postSuffix">, at: Date): Promise<void>;
   recordResult(result: string, at: Date): Promise<void>;
 }
 
@@ -52,11 +55,12 @@ interface SettingsRow {
   api_token: string;
   channel_id: string;
   post_status: string;
+  post_suffix: string;
   last_result: string | null;
   last_attempt_at: Date | null;
 }
 
-const COLUMNS = "enabled, base_url, api_token, channel_id, post_status, last_result, last_attempt_at";
+const COLUMNS = "enabled, base_url, api_token, channel_id, post_status, post_suffix, last_result, last_attempt_at";
 
 /** `PostintimeSettingsRepository` over PostgreSQL. */
 export class PgPostintimeSettingsRepository implements PostintimeSettingsRepository {
@@ -72,6 +76,7 @@ export class PgPostintimeSettingsRepository implements PostintimeSettingsReposit
       apiToken: r.api_token,
       channelId: r.channel_id,
       postStatus: POST_STATUSES.find((p) => p === r.post_status) ?? "draft",
+      postSuffix: r.post_suffix,
       lastResult: r.last_result,
       lastAttemptAt: r.last_attempt_at,
     };
@@ -79,11 +84,11 @@ export class PgPostintimeSettingsRepository implements PostintimeSettingsReposit
 
   async save(s: Parameters<PostintimeSettingsRepository["save"]>[0], at: Date): Promise<void> {
     await this.db.query(
-      `INSERT INTO postintime_settings (id, enabled, base_url, api_token, channel_id, post_status, updated_at)
-       VALUES (1, $1, $2, $3, $4, $5, $6)
+      `INSERT INTO postintime_settings (id, enabled, base_url, api_token, channel_id, post_status, post_suffix, updated_at)
+       VALUES (1, $1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (id) DO UPDATE SET enabled = $1, base_url = $2, api_token = $3, channel_id = $4,
-         post_status = $5, updated_at = $6`,
-      [s.enabled, s.baseUrl, s.apiToken, s.channelId, s.postStatus, at],
+         post_status = $5, post_suffix = $6, updated_at = $7`,
+      [s.enabled, s.baseUrl, s.apiToken, s.channelId, s.postStatus, s.postSuffix, at],
     );
   }
 
@@ -96,6 +101,7 @@ export class PgPostintimeSettingsRepository implements PostintimeSettingsReposit
   }
 }
 
+const MAX_SUFFIX = 2000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** `http(s)://host[:port][/path]` without trailing slashes, or null when `text` is not such a URL. */
@@ -122,6 +128,7 @@ export function parseSettingsRequest(body: unknown): PostintimeSettingsInput {
     apiToken: coerceString(o.apiToken) ?? "",
     channelId: coerceString(o.channelId) ?? "",
     postStatus: coerceEnum(o.postStatus, POST_STATUSES) ?? "draft",
+    postSuffix: coerceString(o.postSuffix) ?? "",
   };
 }
 
@@ -131,6 +138,7 @@ export function toSettingsDto(s: PostintimeSettings): PostintimeSettingsDto {
     baseUrl: s.baseUrl,
     channelId: s.channelId,
     postStatus: s.postStatus,
+    postSuffix: s.postSuffix,
     hasToken: s.apiToken !== "",
     lastResult: s.lastResult,
     lastAttemptAt: toIso(s.lastAttemptAt),
@@ -166,9 +174,11 @@ export class PostintimeSettingsService {
     const baseUrl = rawUrl === "" ? "" : normalizeBaseUrl(rawUrl);
     const token = javaTrim(input.apiToken);
     const channelId = javaTrim(input.channelId);
+    const postSuffix = javaTrim(input.postSuffix);
     v.require(baseUrl !== null, "baseUrl", "Enter a full URL such as https://postintime.example (http or https, no query)");
     v.require(fitsMaxLength(rawUrl, 500), "baseUrl", "URL must be at most 500 characters");
     v.require(fitsMaxLength(token, 200), "apiToken", "Token must be at most 200 characters");
+    v.require(fitsMaxLength(input.postSuffix, MAX_SUFFIX), "postSuffix", `Post suffix must be at most ${MAX_SUFFIX} characters`);
     v.require(channelId === "" || matchesFully(channelId, UUID), "channelId", "Channel ID must be a UUID, copy it from GET /api/v1/public/channels");
     v.throwIfAny();
 
@@ -182,8 +192,9 @@ export class PostintimeSettingsService {
         missing.require(channelId !== "", "channelId", "Channel ID is required to turn this on");
         missing.throwIfAny();
       }
-      await settings.save({ enabled: input.enabled, baseUrl: baseUrl as string, apiToken, channelId, postStatus: input.postStatus }, this.clock.now());
-      return toSettingsDto({ ...current, enabled: input.enabled, baseUrl: baseUrl as string, apiToken, channelId, postStatus: input.postStatus });
+      const next = { enabled: input.enabled, baseUrl: baseUrl as string, apiToken, channelId, postStatus: input.postStatus, postSuffix };
+      await settings.save(next, this.clock.now());
+      return toSettingsDto({ ...current, ...next });
     });
   }
 

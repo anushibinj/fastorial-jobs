@@ -176,6 +176,8 @@ export interface PostintimeSettingsDto {
   baseUrl: string;
   channelId: string;
   postStatus: PostStatus;
+  /** Text appended to every post caption (hashtags, footer). May span lines. */
+  postSuffix: string;
   /** Whether an API token is stored. The token itself never leaves the server. */
   hasToken: boolean;
   /** One line about the latest push to PostInTime, or null before the first one. */
