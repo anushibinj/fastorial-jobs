@@ -1,7 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { WORK_MODE_LABEL } from "@/lib/format";
 import type { PreviewMeta } from "@/lib/preview";
+import type { WorkMode } from "@/lib/types";
 import { SITE_NAME } from "@/lib/site";
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -75,6 +77,37 @@ function MapPinIcon({ size, color }: { size: number; color: string }) {
     <svg width={size} height={size} {...ICON_PROPS} stroke={color}>
       <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
       <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+/** Lucide "wifi" (remote), "wifi-lock" (hybrid) and "briefcase-business" (onsite). */
+function WorkModeIcon({ mode, size, color }: { mode: WorkMode; size: number; color: string }) {
+  return (
+    <svg width={size} height={size} {...ICON_PROPS} stroke={color}>
+      {mode === "REMOTE" ? (
+        <>
+          <path d="M12 20h.01" />
+          <path d="M2 8.82a15 15 0 0 1 20 0" />
+          <path d="M5 12.859a10 10 0 0 1 14 0" />
+          <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+        </>
+      ) : mode === "HYBRID" ? (
+        <>
+          <path d="M2 8.82a15 15 0 0 1 20 0" />
+          <path d="M20 16v-2a2 2 0 0 0-4 0v2" />
+          <path d="M5 12.859a10 10 0 0 1 8.436-2.756" />
+          <path d="M8.5 16.429a5 5 0 0 1 1.794-1.13" />
+          <rect x="14" y="16" width="8" height="5" rx="1" />
+        </>
+      ) : (
+        <>
+          <path d="M12 12h.01" />
+          <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+          <path d="M22 13a18.15 18.15 0 0 1-20 0" />
+          <rect width="20" height="14" x="2" y="6" rx="2" />
+        </>
+      )}
     </svg>
   );
 }
@@ -153,6 +186,9 @@ function jobImageTree(m: PreviewMeta, l: (typeof LAYOUTS)[keyof typeof LAYOUTS])
           {m.imageCompany && m.imageLocation ? <div style={{ display: "flex", color: MUTED, padding: "0 4px" }}>•</div> : null}
           {m.imageLocation ? <MapPinIcon size={iconSize} color={WHERE_COLOR} /> : null}
           {m.imageLocation ? <div style={{ display: "flex" }}>{m.imageLocation}</div> : null}
+          {m.imageWorkMode && (m.imageCompany || m.imageLocation) ? <div style={{ display: "flex", color: MUTED, padding: "0 4px" }}>•</div> : null}
+          {m.imageWorkMode ? <WorkModeIcon mode={m.imageWorkMode} size={iconSize} color={WHERE_COLOR} /> : null}
+          {m.imageWorkMode ? <div style={{ display: "flex" }}>{WORK_MODE_LABEL[m.imageWorkMode]}</div> : null}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           <Pill size={l.pill}>{`Experience: ${m.experience}`}</Pill>

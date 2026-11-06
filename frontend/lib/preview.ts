@@ -1,6 +1,6 @@
 import { isClosed } from "@/lib/job-state";
-import { formatExperience, formatPostedAgo, truncate, truncateAtWord } from "@/lib/format";
-import type { JobLike } from "@/lib/types";
+import { WORK_MODE_LABEL, formatExperience, formatPostedAgo, truncate, truncateAtWord } from "@/lib/format";
+import type { JobLike, WorkMode } from "@/lib/types";
 
 const MAX_TAGS = 5;
 const MAX_OG_TITLE = 70;
@@ -25,6 +25,8 @@ export type PreviewMeta = {
   imageTitle: string;
   imageCompany: string;
   imageLocation: string;
+  /** "ONSITE" | "HYBRID" | "REMOTE", or null when the job has no work mode. */
+  imageWorkMode: WorkMode | null;
   imageTags: string[];
 };
 
@@ -62,6 +64,7 @@ export function buildPreviewMeta(job: JobLike, now: Date = new Date()): PreviewM
     imageTitle: truncate(title, 60),
     imageCompany: truncate(company, 30),
     imageLocation: truncate(job.locationCity ?? "", 24),
+    imageWorkMode: job.workMode && job.workMode in WORK_MODE_LABEL ? job.workMode : null,
     imageTags: shown.map((t) => truncate(t, 14)),
   };
 }
