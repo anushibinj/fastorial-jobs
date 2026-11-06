@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/app/logo";
+import { SocialLinks } from "@/components/app/social-links";
 import { SITE_NAME } from "@/lib/site";
 
 export function Header() {
@@ -11,6 +12,7 @@ export function Header() {
             <LogoMark className="size-6" />
             <span>{SITE_NAME}</span>
           </Link>
+          <SocialLinks />
         </div>
       </div>
     </header>
