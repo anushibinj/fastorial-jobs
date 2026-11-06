@@ -16,6 +16,7 @@ import { JobCommandService } from "@/server/jobs/job-command-service";
 import { JobCreationQueue } from "@/server/jobs/job-creation-queue";
 import { JobQueryService } from "@/server/jobs/job-query-service";
 import { PgJobRepository } from "@/server/jobs/job-repository";
+import { PgQueueStore } from "@/server/queue/queue-store";
 import { PostintimeQueue } from "@/server/postintime/postintime-queue";
 import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { PgPostintimeSettingsRepository, PostintimeSettingsService } from "@/server/postintime/settings";
@@ -99,8 +100,10 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     recordPosted: (jobId, postId, at) => jobsUow.write(({ jobs }) => jobs.markPostintimePosted(jobId, at, postId)),
   });
   // Pushes go through a queue so PostInTime only ever receives one post at a time.
-  const postintimeQueue = new PostintimeQueue(postintime, logger, runInBackground);
-  events.subscribe("JobPostCreated", (event) => postintimeQueue.enqueueCreated(event));
+  const queueStore = new PgQueueStore(db);
+  const jobQueries = new JobQueryService(jobsUow, clock, config.jobs);
+  const postintimeQueue = new PostintimeQueue(postintime, (id) => jobQueries.getAdmin(id), queueStore, logger, runInBackground);
+  events.subscribe("JobPostCreated", (event) => postintimeQueue.enqueueCreated(event.job));
   const apiKeys = new ApiKeyService(apiKeysUow, clock);
   const authenticator = new RequestAuthenticator(
     { adminToken: config.adminToken, internalSecret: config.internalSecret },
@@ -113,9 +116,9 @@ export function createServices({ config, db: rawDb, clock = systemClock, logger 
     schema: gate,
     clock,
     logger,
-    jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
+    jobQueries,
     jobCommands,
-    jobCreationQueue: new JobCreationQueue(jobCommands, logger, runInBackground),
+    jobCreationQueue: new JobCreationQueue(jobCommands, queueStore, logger, runInBackground),
     jobCleanup: new JobCleanupService(jobsUow, clock, logger),
     filters: new FilterService(facetsUow),
     tagCatalog: new TagCatalogService(tagRepository),
@@ -139,7 +142,11 @@ const holder = globalThis as typeof globalThis & { __fastorialServices?: Service
 export function getServices(): Services {
   holder.__fastorialServices ??= (() => {
     const config = loadConfig(process.env);
-    return createServices({ config, db: createDatabase(config.database, consoleLogger), runInBackground: runAfterResponse });
+    const services = createServices({ config, db: createDatabase(config.database, consoleLogger), runInBackground: runAfterResponse });
+    // Work stored by an earlier run (or another instance) continues as soon as this instance is up.
+    services.jobCreationQueue.resume();
+    services.postintimeQueue.resume();
+    return services;
   })();
   return holder.__fastorialServices;
 }

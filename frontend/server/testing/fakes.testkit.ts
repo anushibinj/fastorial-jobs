@@ -19,6 +19,7 @@ import { offsetOf, type PageRequest } from "@/server/jobs/paging";
 import type { JobRequest } from "@/server/requests/job-request";
 import type { Clock } from "@/server/shared/clock";
 import type { Logger } from "@/server/shared/logger";
+import { InMemoryQueueStore } from "@/server/queue/memory-queue-store";
 import { PostintimeQueue } from "@/server/postintime/postintime-queue";
 import { PostintimePublisher } from "@/server/postintime/postintime-publisher";
 import { DEFAULT_SETTINGS, PostintimeSettingsService, type PostintimeSettings, type PostintimeSettingsRepository } from "@/server/postintime/settings";
@@ -239,12 +240,14 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     postintimeSettings, async () => ({ bytes: new Uint8Array(), contentType: "image/png" }), logger, undefined, undefined,
     { recordPosted: (jobId, postId, at) => stores.jobs.markPostintimePosted(jobId, at, postId) },
   );
+  const queueStore = new InMemoryQueueStore();
+  const jobQueries = new JobQueryService(jobsUow, clock, config.jobs);
   const services: Services = {
     config, db, clock, logger,
     schema: { ready: async () => undefined },
-    jobQueries: new JobQueryService(jobsUow, clock, config.jobs),
+    jobQueries,
     jobCommands,
-    jobCreationQueue: new JobCreationQueue(jobCommands, logger),
+    jobCreationQueue: new JobCreationQueue(jobCommands, queueStore, logger),
     jobCleanup: new JobCleanupService(jobsUow, clock, logger),
     filters: new FilterService(fakeUnitOfWork({ facets: stores.facets })),
     tagCatalog: new TagCatalogService(stores.tags),
@@ -252,7 +255,7 @@ export function fakeServices(): { services: Services; stores: FakeStores } {
     apiKeys,
     postintimeSettings,
     postintime,
-    postintimeQueue: new PostintimeQueue(postintime, logger),
+    postintimeQueue: new PostintimeQueue(postintime, (id) => jobQueries.getAdmin(id), queueStore, logger),
     authenticator,
     routes: new RouteFactory(authenticator, logger),
   };

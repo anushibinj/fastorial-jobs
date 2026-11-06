@@ -10,6 +10,7 @@ import { PgJobFacetRepository } from "@/server/jobs/filter-service";
 import type { JobRecord } from "@/server/jobs/job-record";
 import { DuplicateApplyUrlError, PgJobRepository } from "@/server/jobs/job-repository";
 import { DEFAULT_SETTINGS, PgPostintimeSettingsRepository } from "@/server/postintime/settings";
+import { PgQueueStore } from "@/server/queue/queue-store";
 import { PgTagRepository } from "@/server/tags/tag-repository";
 import { createDbTestContext, describeWithDatabase, TEST_DB_URL, type DbTestContext } from "@/server/testing/db.testkit";
 import { jobRecord, MemoryLogger } from "@/server/testing/fakes.testkit";
@@ -25,6 +26,30 @@ describeWithDatabase("persistence against PostgreSQL", () => {
   });
   beforeEach(async () => {
     await ctx.reset();
+  });
+
+  describe("PgQueueStore", () => {
+    it("stores in order, claims one at a time, and deletes or fails items", async () => {
+      const store = new PgQueueStore(ctx.db);
+      await store.insert("q", [{ n: 1 }, { n: 2 }]);
+      await store.insert("other", [{ n: 9 }]);
+      const first = await store.claim("q", 60_000);
+      expect(first?.payload).toEqual({ n: 1 });
+      expect(await store.claim("q", 60_000)).toBeNull();
+      await store.complete(first!.id);
+      const second = await store.claim("q", 60_000);
+      expect(second?.payload).toEqual({ n: 2 });
+      await store.fail(second!.id, "boom");
+      expect(await store.claim("q", 60_000)).toBeNull();
+      expect((await store.claim("other", 60_000))?.payload).toEqual({ n: 9 });
+    });
+
+    it("lets another worker take over an item whose lease ran out", async () => {
+      const store = new PgQueueStore(ctx.db);
+      await store.insert("q", ["a"]);
+      const claimed = await store.claim("q", 60_000);
+      expect((await store.claim("q", 0))?.id).toBe(claimed!.id);
+    });
   });
 
   describe("PgDatabase", () => {
