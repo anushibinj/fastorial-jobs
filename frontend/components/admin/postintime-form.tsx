@@ -61,7 +61,7 @@ export function PostintimeForm({ settings }: { settings: PostintimeSettingsDto }
         Push new jobs to PostInTime
       </label>
 
-      <Field id="baseUrl" label="Server URL" error={fe.baseUrl} hint="Where the PostInTime API runs, e.g. https://api.postintime.example">
+      <Field id="baseUrl" label="Server URL" error={fe.baseUrl} hint="Where the PostInTime API (the backend, not the web app) runs, e.g. https://api.postintime.example">
         <Input
           id="baseUrl" name="baseUrl" type="url" inputMode="url" autoComplete="off" placeholder="https://api.postintime.example"
           value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} maxLength={500} className="h-11" aria-invalid={!!fe.baseUrl}

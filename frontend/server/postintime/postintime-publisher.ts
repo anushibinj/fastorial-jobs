@@ -141,7 +141,11 @@ export class PostintimePublisher {
     });
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      throw new Error(`PostInTime answered HTTP ${response.status}${body ? `: ${snippet(body)}` : ""}`);
+      const looksLikeWebApp = (response.status === 404 || response.status === 405) && /<html/i.test(body);
+      const hint = looksLikeWebApp
+        ? " (this looks like the PostInTime web app, not its API: set the Server URL to the host that runs the PostInTime backend)"
+        : "";
+      throw new Error(`PostInTime answered HTTP ${response.status}${body ? `: ${snippet(body)}` : ""}${hint}`);
     }
     const created = (await response.json().catch(() => null)) as { id?: unknown } | null;
     const postId = typeof created?.id === "string" ? created.id : null;
