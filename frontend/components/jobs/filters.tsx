@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { track } from "@/lib/analytics";
 import { EMPTY_FILTERS, toSearchParams, type FilterState } from "@/lib/filters";
-import { WORK_MODE_LABEL } from "@/lib/format";
+import { WorkModeLabel } from "@/components/jobs/work-mode";
 import type { FiltersResponse, WorkMode } from "@/lib/types";
 
 const ANY = "__any__";
@@ -216,7 +216,7 @@ function FilterFields({
               .filter((m) => modes.length === 0 || modes.some((x) => x.workMode === m) || value.mode === m)
               .map((m) => (
                 <SelectItem key={m} value={m}>
-                  {WORK_MODE_LABEL[m]}
+                  <WorkModeLabel mode={m} />
                 </SelectItem>
               ))}
           </SelectContent>
@@ -310,10 +310,10 @@ function ExperienceInput({ id, value, onCommit }: { id: string; value: string; o
 }
 
 function ActiveFilters({ value, facets, onChange }: { value: FilterState; facets: Facets; onChange: (f: FilterState) => void }) {
-  const chips: { key: string; label: string; remove: () => void }[] = [];
+  const chips: { key: string; label: React.ReactNode; remove: () => void }[] = [];
   if (value.q) chips.push({ key: "q", label: `“${value.q}”`, remove: () => onChange({ ...value, q: "" }) });
   if (value.location) chips.push({ key: "location", label: value.location, remove: () => onChange({ ...value, location: "" }) });
-  if (value.mode) chips.push({ key: "mode", label: WORK_MODE_LABEL[value.mode as WorkMode], remove: () => onChange({ ...value, mode: "" }) });
+  if (value.mode) chips.push({ key: "mode", label: <WorkModeLabel mode={value.mode as WorkMode} />, remove: () => onChange({ ...value, mode: "" }) });
   if (value.exp !== "") chips.push({ key: "exp", label: `${value.exp} yrs`, remove: () => onChange({ ...value, exp: "" }) });
   const names = new Map((facets?.tags ?? []).map((t) => [t.slug, t.name]));
   for (const slug of value.tags) {
